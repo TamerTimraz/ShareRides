@@ -19,7 +19,6 @@ def auth_receiver(request):
     """
     Google calls this URL after the user has signed in with their Google account.
     """
-    print('Inside')
     token = request.POST['credential']
 
     try:
