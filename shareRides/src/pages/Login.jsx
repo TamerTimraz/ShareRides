@@ -3,7 +3,7 @@ import React from "react";
 const BACKGROUND_URL =
   "https://static.vecteezy.com/system/resources/previews/012/996/585/non_2x/cars-on-road-tropical-palms-cartoon-illustration-free-vector.jpg";
 
-const Login = () => {
+function Login() {
   return (
     <div style={styles.pageWrapper}>
       <div style={styles.loginBox}>
@@ -24,7 +24,7 @@ const Login = () => {
       </div>
     </div>
   );
-};
+}
 
 const styles = {
   pageWrapper: {
