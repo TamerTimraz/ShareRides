@@ -7,12 +7,13 @@ from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
 from google.oauth2 import id_token
 from google.auth.transport import requests
+from django.conf import settings
 
 # Create your views here.
 
 @csrf_exempt
 def sign_in(request):
-    return render(request, 'sign_in.html')
+    return render(request, 'sign_in.html', {"google_client_id": settings.GOOGLE_OAUTH_CLIENT_ID})
 
 @csrf_exempt
 def auth_receiver(request):
