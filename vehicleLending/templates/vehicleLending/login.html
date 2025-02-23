@@ -54,7 +54,6 @@
                                     data-client_id="{{ google_client_id }}"
                                     data-context="signin"
                                     data-ux_mode="popup"
-                                    data-login_uri="http://localhost:8000/auth-receiver"
                                     data-auto_prompt="false"
                                     data-itp_support="true">
                                 </div>
@@ -66,6 +65,16 @@
                                     data-shape="rectangular"
                                     data-logo_alignment="left">
                                 </div>
+
+                                <script>
+                                    // Determine the login URI dynamically
+                                    const loginUri = window.location.hostname === "localhost"
+                                      ? "http://localhost:8000/auth-receiver"
+                                      : "https://vehicle-lending-app-a6db4618da8a.herokuapp.com/auth-receiver";
+                                  
+                                    // Set the login URI dynamically
+                                    document.getElementById("g_id_onload").setAttribute("data-login_uri", loginUri);
+                                  </script>
                                 
                                 <!-- Guest Sign In Button -->
                                 <button class="btn btn-primary">
