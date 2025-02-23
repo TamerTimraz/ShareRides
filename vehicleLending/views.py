@@ -11,12 +11,9 @@ from django.conf import settings
 
 # Create your views here.
 
-def login_view(request):
-    return render(request, 'vehicleLending/login.html')  
-
 @csrf_exempt
-def sign_in(request):
-    return render(request, 'sign_in.html', {"google_client_id": settings.GOOGLE_OAUTH_CLIENT_ID})
+def login_view(request):
+    return render(request, 'vehicleLending/login.html', {"google_client_id": settings.GOOGLE_OAUTH_CLIENT_ID})  
 
 @csrf_exempt
 def auth_receiver(request):
@@ -36,8 +33,11 @@ def auth_receiver(request):
     # You could also authenticate the user here using the details from Google (https://docs.djangoproject.com/en/4.2/topics/auth/default/#how-to-log-a-user-in)
     request.session['user_data'] = user_data
 
-    return redirect('sign_in')
+    return redirect('vehicleLending:home_page')
+
+def home_page(request):
+    return render(request, 'vehicleLending/homepage.html')
 
 def sign_out(request):
     del request.session['user_data']
-    return redirect('sign_in')
+    return redirect('vehicleLending:login')
