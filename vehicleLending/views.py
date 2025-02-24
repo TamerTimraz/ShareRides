@@ -8,6 +8,8 @@ from django.views.decorators.csrf import csrf_exempt
 from google.oauth2 import id_token
 from google.auth.transport import requests
 from django.conf import settings
+from .models import User
+from django.contrib.auth import login, logout
 
 # Create your views here.
 
@@ -28,16 +30,42 @@ def auth_receiver(request):
         )
     except ValueError:
         return HttpResponse(status=403)
+    
+    email = user_data.get('email')
+    name = user_data.get('given_name')
+
+    # checks if user exists, otherwise creates user
+    #user, created = User.objects.get_or_create(email=email, defaults={'name': name})
+
+    user = User.objects.filter(email=email).first()
+    if not user:
+        user = User.objects.create_user(email=email, name=name, password=None)
+
+    login(request, user) # sets session info
+
+    if user.user_type == 'librarian':
+        return redirect('vehicleLending:librarian_dashboard')
+    else:
+        return redirect('vehicleLending:patron_dashboard')
+
 
     # In a real app, I'd also save any new user here to the database.
     # You could also authenticate the user here using the details from Google (https://docs.djangoproject.com/en/4.2/topics/auth/default/#how-to-log-a-user-in)
-    request.session['user_data'] = user_data
+    #request.session['user_data'] = user_data
 
-    return redirect('vehicleLending:home_page')
+    #return redirect('vehicleLending:home_page')
 
 def home_page(request):
     return render(request, 'vehicleLending/homepage.html')
 
+def patron_dashboard(request):
+    user = request.user
+    return render(request, 'vehicleLending/patron_dashboard.html', {'user': user})
+
+def librarian_dashboard(request):
+    user = request.user
+    return render(request, 'vehicleLending/librarian_dashboard.html', {'user': user})
+
 def sign_out(request):
-    del request.session['user_data']
+    logout(request)
     return redirect('vehicleLending:login')
