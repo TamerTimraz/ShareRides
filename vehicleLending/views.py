@@ -37,9 +37,7 @@ def auth_receiver(request):
     # checks if user exists, otherwise creates user
     #user, created = User.objects.get_or_create(email=email, defaults={'name': name})
 
-    user = User.objects.filter(email=email).first()
-    if not user:
-        user = User.objects.create_user(email=email, name=name, password=None)
+    user, created = User.objects.get_or_create(email=email, defaults={'name': name})
 
     login(request, user) # sets session info
 
@@ -47,13 +45,6 @@ def auth_receiver(request):
         return redirect('vehicleLending:librarian_dashboard')
     else:
         return redirect('vehicleLending:patron_dashboard')
-
-
-    # In a real app, I'd also save any new user here to the database.
-    # You could also authenticate the user here using the details from Google (https://docs.djangoproject.com/en/4.2/topics/auth/default/#how-to-log-a-user-in)
-    #request.session['user_data'] = user_data
-
-    #return redirect('vehicleLending:home_page')
 
 def home_page(request):
     return render(request, 'vehicleLending/homepage.html')
