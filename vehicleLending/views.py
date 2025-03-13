@@ -11,6 +11,9 @@ from django.conf import settings
 from .models import User
 from django.contrib.auth import login, logout
 
+from .forms import ProfilePictureForm
+from django.contrib.auth.decorators import login_required
+
 # Create your views here.
 
 @csrf_exempt
@@ -60,3 +63,15 @@ def librarian_dashboard(request):
 def sign_out(request):
     logout(request)
     return redirect('vehicleLending:login')
+
+@login_required
+def profile_view(request):
+    user = request.user
+    if request.method == 'POST':
+        form = ProfilePictureForm(request.POST, request.FILES, instance=user)
+        if form.is_valid():
+            form.save()
+            return redirect('vehicleLending:profile')
+    else:
+        form = ProfilePictureForm(instance=user)
+    return render(request, 'vehicleLending/profile.html', {'form': form, 'user': user})

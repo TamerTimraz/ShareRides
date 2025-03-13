@@ -1,0 +1,18 @@
+<h2>Profile Page</h2>
+
+{% if user.profile_pic %}
+    <img src="{{ user.profile_pic.url }}" alt="Profile Picture" width="150">
+{% else %}
+    <p>No profile picture uploaded</p>
+{% endif %}
+
+<div>
+    <p>Hi {{ user.name }}</p>
+    <p>Your email is {{ user.email }}</p>
+</div>
+
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Upload New Picture</button>
+</form>
