@@ -40,7 +40,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-#c0cu$oa(0$x&puo2&xjypab86-rdqm%it7sz15mn_i-aq=h=-'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv("DJANGO_DEBUG", "True") == "True"
 
 ALLOWED_HOSTS = ['localhost','127.0.0.1','vehicle-lending-app-a6db4618da8a.herokuapp.com']
 
