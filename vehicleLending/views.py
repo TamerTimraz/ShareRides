@@ -80,9 +80,8 @@ def add_vehicle(request):
             #this is just for working without needing to sign in.
             else:
                 vehicle.lender, created = User.objects.get_or_create(
-                    email='default@example.com',
-                    defaults={'name': 'Default user'},
-                    name='default user man'
+                    email='default2@example.com',
+                    defaults={'name': 'Default user'}
                 )
             vehicle.save()
             return redirect('vehicleLending/librarian_dashboard.html')
