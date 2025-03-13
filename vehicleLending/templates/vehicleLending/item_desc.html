@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vehicle Description</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+
+    </style>
+</head>
+<body>
+    <div class="container mt-4 mx-5 row">
+        <div class="card col-9 ms-5 px-0">
+            <div class="card-header">
+                <h2>{{ vehicle.make }} {{ vehicle.model }} ({{ vehicle.year }})</h2>
+            </div>
+            <div class="card-body">
+                <!-- TODO: Implement Pictures of vehicles. Would be cool if we made it a carousel type thing too. -->
+                <img src="https://upload.wikimedia.org/wikipedia/commons/a/a4/2019_Toyota_Corolla_Icon_Tech_VVT-i_Hybrid_1.8.jpg" class="card-img-top" alt="Placeholder image of a car">
+
+                <!-- could potentially make lender pages and this could be a link to the lender's page -->
+                <p class="mt-3 mb-0"><strong>Lender:</strong> {{ vehicle.lender.name }}</p>
+
+                <p class="mt-1 mb-2">
+                    <strong>Available:</strong>
+                    {% if vehicle.is_available %}
+                        <span class="badge bg-success">✅ Yes</span>
+                    {% else %}
+                        <span class="badge bg-danger">❌ No</span>
+                    {% endif %}
+                </p>
+                {% if vehicle.details %}
+                    <h5 class="mt-2">Details:</h5>
+                    <ul class="list-group">
+                        {% for key, value in vehicle.details.items %}
+                            <li class="list-group-item">
+                                <strong>{{ key|capfirst }}:</strong> {{ value }}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="text-muted">No additional details available.</p>
+                {% endif %}
+                
+                
+            </div>
+            <div class="card-footer">
+                <a href="{% url 'vehicleLending:vehicle_list' %}" class="btn btn-secondary">⬅️ Back to List</a>
+                <a href="#" class="mx-3 btn btn-secondary">Borrow</a>
+            </div>
+        </div>
+        <div class="mx-0 col-2 ">
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a href="#" class="nav-link active fs-5"> All Vehicles </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link active fs-5"> Cars </a>
+                </li>
+                <li>
+                    <a href="#" class="nav-link active fs-5"> Bikes </a>
+                </li>
+                <li>
+                    <a href="#" class="nav-link active fs-5"> Trucks </a>
+                </li>
+                <li>
+                    <a href="#" class="nav-link active fs-5"> Vans </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

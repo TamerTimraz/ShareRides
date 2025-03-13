@@ -3,12 +3,12 @@ from django.shortcuts import render
 import os
 
 from django.http import HttpResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from google.oauth2 import id_token
 from google.auth.transport import requests
 from django.conf import settings
-from .models import User
+from .models import User, Vehicle
 from django.contrib.auth import login, logout
 
 # Create your views here.
@@ -60,3 +60,12 @@ def librarian_dashboard(request):
 def sign_out(request):
     logout(request)
     return redirect('vehicleLending:login')
+
+def item_desc(request,vehicle_id):
+    vehicle = get_object_or_404(Vehicle, id=vehicle_id)
+    user = (request.user)
+    return render(request,'vehicleLending/item_desc.html', {'vehicle': vehicle})
+
+def vehicle_list(request):
+    vehicles = Vehicle.objects.all()
+    return render(request, 'vehicle_list.html', {'vehicles', vehicles})
