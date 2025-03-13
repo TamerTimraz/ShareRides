@@ -1,10 +1,8 @@
 <div>
     <h1>Patron Page</h1>
-    <p>Hi {{ user.name }}</p>
-    <p>Your email is {{ user.email }}</p>
-    {% if user.profile_pic %}
-        <p>Profile Picture: </p>
-        <img src="{{ user.profile_pic.url }}" alt="Profile Picture">
-    {% endif %}
-    <p>Click here to <a href="{% url 'vehicleLending:sign_out' %}">Sign out</a></p>
+    <a href="{% url 'vehicleLending:sign_out' %}">Sign out</a>
+</div>
+
+<div>
+    <a href="{% url 'vehicleLending:profile' %}">My Account</a>
 </div>
