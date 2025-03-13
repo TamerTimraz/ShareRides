@@ -9,7 +9,9 @@ from google.oauth2 import id_token
 from google.auth.transport import requests
 from django.conf import settings
 from .models import User, Vehicle
-from django.contrib.auth import login, logout
+from django.contrib.auth import login, logout, get_user_model
+from .forms import VehicleForm
+from django.contrib.auth.decorators import login_required
 
 # Create your views here.
 
@@ -66,6 +68,26 @@ def item_desc(request,vehicle_id):
     user = (request.user)
     return render(request,'vehicleLending/item_desc.html', {'vehicle': vehicle})
 
-def vehicle_list(request):
-    vehicles = Vehicle.objects.all()
-    return render(request, 'vehicle_list.html', {'vehicles', vehicles})
+#@login_required
+def add_vehicle(request):
+    if request.method == 'POST':
+        form = VehicleForm(request.POST)
+        if form.is_valid():
+            vehicle = form.save(commit=False)
+            if request.user.is_authenticated:
+                vehicle.lender = request.user
+
+            #this is just for working without needing to sign in.
+            else:
+                vehicle.lender, created = User.objects.get_or_create(
+                    email='default@example.com',
+                    defaults={'name': 'Default user'},
+                    name='default user man'
+                )
+            vehicle.save()
+            return redirect('vehicleLending/librarian_dashboard.html')
+        else:
+            print(form.errors)
+    else:
+        form = VehicleForm()
+    return render(request,'vehicleLending/add_vehicle.html',{'form':form})
