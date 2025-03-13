@@ -14,7 +14,7 @@ class User(AbstractUser):
     name = models.CharField(max_length=255)
     user_type = models.CharField(max_length=10, default='patron')
     date_joined = models.DateTimeField(default=now)
-    profile_pic = models.ImageField(upload_to=user_directory_path, blank=True)
+    profile_pic = models.ImageField(upload_to=user_directory_path, blank=True, null=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['name']
