@@ -5,7 +5,7 @@ from django.utils.timezone import now
 # Create your models here.
 
 def user_directory_path(instance, filename):
-    return f'profile_pictures/{instance.name}/{filename}'
+    return f'profile_pictures/{instance.email}/{filename}'
 
 class User(AbstractUser):
     username = None
