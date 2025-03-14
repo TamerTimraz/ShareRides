@@ -3,15 +3,14 @@ from django.shortcuts import render
 import os
 
 from django.http import HttpResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from google.oauth2 import id_token
 from google.auth.transport import requests
 from django.conf import settings
-from .models import User
-from django.contrib.auth import login, logout
-
-from .forms import ProfilePictureForm
+from .models import User, Vehicle
+from django.contrib.auth import login, logout, get_user_model
+from .forms import VehicleForm, ProfilePictureForm
 from django.contrib.auth.decorators import login_required
 
 # Create your views here.
@@ -63,6 +62,34 @@ def librarian_dashboard(request):
 def sign_out(request):
     logout(request)
     return redirect('vehicleLending:login')
+
+def item_desc(request,vehicle_id):
+    vehicle = get_object_or_404(Vehicle, id=vehicle_id)
+    user = (request.user)
+    return render(request,'vehicleLending/item_desc.html', {'vehicle': vehicle})
+
+#@login_required
+def add_vehicle(request):
+    if request.method == 'POST':
+        form = VehicleForm(request.POST)
+        if form.is_valid():
+            vehicle = form.save(commit=False)
+            if request.user.is_authenticated:
+                vehicle.lender = request.user
+
+            #this is just for working without needing to sign in.
+            else:
+                vehicle.lender, created = User.objects.get_or_create(
+                    email='default2@example.com',
+                    defaults={'name': 'Default user'}
+                )
+            vehicle.save()
+            return redirect('vehicleLending/librarian_dashboard.html')
+        else:
+            print(form.errors)
+    else:
+        form = VehicleForm()
+    return render(request,'vehicleLending/add_vehicle.html',{'form':form})
 
 @login_required
 def profile_view(request):
