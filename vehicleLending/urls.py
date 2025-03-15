@@ -10,4 +10,6 @@ urlpatterns = [
     path('sign_out', views.sign_out, name='sign_out'),
     path('auth-receiver', views.auth_receiver, name='auth_receiver'),
     path('home', views.select_collection, name='home'),
+    path('vehicle/<int:vehicle_id>', views.item_desc, name='details'),
+    path('add-vehicle', views.add_vehicle, name='add_vehicle')
 ]
