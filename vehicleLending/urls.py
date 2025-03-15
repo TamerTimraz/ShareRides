@@ -9,5 +9,5 @@ urlpatterns = [
     path('dashboard/librarian', views.librarian_dashboard, name='librarian_dashboard'),
     path('sign_out', views.sign_out, name='sign_out'),
     path('auth-receiver', views.auth_receiver, name='auth_receiver'),
-    path('home', views.select_collection, name='select_collection'),
+    path('home', views.select_collection, name='home'),
 ]
