@@ -8,6 +8,9 @@ from django.utils.timezone import now
 def user_directory_path(instance, filename):
     return f'profile_pictures/{instance.email}/{filename}'
 
+def vehicle_directory_path(instance, filename):
+    return f'vehicles/{instance.lender.email}/{filename}'
+
 class User(AbstractUser):
     username = None
     password = models.CharField(max_length=255, default="defaultpassword")
@@ -42,4 +45,4 @@ class Vehicle(models.Model):
     year = models.CharField(max_length=255, default='unknown')
     details = models.JSONField(blank=True,null=True)
     is_available = models.BooleanField(default=True)
-    
+    image = models.ImageField(upload_to=vehicle_directory_path, blank=True, null=True)
