@@ -20,7 +20,11 @@
             </div>
             <div class="card-body">
                 <!-- TODO: Implement Pictures of vehicles. Would be cool if we made it a carousel type thing too. -->
-                <img src="https://upload.wikimedia.org/wikipedia/commons/a/a4/2019_Toyota_Corolla_Icon_Tech_VVT-i_Hybrid_1.8.jpg" class="card-img-top" alt="Placeholder image of a car">
+                {% if vehicle.image %}
+                    <img src="{{ vehicle.image.url }}" class="card-img-top" alt="Car Image">
+                {% else %}
+                    <p>Image Unavailable</p>
+                {% endif %}
 
                 <!-- could potentially make lender pages and this could be a link to the lender's page -->
                 <p class="mt-3 mb-0"><strong>Lender:</strong> {{ vehicle.lender.name }}</p>
