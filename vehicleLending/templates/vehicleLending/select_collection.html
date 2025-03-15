@@ -1,0 +1,68 @@
+{% extends 'vehicleLending/base.html' %}
+{% block content %}
+
+<!-- Header Section -->
+<div class="container mt-4">
+    <h2 class="text-start fw-bold">Public Collections</h2>
+    <hr class="thick-line mb-4">
+</div>
+
+<style>
+    .thick-line {
+        border: 4px solid black; /* Makes the line thicker */
+        width: 100%; /* Full width */
+    }
+    .product-card {
+            transition: transform 0.2s;
+    }
+    .product-card:hover {
+        transform: scale(1.05);
+    }
+    .price {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #d9534f;
+    }
+</style>
+
+<div class="container mt-4">
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+        
+        <!-- Product Card -->
+        <div class="col">
+            <div class="card product-card">
+                <img src="https://static.vecteezy.com/system/resources/previews/003/694/243/non_2x/car-icon-in-flat-style-simple-traffic-icon-free-vector.jpg" class="card-img-top" alt="Product">
+                <div class="card-body">
+                    <h5 class="card-title">Product Name</h5>
+                    <p class="card-text">Brief description of the product.</p>
+                    <button class="btn btn-primary w-100">Explore This</button>
+                </div>
+            </div>
+        </div>        
+    </div>
+</div>
+
+
+<div class="container mt-4">
+    <h2 class="text-start fw-bold">Private Collections</h2>
+    <hr class="thick-line mb-4">
+</div>
+
+<div class="container mt-4">
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+        
+        <!-- Product Card -->
+        <div class="col">
+            <div class="card product-card">
+                <img src="https://static.vecteezy.com/system/resources/previews/003/694/243/non_2x/car-icon-in-flat-style-simple-traffic-icon-free-vector.jpg" class="card-img-top" alt="Product">
+                <div class="card-body">
+                    <h5 class="card-title">Product Name</h5>
+                    <p class="card-text">Brief description of the product.</p>
+                    <button class="btn btn-primary w-100">Explore This</button>
+                </div>
+            </div>
+        </div>        
+    </div>
+</div>
+
+{% endblock %}

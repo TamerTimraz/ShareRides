@@ -60,3 +60,6 @@ def librarian_dashboard(request):
 def sign_out(request):
     logout(request)
     return redirect('vehicleLending:login')
+
+def select_collection(request):
+    return render(request, 'vehicleLending/select_collection.html')
