@@ -68,23 +68,16 @@ def item_desc(request,vehicle_id):
     user = (request.user)
     return render(request,'vehicleLending/item_desc.html', {'vehicle': vehicle})
 
-#@login_required
+@login_required
 def add_vehicle(request):
+    # add code to check if user is a librarian (only librarians can add vehicles)
     if request.method == 'POST':
-        form = VehicleForm(request.POST)
+        form = VehicleForm(request.POST, request.FILES)
         if form.is_valid():
             vehicle = form.save(commit=False)
-            if request.user.is_authenticated:
-                vehicle.lender = request.user
-
-            #this is just for working without needing to sign in.
-            else:
-                vehicle.lender, created = User.objects.get_or_create(
-                    email='default2@example.com',
-                    defaults={'name': 'Default user'}
-                )
+            vehicle.lender = request.user
             vehicle.save()
-            return redirect('vehicleLending/librarian_dashboard.html')
+            return redirect('vehicleLending:librarian_dashboard')
         else:
             print(form.errors)
     else:
