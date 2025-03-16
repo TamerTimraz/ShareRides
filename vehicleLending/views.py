@@ -97,3 +97,20 @@ def add_vehicle(request):
     else:
         form = VehicleForm()
     return render(request,'vehicleLending/add_vehicle.html',{'form':form})
+
+def about(request):
+    path = os.path.join(settings.BASE_DIR, 'vehicleLending', 'static', 'about', 'summary.txt')
+    with open(path, 'r') as file:
+        summary = file.read()
+    quote = "ShareRides is transforming how we think about car sharing, bringing convenience and community together."
+    policies = [
+        "Insurance requirements",
+        "Vehicle eligibility",
+        "Vehicle maintenance",
+        "Cleanliness",
+        "Driver background checks",
+        "Refueling",
+    ]
+
+    context = {'summary': summary, 'quote': quote, 'policies': policies}
+    return render(request, 'vehicleLending/about.html', context)
