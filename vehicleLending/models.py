@@ -3,7 +3,6 @@ from django.contrib.auth.models import AbstractUser
 from django.contrib.postgres.fields import JSONField
 from django.utils.timezone import now
 
-# Create your models here.
 
 class User(AbstractUser):
     USER_TYPES = [('patron','Patron'), ('librarian','Librarian')]
@@ -50,7 +49,9 @@ class Collection(models.Model):
     description = models.TextField()
     vehicles = models.ManyToManyField(Vehicle, related_name='collections', blank=True)
     image = models.URLField(blank=True, null=True, default="https://media.istockphoto.com/id/1055079680/vector/black-linear-photo-camera-like-no-image-available.jpg?s=612x612&w=0&k=20&c=P1DebpeMIAtXj_ZbVsKVvg-duuL0v9DlrOZUvPG6UJk=")
+    users_with_access = models.ManyToManyField(User, related_name='private_collections', blank=True)
+    private_collection = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.name
+        return f"{self.name} ({'private' if self.private_collection else 'public'})"
     

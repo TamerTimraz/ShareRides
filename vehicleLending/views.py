@@ -48,21 +48,20 @@ def auth_receiver(request):
 def home_page(request):
     return render(request, 'vehicleLending/homepage.html')
 
-def patron_dashboard(request):
-    user = request.user
-    return render(request, 'vehicleLending/patron_dashboard.html', {'user': user})
-
-def librarian_dashboard(request):
-    user = request.user
-    return render(request, 'vehicleLending/librarian_dashboard.html', {'user': user})
-
 def sign_out(request):
     logout(request)
     return redirect('vehicleLending:login')
 
 def select_collection(request):
-    collections = Collection.objects.all()
-    return render(request, 'vehicleLending/select_collection.html', {'collections': collections})
+    public_collections = Collection.objects.filter(private_collection=False)
+
+    if request.user.is_authenticated and request.user.user_type == 'librarian':
+        private_collections = Collection.objects.filter(private_collection=True)
+    elif request.user.is_authenticated and request.user.user_type == 'patron':
+        private_collections = Collection.objects.filter(users_with_access=request.user, private_collection=True)
+    else: # guest user
+        private_collections = []
+    return render(request, 'vehicleLending/select_collection.html', {'public_collections': public_collections, 'private_collections': private_collections})
 
 def item_desc(request,vehicle_id):
     vehicle = get_object_or_404(Vehicle, id=vehicle_id)
