@@ -48,9 +48,6 @@ def auth_receiver(request):
     else:
         return redirect('vehicleLending:patron_dashboard')
 
-def home_page(request):
-    return render(request, 'vehicleLending/homepage.html')
-
 def patron_dashboard(request):
     user = request.user
     return render(request, 'vehicleLending/patron_dashboard.html', {'user': user})
