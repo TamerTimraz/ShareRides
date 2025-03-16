@@ -6,11 +6,13 @@ from django.utils.timezone import now
 # Create your models here.
 
 class User(AbstractUser):
+    USER_TYPES = [('patron','Patron'), ('librarian','Librarian')]
+
     username = None
     password = models.CharField(max_length=255, default="defaultpassword")
     email = models.EmailField(unique=True)
     name = models.CharField(max_length=255)
-    user_type = models.CharField(max_length=10, default='patron')
+    user_type = models.CharField(max_length=10, choices=USER_TYPES, default='patron')
     date_joined = models.DateTimeField(default=now)
     #profile_pic = models.ImageField(upload_to='profile_pics/', null=True)
 
@@ -18,7 +20,7 @@ class User(AbstractUser):
     REQUIRED_FIELDS = ['name']
 
     def __str__(self):
-        return self.email
+        return f"{self.name} ({self.email}), {self.user_type.upper()}"
     
 class Vehicle(models.Model):
     VEHICLE_TYPES = [

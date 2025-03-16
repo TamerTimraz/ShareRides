@@ -1,6 +1,19 @@
 {% extends 'vehicleLending/base.html' %}
 {% block content %}
 
+
+{% if user.user_type == 'librarian' %}
+<!-- Header Section -->
+<div class="container mt-4">
+    <h2 class="text-start fw-bold">Librarian Actions</h2>
+    <hr class="thick-line mb-4">
+
+    <a href=# class="btn btn-primary">
+        Create a Collection
+    </a> 
+</div>
+{% endif %}
+
 <!-- Header Section -->
 <div class="container mt-4">
     <h2 class="text-start fw-bold">Public Collections</h2>
