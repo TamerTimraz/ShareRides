@@ -1,9 +1,8 @@
 {% extends 'vehicleLending/base.html' %}
 {% block content %}
 
-
+<!-- Librarian Actions -->
 {% if user.user_type == 'librarian' %}
-<!-- Header Section -->
 <div class="container mt-4">
     <h2 class="text-start fw-bold">Librarian Actions</h2>
     <hr class="thick-line mb-4">
@@ -18,7 +17,7 @@
 </div>
 {% endif %}
 
-<!-- Header Section -->
+<!-- Header -->
 <div class="container mt-4">
     <h2 class="text-start fw-bold">Public Collections</h2>
     <hr class="thick-line mb-4">
@@ -45,10 +44,11 @@
     }
 </style>
 
+<!-- Public Collection Tiles-->
 <div class="container mt-4">
     <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
     
-        <!-- Collection Card -->
+        <!-- Collection Tile -->
         {% for collection in public_collections %}
         <div class="col">
             <div class="card h-100">
@@ -65,15 +65,18 @@
 </div>
 
 
+<!-- Header -->
 <div class="container mt-4">
     <h2 class="text-start fw-bold">Private Collections</h2>
     <hr class="thick-line mb-4">
 </div>
 
+
+<!-- Private Collection Tiles-->
 <div class="container mt-4">
     <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
     
-        <!-- Collection Card -->
+        <!-- Collection Tile -->
         {% for collection in private_collections %}
         <div class="col">
             <div class="card h-100">
