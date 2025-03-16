@@ -97,7 +97,7 @@ def profile_view(request):
 def delete_profile_picture(request):
     user = request.user
     if user.profile_pic:
-        user.profile_pic.delete(save=False) # deletes from S3
-        user.profile_pic = None # clears DB reference
+        user.profile_pic.delete(save=False)  # deletes from S3
+        user.profile_pic = None
         user.save()
     return redirect('vehicleLending:profile')
