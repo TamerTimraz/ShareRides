@@ -43,10 +43,7 @@ def auth_receiver(request):
 
     login(request, user) # sets session info
 
-    if user.user_type == 'librarian':
-        return redirect('vehicleLending:librarian_dashboard')
-    else:
-        return redirect('vehicleLending:patron_dashboard')
+    return redirect('vehicleLending:home')
 
 def home_page(request):
     return render(request, 'vehicleLending/homepage.html')
