@@ -5,6 +5,9 @@ class ProfilePictureForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ['profile_pic']
+        widgets = {
+            'profile_pic': forms.FileInput()
+        }
 
 class VehicleForm(forms.ModelForm):
     class Meta:

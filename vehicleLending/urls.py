@@ -10,6 +10,7 @@ urlpatterns = [
     path('sign-out', views.sign_out, name='sign_out'),
     path('auth-receiver', views.auth_receiver, name='auth_receiver'),
     path('profile', views.profile_view, name='profile'),
+    path('profile/delete-profile-pic', views.delete_profile_picture, name="delete_profile_pic"),
     path('vehicle/<int:vehicle_id>', views.item_desc, name='details'),
     path('add-vehicle', views.add_vehicle, name='add_vehicle')
 ]

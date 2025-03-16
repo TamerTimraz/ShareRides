@@ -23,6 +23,22 @@ class User(AbstractUser):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['name']
 
+    def save(self, *args, **kwargs):
+        # check if updating existing user with new profile pic
+        if self.pk:
+            existing_user = User.objects.filter(pk=self.pk).first()
+            if existing_user and existing_user.profile_pic and self.profile_pic != existing_user.profile_pic:
+                existing_user.profile_pic.delete(save=False) # delete old profile pic from S3
+
+        super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        # delete profile pic from S3 when user is deleted
+        if self.profile_pic:
+            self.profile_pic.delete(save=False)
+        super().delete(*args, **kwargs)
+
+
     def __str__(self):
         return self.email
     

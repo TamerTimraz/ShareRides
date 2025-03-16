@@ -95,3 +95,12 @@ def profile_view(request):
     else:
         form = ProfilePictureForm(instance=user)
     return render(request, 'vehicleLending/profile.html', {'form': form, 'user': user})
+
+@login_required
+def delete_profile_picture(request):
+    user = request.user
+    if user.profile_pic:
+        user.profile_pic.delete(save=False) # deletes from S3
+        user.profile_pic = None # clears DB reference
+        user.save()
+    return redirect('vehicleLending:profile')
