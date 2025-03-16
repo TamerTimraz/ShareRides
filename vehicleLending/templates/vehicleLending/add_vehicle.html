@@ -8,10 +8,13 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+    {% extends "vehicleLending/base.html" %}
     <style>
 
     </style>
 </head>
+{% block content %}
 <body>
     <div class="container mt-4">
         <h2>Add a New Vehicle</h2>
@@ -62,4 +65,5 @@
         </form>
     </div>
 </body>
+{% endblock %}
 </html>

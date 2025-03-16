@@ -8,6 +8,7 @@ from django.views.decorators.csrf import csrf_exempt
 from google.oauth2 import id_token
 from google.auth.transport import requests
 from django.conf import settings
+from django.urls import reverse;
 from .models import *
 from django.contrib.auth import login, logout, get_user_model
 from .forms import VehicleForm
@@ -84,7 +85,7 @@ def add_vehicle(request):
                     defaults={'name': 'Default user'}
                 )
             vehicle.save()
-            return redirect('vehicleLending/librarian_dashboard.html')
+            return redirect(reverse('vehicleLending:details',args=[vehicle.id]))
         else:
             print(form.errors)
     else:
