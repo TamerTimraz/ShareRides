@@ -64,6 +64,12 @@ def select_collection(request):
         private_collections = []
     return render(request, 'vehicleLending/select_collection.html', {'public_collections': public_collections, 'private_collections': private_collections})
 
+def select_vehicle(request, collection_name: str):
+    collection = get_object_or_404(Collection, name=collection_name)
+    vehicles = collection.vehicles.all()
+    context = {"collection_name": collection_name, "vehicles": vehicles}
+    return render(request, 'vehicleLending/select_vehicle.html', context)
+
 def item_desc(request,vehicle_id):
     vehicle = get_object_or_404(Vehicle, id=vehicle_id)
     user = (request.user)
