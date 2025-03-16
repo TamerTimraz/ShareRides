@@ -8,7 +8,7 @@ from django.views.decorators.csrf import csrf_exempt
 from google.oauth2 import id_token
 from google.auth.transport import requests
 from django.conf import settings
-from .models import User, Vehicle
+from .models import *
 from django.contrib.auth import login, logout, get_user_model
 from .forms import VehicleForm
 from django.contrib.auth.decorators import login_required
@@ -64,7 +64,8 @@ def sign_out(request):
     return redirect('vehicleLending:login')
 
 def select_collection(request):
-    return render(request, 'vehicleLending/select_collection.html')
+    collections = Collection.objects.all()
+    return render(request, 'vehicleLending/select_collection.html', {'collections': collections})
 
 def item_desc(request,vehicle_id):
     vehicle = get_object_or_404(Vehicle, id=vehicle_id)

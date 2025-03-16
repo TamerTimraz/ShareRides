@@ -39,4 +39,16 @@ class Vehicle(models.Model):
     year = models.CharField(max_length=255, default='unknown')
     details = models.JSONField(blank=True,null=True)
     is_available = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"{self.type.upper()} {self.make} {self.model} {self.year} {self.lender}"
+
+class Collection(models.Model):
+    name = models.CharField(max_length=255, unique=True)
+    description = models.TextField()
+    vehicles = models.ManyToManyField(Vehicle, related_name='collections', blank=True)
+    image = models.URLField(blank=True, null=True, default="https://media.istockphoto.com/id/1055079680/vector/black-linear-photo-camera-like-no-image-available.jpg?s=612x612&w=0&k=20&c=P1DebpeMIAtXj_ZbVsKVvg-duuL0v9DlrOZUvPG6UJk=")
+
+    def __str__(self):
+        return self.name
     
