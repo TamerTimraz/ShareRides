@@ -35,7 +35,11 @@
         {% for vehicle in vehicles %}
         <div class="col">
             <div class="card h-100">
-                <img src='{{ vehicle.image }}' class="card-img-top" alt="Vehicle_Image">
+                {% if vehicle.image %}
+                <img src='{{ vehicle.image.url }}' class="card-img-top" alt="Vehicle_Image">
+                {% else %}
+                <p class="text-center">Image Unavailable</p>
+                {% endif %}
                 <div class="card-body d-flex flex-column justify-content-end align-items-center text-center">
                     <h5 class="card-title">{{ vehicle.make }} {{ vehicle.model }} {{ vehicle.year }} ({{ vehicle.type }})</h5>
                     <a href="{% url 'vehicleLending:details' vehicle.id %}" class="btn btn-primary">See Details</a>
