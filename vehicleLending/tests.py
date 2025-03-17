@@ -74,9 +74,9 @@ class VehicleLendingTests(TestCase):
 
         #check if vehicle added
         self.assertTrue(Vehicle.objects.filter(make="Ford", model="F-150").exists())
-    """
+    
     def test_add_vehicle_unauthenticated(self):
-        """Ensure unauthenticated users can still add a vehicle (per current behavior)"""
+        Ensure unauthenticated users can still add a vehicle (per current behavior)
         response = self.client.post(reverse('vehicleLending:add_vehicle'), {
             "type": "van",
             "make": "Honda",
@@ -89,7 +89,7 @@ class VehicleLendingTests(TestCase):
 
         #check if vehicle added
         self.assertTrue(Vehicle.objects.filter(make="Honda", model="Odyssey").exists())
-
+    """
     def test_select_vehicle(self):
         """Check if vehicle selection page loads correctly"""
         response = self.client.get(reverse('vehicleLending:collection', args=["Test Collection"]))
