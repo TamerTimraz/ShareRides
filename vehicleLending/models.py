@@ -63,6 +63,12 @@ class Vehicle(models.Model):
     details = models.JSONField(blank=True,null=True)
     is_available = models.BooleanField(default=True)
     image = models.ImageField(upload_to=vehicle_directory_path, blank=True, null=True)
+    
+    def delete(self, *args, **kwargs):
+        # delete image from S3 when vehicle is deleted
+        if self.image:
+            self.image.delete(save=False)
+        super().delete(*args, **kwargs)
 
     def __str__(self):
         return f"{self.type.upper()} {self.make} {self.model} {self.year} {self.lender}"
