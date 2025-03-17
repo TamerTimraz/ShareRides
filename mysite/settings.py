@@ -18,11 +18,6 @@ import dj_database_url
 
 load_dotenv()
 
-# Load .env.test only when test file is run.
-if "test" in os.sys.argv:
-#    print("Loading .env.test...")  # Debugging
-    load_dotenv(".env.test", override=True)
-
 GOOGLE_OAUTH_CLIENT_ID = os.environ.get('GOOGLE_OAUTH_CLIENT_ID')
 if not GOOGLE_OAUTH_CLIENT_ID:
     raise ValueError(
@@ -100,6 +95,12 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 DATABASES = {
     'default': dj_database_url.config(default=os.environ.get('DATABASE_URL'))
 }
+
+if 'test' in os.sys.argv:
+    load_dotenv("mysite/.env.test", override=True)
+    DATABASES = {
+        'default': dj_database_url.parse(os.getenv('DATABASE_URL'))
+    }
 
 
 # Password validation
