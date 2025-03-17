@@ -8,7 +8,8 @@ from django.views.decorators.csrf import csrf_exempt
 from google.oauth2 import id_token
 from google.auth.transport import requests
 from django.conf import settings
-from .models import User, Vehicle
+from django.urls import reverse
+from .models import *
 from django.contrib.auth import login, logout, get_user_model
 from .forms import VehicleForm, ProfilePictureForm
 from django.contrib.auth.decorators import login_required
@@ -36,29 +37,32 @@ def auth_receiver(request):
     email = user_data.get('email')
     name = user_data.get('given_name')
 
-    # checks if user exists, otherwise creates user
-    #user, created = User.objects.get_or_create(email=email, defaults={'name': name})
-
     user, created = User.objects.get_or_create(email=email, defaults={'name': name})
 
     login(request, user) # sets session info
 
-    if user.user_type == 'librarian':
-        return redirect('vehicleLending:librarian_dashboard')
-    else:
-        return redirect('vehicleLending:patron_dashboard')
-
-def patron_dashboard(request):
-    user = request.user
-    return render(request, 'vehicleLending/patron_dashboard.html', {'user': user})
-
-def librarian_dashboard(request):
-    user = request.user
-    return render(request, 'vehicleLending/librarian_dashboard.html', {'user': user})
+    return redirect('vehicleLending:home')
 
 def sign_out(request):
     logout(request)
     return redirect('vehicleLending:login')
+
+def select_collection(request):
+    public_collections = Collection.objects.filter(private_collection=False)
+
+    if request.user.is_authenticated and request.user.user_type == 'librarian':
+        private_collections = Collection.objects.filter(private_collection=True)
+    elif request.user.is_authenticated and request.user.user_type == 'patron':
+        private_collections = Collection.objects.filter(users_with_access=request.user, private_collection=True)
+    else: # guest user
+        private_collections = []
+    return render(request, 'vehicleLending/select_collection.html', {'public_collections': public_collections, 'private_collections': private_collections})
+
+def select_vehicle(request, collection_name: str):
+    collection = get_object_or_404(Collection, name=collection_name)
+    vehicles = collection.vehicles.all()
+    context = {"collection_name": collection_name, "vehicles": vehicles}
+    return render(request, 'vehicleLending/select_vehicle.html', context)
 
 def item_desc(request,vehicle_id):
     vehicle = get_object_or_404(Vehicle, id=vehicle_id)
@@ -74,7 +78,7 @@ def add_vehicle(request):
             vehicle = form.save(commit=False)
             vehicle.lender = request.user
             vehicle.save()
-            return redirect('vehicleLending:librarian_dashboard')
+            return redirect(reverse('vehicleLending:details',args=[vehicle.id]))
         else:
             print(form.errors)
     else:
@@ -101,3 +105,20 @@ def delete_profile_picture(request):
         user.profile_pic = None
         user.save()
     return redirect('vehicleLending:profile')
+
+def about(request):
+    path = os.path.join(settings.BASE_DIR, 'vehicleLending', 'static', 'about', 'summary.txt')
+    with open(path, 'r') as file:
+        summary = file.read()
+    quote = "ShareRides is transforming how we think about car sharing, bringing convenience and community together."
+    policies = [
+        "Insurance requirements",
+        "Vehicle eligibility",
+        "Vehicle maintenance",
+        "Cleanliness",
+        "Driver background checks",
+        "Refueling",
+    ]
+
+    context = {'summary': summary, 'quote': quote, 'policies': policies}
+    return render(request, 'vehicleLending/about.html', context)

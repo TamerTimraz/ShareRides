@@ -1,0 +1,63 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>My Store</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand navbar-dark bg-dark fixed-top">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="#">ShareRides</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link active" href="{% url 'vehicleLending:home' %}">Collections</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="{% url 'vehicleLending:about' %}">About Us</a>
+                </li>
+                <form action="{% url 'vehicleLending:sign_out' %}" method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="nav-link btn btn-link text-light">Sign Out</button>
+                </form>                
+                <li class="nav-item">
+                    {% if user.is_authenticated %}
+                        <a class="nav-link" href="#">{{ user.name}} | {{ user.user_type }}</a>
+                    {% else %}
+                        <a class="nav-link" href="#">Guest User</a>
+                    {% endif %}
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Spacing to prevent overlap -->
+<div class="mt-5 pt-4"></div>
+
+{% block content %}
+{% endblock %}
+
+<!-- Bootstrap Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Footer -->
+<footer class="bg-dark text-light text-center py-3 mt-5">
+    <div class="container">
+        <p class="mb-0">&copy; 2025 ShareRides. All rights reserved.</p>
+        <p class="mb-0">This is a class project for CS 3240 'Software Engineering' at the University of Virginia</p>
+    </div>
+</footer>
+
+</body>
+</html>

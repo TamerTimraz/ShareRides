@@ -11,7 +11,9 @@
     <style>
 
     </style>
+    {% extends "vehicleLending/base.html" %}
 </head>
+{% block content %}
 <body>
     <div class="container mt-4 mx-5 row">
         <div class="card col-9 ms-5 px-0">
@@ -53,14 +55,14 @@
                 
             </div>
             <div class="card-footer">
-                <a href="#" class="btn btn-secondary">⬅️ Back to List</a>
+                <a href="" class="btn btn-secondary">⬅️ Back to List</a>
                 <a href="#" class="mx-3 btn btn-secondary">Borrow</a>
             </div>
         </div>
         <div class="mx-0 col-2 ">
             <ul class="nav flex-column">
                 <li class="nav-item">
-                    <a href="#" class="nav-link active fs-5"> All Vehicles </a>
+                    <a href="/../home" class="nav-link active fs-5"> All Vehicles </a>
                 </li>
                 <li class="nav-item">
                     <a href="#" class="nav-link active fs-5"> Cars </a>
@@ -81,4 +83,5 @@
     <!-- Bootstrap JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
 </body>
+{% endblock %}
 </html>
