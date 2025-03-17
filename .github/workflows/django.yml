@@ -44,6 +44,8 @@ jobs:
       run: |
         echo "DATABASE_URL=postgres://postgres:securetesting12@localhost:5432/test_db" >> $GITHUB_ENV
         echo "GOOGLE_OAUTH_CLIENT_ID=${{ secrets.GOOGLE_OAUTH_CLIENT_ID }}" >> $GITHUB_ENV
+    - name: Collect Static Files
+      run: python manage.py collectstatic --noinput
     - name: Run Tests
       run: |
         python manage.py test
