@@ -1,5 +1,3 @@
-from django.shortcuts import render
-
 import os
 
 from django.http import HttpResponse
@@ -71,7 +69,10 @@ def item_desc(request,vehicle_id):
 
 @login_required
 def add_vehicle(request):
-    # add code to check if user is a librarian (only librarians can add vehicles)
+    # only librarians can access page
+    if request.user.user_type != 'librarian':
+        return redirect('vehicleLending:home')
+
     if request.method == 'POST':
         form = VehicleForm(request.POST, request.FILES)
         if form.is_valid():
