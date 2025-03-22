@@ -1,5 +1,3 @@
-from django.shortcuts import render
-
 import os
 
 from django.http import HttpResponse
@@ -8,10 +6,10 @@ from django.views.decorators.csrf import csrf_exempt
 from google.oauth2 import id_token
 from google.auth.transport import requests
 from django.conf import settings
-from django.urls import reverse;
+from django.urls import reverse
 from .models import *
 from django.contrib.auth import login, logout, get_user_model
-from .forms import VehicleForm
+from .forms import VehicleForm, ProfilePictureForm
 from django.contrib.auth.decorators import login_required
 
 # Create your views here.
@@ -37,17 +35,11 @@ def auth_receiver(request):
     email = user_data.get('email')
     name = user_data.get('given_name')
 
-    # checks if user exists, otherwise creates user
-    #user, created = User.objects.get_or_create(email=email, defaults={'name': name})
-
     user, created = User.objects.get_or_create(email=email, defaults={'name': name})
 
     login(request, user) # sets session info
 
     return redirect('vehicleLending:home')
-
-def home_page(request):
-    return render(request, 'vehicleLending/homepage.html')
 
 def sign_out(request):
     logout(request)
@@ -75,21 +67,17 @@ def item_desc(request,vehicle_id):
     user = (request.user)
     return render(request,'vehicleLending/item_desc.html', {'vehicle': vehicle})
 
-#@login_required
+@login_required
 def add_vehicle(request):
+    # only librarians can access page
+    if request.user.user_type != 'librarian':
+        return redirect('vehicleLending:home')
+
     if request.method == 'POST':
-        form = VehicleForm(request.POST)
+        form = VehicleForm(request.POST, request.FILES)
         if form.is_valid():
             vehicle = form.save(commit=False)
-            if request.user.is_authenticated:
-                vehicle.lender = request.user
-
-            #this is just for working without needing to sign in.
-            else:
-                vehicle.lender, created = User.objects.get_or_create(
-                    email='default2@example.com',
-                    defaults={'name': 'Default user'}
-                )
+            vehicle.lender = request.user
             vehicle.save()
             return redirect(reverse('vehicleLending:details',args=[vehicle.id]))
         else:
@@ -97,6 +85,27 @@ def add_vehicle(request):
     else:
         form = VehicleForm()
     return render(request,'vehicleLending/add_vehicle.html',{'form':form})
+
+@login_required
+def profile_view(request):
+    user = request.user
+    if request.method == 'POST':
+        form = ProfilePictureForm(request.POST, request.FILES, instance=user)
+        if form.is_valid():
+            form.save()
+            return redirect('vehicleLending:profile')
+    else:
+        form = ProfilePictureForm(instance=user)
+    return render(request, 'vehicleLending/profile.html', {'form': form, 'user': user})
+
+@login_required
+def delete_profile_picture(request):
+    user = request.user
+    if user.profile_pic:
+        user.profile_pic.delete(save=False)  # deletes from S3
+        user.profile_pic = None
+        user.save()
+    return redirect('vehicleLending:profile')
 
 def about(request):
     path = os.path.join(settings.BASE_DIR, 'vehicleLending', 'static', 'about', 'summary.txt')

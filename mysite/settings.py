@@ -40,7 +40,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-#c0cu$oa(0$x&puo2&xjypab86-rdqm%it7sz15mn_i-aq=h=-'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv("DJANGO_DEBUG", "True") == "True"
 
 ALLOWED_HOSTS = ['localhost','127.0.0.1','vehicle-lending-app-a6db4618da8a.herokuapp.com']
 
@@ -54,7 +54,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'vehicleLending'
+    'vehicleLending',
+    'storages',
 ]
 
 MIDDLEWARE = [
@@ -95,6 +96,12 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 DATABASES = {
     'default': dj_database_url.config(default=os.environ.get('DATABASE_URL'))
 }
+
+if 'test' in os.sys.argv:
+    load_dotenv("mysite/.env.test", override=True)
+    DATABASES = {
+        'default': dj_database_url.parse(os.getenv('DATABASE_URL'))
+    }
 
 
 # Password validation
@@ -140,3 +147,29 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'vehicleLending.User'
+
+
+# AWS Configuration
+
+AWS_ACCESS_KEY_ID = f'{os.environ.get('AWS_ACCESS_KEY')}'
+AWS_SECRET_ACCESS_KEY = f'{os.environ.get('AWS_SECRET_ACCESS_KEY')}'
+
+
+# Basic storage configuration for Amazon S3
+
+AWS_STORAGE_BUCKET_NAME = f'{os.environ.get('AWS_STORAGE_BUCKET_NAME')}'
+AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
+AWS_S3_FILE_OVERWRITE = False
+
+
+STORAGES = {
+
+    # Media file management
+    "default": {
+        "BACKEND": "storages.backends.s3boto3.S3StaticStorage",
+    },
+
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"
+    },
+}

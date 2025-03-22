@@ -1,5 +1,4 @@
 from django.contrib import admin
-from vehicleLending.models import User
 from .models import *
 
 # Register your models here.

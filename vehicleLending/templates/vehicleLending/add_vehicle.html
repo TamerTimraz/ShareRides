@@ -19,7 +19,7 @@
     <div class="container mt-4">
         <h2>Add a New Vehicle</h2>
         
-        <form method="POST" class="mt-4">
+        <form method="POST" class="mt-4" enctype="multipart/form-data">
             {% csrf_token %}
     
             <!-- Render each field using Bootstrap styling -->
@@ -53,6 +53,11 @@
                 {% if form.year.errors %}
                     <div class="text-danger">{{ form.year.errors.0 }}</div>
                 {% endif %}
+            </div>
+
+            <div class="mb-3">
+                <label for="{{ form.image.id_for_label }}" class="form-label">Image</label>
+                {{ form.image }}
             </div>
     
             <div class="form-check mb-3">
