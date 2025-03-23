@@ -151,13 +151,13 @@ AUTH_USER_MODEL = 'vehicleLending.User'
 
 # AWS Configuration
 
-AWS_ACCESS_KEY_ID = f'{os.environ.get('AWS_ACCESS_KEY')}'
-AWS_SECRET_ACCESS_KEY = f'{os.environ.get('AWS_SECRET_ACCESS_KEY')}'
+AWS_ACCESS_KEY_ID = f"{os.environ.get('AWS_ACCESS_KEY')}"
+AWS_SECRET_ACCESS_KEY = f"{os.environ.get('AWS_SECRET_ACCESS_KEY')}"
 
 
 # Basic storage configuration for Amazon S3
 
-AWS_STORAGE_BUCKET_NAME = f'{os.environ.get('AWS_STORAGE_BUCKET_NAME')}'
+AWS_STORAGE_BUCKET_NAME = f"{os.environ.get('AWS_STORAGE_BUCKET_NAME')}"
 AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
 AWS_S3_FILE_OVERWRITE = False
 
