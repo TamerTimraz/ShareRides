@@ -18,9 +18,9 @@ document.getElementById("searchInput").addEventListener("input", function() {
                     results.forEach(item => {
                         let resultItem = document.createElement("li");
                         let link = document.createElement("a");
-                        link.href = "#"; // Adjust to a real link if needed
+                        link.href = new URL(item.url, window.location.origin).href;
                         link.className = "dropdown-item";
-                        link.textContent = item;
+                        link.textContent = item.text;
                         resultItem.appendChild(link);
                         resultsContainer.appendChild(resultItem);
                     });

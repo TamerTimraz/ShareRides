@@ -128,10 +128,10 @@ def search_results(request):
     query = request.GET.get('query')
 
     vehicles = Vehicle.objects.filter(make__icontains=query)
-    vehicles = [str(vehicle) for vehicle in vehicles]
+    vehicles = [{"text": str(vehicle), "url": f"vehicle/{vehicle.id}"} for vehicle in vehicles]
 
     collections = Collection.objects.filter(name__icontains=query)
-    collections = [f"COLLECTION {str(collection)}" for collection in collections]
+    collections = [{"text": f"COLLECTION {str(collection)}", "url": f"collection/{collection.name}"} for collection in collections]
 
     results = vehicles + collections
     return JsonResponse({'results': results})
