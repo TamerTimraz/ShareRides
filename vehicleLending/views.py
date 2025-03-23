@@ -1,6 +1,6 @@
 import os
 
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from google.oauth2 import id_token
@@ -123,3 +123,15 @@ def about(request):
 
     context = {'summary': summary, 'quote': quote, 'policies': policies}
     return render(request, 'vehicleLending/about.html', context)
+
+def search_results(request):
+    query = request.GET.get('query')
+
+    vehicles = Vehicle.objects.filter(make__icontains=query)
+    vehicles = [str(vehicle) for vehicle in vehicles]
+
+    collections = Collection.objects.filter(name__icontains=query)
+    collections = [f"COLLECTION {str(collection)}" for collection in collections]
+
+    results = vehicles + collections
+    return JsonResponse({'results': results})

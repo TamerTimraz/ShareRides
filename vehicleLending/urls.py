@@ -14,4 +14,5 @@ urlpatterns = [
     path('collection/<str:collection_name>', views.select_vehicle, name='collection'),
     path('add-vehicle', views.add_vehicle, name='add_vehicle'),
     path('about', views.about, name='about'),
+    path('search/', views.search_results, name='search'),
 ]
