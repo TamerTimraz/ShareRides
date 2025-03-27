@@ -129,10 +129,22 @@ def search_results(request):
     vehicles = Vehicle.objects.filter(make__icontains=query)
     vehicles = [{"text": str(vehicle), "url": f"vehicle/{vehicle.id}"} for vehicle in vehicles]
 
-    collections = Collection.objects.filter(name__icontains=query)
-    collections = [{"text": f"COLLECTION {str(collection)}", "url": f"collection/{collection.name}"} for collection in collections]
+    public_collections = Collection.objects.filter(name__icontains=query, private_collection=False)
+    public_collections = [{"text": f"COLLECTION {str(collection)}", "url": f"collection/{collection.name}"} for collection in public_collections]
 
-    results = vehicles + collections
+    if request.user.is_authenticated and request.user.user_type == 'librarian':
+        private_collections = Collection.objects.filter(name__icontains=query, private_collection=True)
+    elif request.user.is_authenticated and request.user.user_type == 'patron':
+        private_collections = Collection.objects.filter(name__icontains=query, users_with_access=request.user, private_collection=True)
+    else: # guest user
+        private_collections = list()
+    private_collections = [{"text": f"COLLECTION {str(collection)}", "url": f"collection/{collection.name}"} for collection in private_collections]
+
+    results = vehicles + public_collections + private_collections
+    if len(results) == 0:
+        results = [{"text": "No results found", "url": "javascript:void(0)"}]
+    elif len(results) > 8:
+        results = results[:8]
     return JsonResponse({'results': results})
 
 def all_vehicles(request):
