@@ -93,7 +93,7 @@ class Vehicle(models.Model):
         super().delete(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.type.upper()} {self.make} {self.model} {self.year} {self.lender}"
+        return f"{self.vehicle_type.upper()} {self.make} {self.model} {self.year} {self.lender}"
 
 class Collection(models.Model):
     name = models.CharField(max_length=255, unique=True)

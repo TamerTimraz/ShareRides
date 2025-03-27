@@ -28,7 +28,7 @@ class VehicleLendingTests(TestCase):
 
         # Create a test vehicle
         self.vehicle = Vehicle.objects.create(
-            type="car",
+            vehicle_type="car",
             lender=self.user_patron,
             make="Toyota",
             model="Corolla",
@@ -63,7 +63,7 @@ class VehicleLendingTests(TestCase):
         self.client.login(email="patron@example.com", password="testpass123")
 
         response = self.client.post(reverse('vehicleLending:add_vehicle'), {
-            "type": "truck",
+            "vehicle_type": "truck",
             "make": "Ford",
             "model": "F-150",
             "year": "2022",
@@ -78,7 +78,7 @@ class VehicleLendingTests(TestCase):
     def test_add_vehicle_unauthenticated(self):
         Ensure unauthenticated users can still add a vehicle (per current behavior)
         response = self.client.post(reverse('vehicleLending:add_vehicle'), {
-            "type": "van",
+            "vehicle_type": "van",
             "make": "Honda",
             "model": "Odyssey",
             "year": "2023",
