@@ -31,6 +31,15 @@
                 <!-- could potentially make lender pages and this could be a link to the lender's page -->
                 <p class="mt-3 mb-0"><strong>Lender:</strong> {{ vehicle.lender.name }}</p>
 
+                <p class="mt-3 mb-0"><strong>Location:</strong> {{ vehicle.location }}</p>
+
+                {% if vehicle.description %}
+                    <h5 class="mt-2">Description:</h5>
+                    <p>{{ vehicle.description }}</p>
+                {% else %}
+                    <p class="text-muted">No additional details available.</p>
+                {% endif %}
+
                 <p class="mt-1 mb-2">
                     <strong>Available:</strong>
                     {% if vehicle.is_available %}
@@ -39,19 +48,6 @@
                         <span class="badge bg-danger">❌ No</span>
                     {% endif %}
                 </p>
-                {% if vehicle.details %}
-                    <h5 class="mt-2">Details:</h5>
-                    <ul class="list-group">
-                        {% for key, value in vehicle.details.items %}
-                            <li class="list-group-item">
-                                <strong>{{ key|capfirst }}:</strong> {{ value }}
-                            </li>
-                        {% endfor %}
-                    </ul>
-                {% else %}
-                    <p class="text-muted">No additional details available.</p>
-                {% endif %}
-                
                 
             </div>
             <div class="card-footer">

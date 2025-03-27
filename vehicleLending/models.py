@@ -69,19 +69,23 @@ class Vehicle(models.Model):
         ('van','Van'),
         ('motorcycle','Motorcycle')
     ]
-    type = models.CharField(max_length=255, choices=VEHICLE_TYPES)
+    vehicle_type = models.CharField(max_length=255, choices=VEHICLE_TYPES)
     lender = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name='vehicles'
     )
-    make = models.CharField(max_length=255, default='unknown')
-    model = models.CharField(max_length=255, default='unknown')
-    year = models.CharField(max_length=255, default='unknown')
-    details = models.JSONField(blank=True,null=True)
+    make = models.CharField(max_length=255, default='Unknown Make')
+    model = models.CharField(max_length=255, default='Unknown Model')
+    year = models.CharField(max_length=255, default='Unknown Year')
+    is_requested = models.BooleanField(default=False)
     is_available = models.BooleanField(default=True)
+    location = models.CharField(max_length=255, default='Unknown')
     image = models.ImageField(upload_to=vehicle_directory_path, blank=True, null=True)
-    
+    description = models.CharField(max_length=255,null=True,blank=True)
+    @property
+    def title(self):
+        return f"{self.year} {self.make} {self.model}"
     def delete(self, *args, **kwargs):
         # delete image from S3 when vehicle is deleted
         if self.image:

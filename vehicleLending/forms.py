@@ -12,11 +12,10 @@ class ProfilePictureForm(forms.ModelForm):
 class VehicleForm(forms.ModelForm):
     class Meta:
         model = Vehicle
-        fields=["type",'make','model','year','details','is_available', 'image']
+        fields=["vehicle_type",'make','model','year','is_available','image','location','description']
         exclude = ()
         widgets = {
-            'details': forms.Textarea(attrs={'rows':4}),
-            'type': forms.Select(choices=[
+            'vehicle_type': forms.Select(choices=[
                 ('car','Car'),
                 ('bike','Bike'),
                 ('truck','Truck'),

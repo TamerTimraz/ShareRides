@@ -66,7 +66,6 @@ def item_desc(request,vehicle_id):
     vehicle = get_object_or_404(Vehicle, id=vehicle_id)
     user = (request.user)
     return render(request,'vehicleLending/item_desc.html', {'vehicle': vehicle})
-
 @login_required
 def add_vehicle(request):
     # only librarians can access page
