@@ -15,4 +15,5 @@ urlpatterns = [
     path('add-vehicle', views.add_vehicle, name='add_vehicle'),
     path('about', views.about, name='about'),
     path('search/', views.search_results, name='search'),
+    path('all',views.all_vehicles, name='all'),
 ]

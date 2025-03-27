@@ -134,3 +134,8 @@ def search_results(request):
 
     results = vehicles + collections
     return JsonResponse({'results': results})
+
+def all_vehicles(request):
+    vehicles = Vehicle.objects.all()
+    context = {"vehicles": vehicles}
+    return render(request, 'vehicleLending/all_vehicles.html',context)

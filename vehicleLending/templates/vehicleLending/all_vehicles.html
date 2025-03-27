@@ -1,0 +1,53 @@
+{% extends 'vehicleLending/base.html' %}
+{% block content %}
+
+<!-- Librarian Actions -->
+{% if user.user_type == 'librarian' %}
+<div class="container mt-4">
+    <h2 class="text-start fw-bold">Librarian Actions</h2>
+    <hr class="thick-line mb-4">
+
+    <a href="{% url 'vehicleLending:add_vehicle' %}" class="btn btn-primary">
+        Create a Vehicle
+    </a> 
+
+    <a href=# class="btn btn-primary">
+        Delete a Vehicle
+    </a> 
+
+    <a href=# class="btn btn-primary">
+        Edit Collection
+    </a> 
+</div>
+{% endif %}
+
+<!-- Header -->
+<div class="container mt-4">
+    <h2 class="text-start fw-bold">All Vehicles</h2>
+    <hr class="thick-line mb-4">
+</div>
+
+<!-- Vehicle Tiles-->
+<div class="container mt-4">
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+    
+        <!-- Vehicle Tile -->
+        {% for vehicle in vehicles %}
+        <div class="col">
+            <div class="card h-100">
+                {% if vehicle.image %}
+                <img src='{{ vehicle.image.url }}' class="card-img-top" alt="Vehicle_Image">
+                {% else %}
+                <p class="text-center">Image Unavailable</p>
+                {% endif %}
+                <div class="card-body d-flex flex-column justify-content-end align-items-center text-center">
+                    <h5 class="card-title">{{ vehicle.make }} {{ vehicle.model }} {{ vehicle.year }} ({{ vehicle.vehicle_type }})</h5>
+                    <a href="{% url 'vehicleLending:details' vehicle.id %}" class="btn btn-primary">See Details</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}        
+    </div>
+</div>
+
+{% endblock %}
