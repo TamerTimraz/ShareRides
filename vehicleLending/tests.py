@@ -33,7 +33,7 @@ class VehicleLendingTests(TestCase):
             make="Toyota",
             model="Corolla",
             year="2020",
-            details={"color": "red"},
+            description={"color": "red"},
             is_available=True
         )
 
@@ -67,7 +67,7 @@ class VehicleLendingTests(TestCase):
             "make": "Ford",
             "model": "F-150",
             "year": "2022",
-            "details": '{"color": "blue"}',
+            "description": '{"color": "blue"}',
             "is_available": True
         })
         self.assertEqual(response.status_code, 302)  #redirect after adding vehicle
@@ -82,7 +82,7 @@ class VehicleLendingTests(TestCase):
             "make": "Honda",
             "model": "Odyssey",
             "year": "2023",
-            "details": '{"color": "white"}',
+            "description": '{"color": "white"}',
             "is_available": True
         })
         self.assertEqual(response.status_code, 302)  #redirect after adding
