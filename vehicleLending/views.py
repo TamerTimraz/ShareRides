@@ -47,14 +47,23 @@ def sign_out(request):
 
 def select_collection(request):
     public_collections = Collection.objects.filter(private_collection=False)
-
-    if request.user.is_authenticated and request.user.user_type == 'librarian':
-        private_collections = Collection.objects.filter(private_collection=True)
-    elif request.user.is_authenticated and request.user.user_type == 'patron':
-        private_collections = Collection.objects.filter(users_with_access=request.user, private_collection=True)
-    else: # guest user
+    
+    if request.user.is_authenticated:
+        if request.user.user_type == 'librarian':
+            all_collections = Collection.objects.all()
+            private_collections = Collection.objects.filter(private_collection=True)
+        else:  # patron
+            all_collections = Collection.objects.filter(creator=request.user)
+            private_collections = Collection.objects.filter(users_with_access=request.user, private_collection=True)
+    else:  # guest user
+        all_collections = []
         private_collections = []
-    return render(request, 'vehicleLending/select_collection.html', {'public_collections': public_collections, 'private_collections': private_collections})
+        
+    return render(request, 'vehicleLending/select_collection.html', {
+        'public_collections': public_collections, 
+        'private_collections': private_collections,
+        'all_collections': all_collections
+    })
 
 def select_vehicle(request, collection_name: str):
     collection = get_object_or_404(Collection, name=collection_name)
@@ -151,3 +160,57 @@ def all_vehicles(request):
     vehicles = Vehicle.objects.all()
     context = {"vehicles": vehicles}
     return render(request, 'vehicleLending/all_vehicles.html',context)
+
+@login_required
+def add_collection(request):
+    # Both librarians and patrons can create collections
+    if not request.user.is_authenticated:
+        return redirect('vehicleLending:home')
+    
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        description = request.POST.get('description')
+        image = request.POST.get('image', '')
+        
+        # Only librarians can make collections private
+        private_collection = False
+        if request.user.user_type == 'librarian' and 'private_collection' in request.POST:
+            private_collection = True
+        
+        # Create and save the collection
+        collection = Collection(
+            name=name,
+            description=description,
+            private_collection=private_collection,
+            creator=request.user
+        )
+        
+        if image:
+            collection.image = image
+            
+        collection.save()
+        
+        return redirect('vehicleLending:home')
+    
+    return redirect('vehicleLending:home')
+
+@login_required
+def remove_collection(request):
+    # Both librarians and patrons can remove collections they created
+    if not request.user.is_authenticated:
+        return redirect('vehicleLending:home')
+    
+    if request.method == 'POST':
+        collection_id = request.POST.get('collection_id')
+        
+        try:
+            collection = Collection.objects.get(id=collection_id)
+            
+            # Check if user is the creator of the collection
+            if collection.creator == request.user:
+                collection.delete()
+            
+        except Collection.DoesNotExist:
+            pass
+            
+    return redirect('vehicleLending:home')

@@ -102,6 +102,7 @@ class Collection(models.Model):
     image = models.URLField(blank=True, null=True, default="https://media.istockphoto.com/id/1055079680/vector/black-linear-photo-camera-like-no-image-available.jpg?s=612x612&w=0&k=20&c=P1DebpeMIAtXj_ZbVsKVvg-duuL0v9DlrOZUvPG6UJk=")
     users_with_access = models.ManyToManyField(User, related_name='private_collections', blank=True)
     private_collection = models.BooleanField(default=False)
+    creator = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='created_collections', null=True, blank=True)
 
     def __str__(self):
         return f"{self.name} ({'private' if self.private_collection else 'public'})"
