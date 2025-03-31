@@ -4,6 +4,7 @@ from .models import *
 # Register your models here.
 admin.site.register(User)
 admin.site.register(Vehicle)
+admin.site.register(BorrowRequest)
 
 class CollectionAdmin(admin.ModelAdmin):
     list_display = ('name', 'private_collection', 'get_allowed_users')

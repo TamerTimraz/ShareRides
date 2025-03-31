@@ -69,23 +69,29 @@ class Vehicle(models.Model):
         ('van','Van'),
         ('motorcycle','Motorcycle')
     ]
+
     vehicle_type = models.CharField(max_length=255, choices=VEHICLE_TYPES)
     lender = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name='vehicles'
     )
+
     make = models.CharField(max_length=255, default='Unknown Make')
     model = models.CharField(max_length=255, default='Unknown Model')
     year = models.CharField(max_length=255, default='Unknown Year')
-    is_requested = models.BooleanField(default=False)
     is_available = models.BooleanField(default=True)
     location = models.CharField(max_length=255, default='Unknown')
     image = models.ImageField(upload_to=vehicle_directory_path, blank=True, null=True)
     description = models.CharField(max_length=255,null=True,blank=True)
+
     @property
     def title(self):
         return f"{self.year} {self.make} {self.model}"
+    
+    def is_requested(self):
+        return self.borrow_requests.filter(status='pending').exists()
+    
     def delete(self, *args, **kwargs):
         # delete image from S3 when vehicle is deleted
         if self.image:
@@ -107,3 +113,23 @@ class Collection(models.Model):
     def __str__(self):
         return f"{self.name} ({'private' if self.private_collection else 'public'})"
     
+class BorrowRequest(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('accepted', 'Accepted'),
+        ('denied', 'Denied')
+    ]
+
+    vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE, related_name='borrow_requests')
+    requester = models.ForeignKey(User, on_delete=models.CASCADE, related_name='borrow_requests')
+    lender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='lender_requests')
+    status = models.CharField(max_length=255, choices=STATUS_CHOICES, default='pending')
+    request_date = models.DateTimeField(default=now)
+    
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['vehicle', 'requester'], name='unique_vehicle_requester')
+        ]
+
+    def __str__(self):
+        return f"Request by {self.requester} for {self.vehicle} - {self.status}"
