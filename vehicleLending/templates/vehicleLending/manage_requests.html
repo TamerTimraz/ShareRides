@@ -1,0 +1,8 @@
+<h2>Pending Borrow Requests</h2>
+{% for request in requests %}
+    <div>
+        <p>{{ request.requester.name }} has requested to borrow your vehicle: {{ request.vehicle.title }}</p>
+        <a href="{% url 'vehicleLending:respond_to_request' request.id 'accept' %}">Accept</a>
+        <a href="{% url 'vehicleLending:respond_to_request' request.id 'deny' %}">Deny</a>
+    </div>
+{% endfor %}

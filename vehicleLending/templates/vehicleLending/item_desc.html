@@ -52,7 +52,16 @@
             </div>
             <div class="card-footer">
                 <a href="" class="btn btn-secondary">⬅️ Back to List</a>
-                <a href="#" class="mx-3 btn btn-secondary">Borrow</a>
+                {% if vehicle.is_available %}
+                    <a href="{% url 'vehicleLending:request_borrow' vehicle.id %}" class="mx-3 btn btn-secondary">Borrow</a>
+                {% endif %}
+                {% if messages %}
+                    <ul class="messages">
+                        {% for message in messages %}
+                            <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
             </div>
         </div>
         <div class="mx-0 col-2 ">

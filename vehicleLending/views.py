@@ -11,6 +11,7 @@ from .models import *
 from django.contrib.auth import login, logout, get_user_model
 from .forms import VehicleForm, ProfilePictureForm
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 
 # Create your views here.
 
@@ -71,10 +72,11 @@ def select_vehicle(request, collection_name: str):
     context = {"collection_name": collection_name, "vehicles": vehicles}
     return render(request, 'vehicleLending/select_vehicle.html', context)
 
-def item_desc(request,vehicle_id):
+def item_desc(request, vehicle_id):
     vehicle = get_object_or_404(Vehicle, id=vehicle_id)
     user = (request.user)
     return render(request,'vehicleLending/item_desc.html', {'vehicle': vehicle})
+
 @login_required
 def add_vehicle(request):
     # only librarians can access page
@@ -214,3 +216,49 @@ def remove_collection(request):
             pass
             
     return redirect('vehicleLending:home')
+
+@login_required
+def request_borrow(request, vehicle_id):
+    vehicle = get_object_or_404(Vehicle, id=vehicle_id)
+    
+    if vehicle.lender == request.user:
+        messages.error(request, "You cannot request to borrow your own vehicle.")
+        return redirect(reverse('vehicleLending:details', args=[vehicle_id]))
+    
+    borrow_request, created = BorrowRequest.objects.get_or_create(
+        vehicle=vehicle,
+        requester=request.user,
+        lender=vehicle.lender,
+        status='pending'
+    )
+
+    if created:
+        messages.success(request, "Your borrow request has been submitted")
+    else:
+        messages.info(request, "You have already requested to borrow this vehicle")
+    
+    return redirect(reverse('vehicleLending:details', args=[vehicle_id]))
+
+@login_required
+def manage_requests(request):
+    if request.user.user_type != 'librarian':
+        messages.error(request, "You do not have permission to access this page.")
+        return redirect('vehicleLending:home')
+    
+    requests = BorrowRequest.objects.filter(lender=request.user, status='pending')
+    return render(request, 'vehicleLending/manage_requests.html', {'requests': requests})
+
+@login_required
+def respond_to_request(request, request_id, response):
+    borrow_request = get_object_or_404(BorrowRequest, id=request_id, lender=request.user)
+    if response == 'accept':
+        borrow_request.status = 'accepted'
+        borrow_request.vehicle.is_available = False
+        borrow_request.vehicle.save()
+    elif response == 'deny':
+        borrow_request.status = 'denied'
+    else:
+        return redirect('vehicleLending:manage_requests')
+    
+    borrow_request.save()
+    return redirect('vehicleLending:manage_requests')
