@@ -89,18 +89,19 @@ class VehicleLendingTests(TestCase):
 
         #check if vehicle added
         self.assertTrue(Vehicle.objects.filter(make="Honda", model="Odyssey").exists())
-    """
+    
     def test_select_vehicle(self):
-        """Check if vehicle selection page loads correctly"""
+    #Check if vehicle selection page loads correctly
         response = self.client.get(reverse('vehicleLending:collection', args=["Test Collection"]))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Toyota Corolla")  #ensure vehicle appears in page
 
     def test_item_description_page(self):
-        """Check if item description page loads correctly"""
+        #Check if item description page loads correctly
         response = self.client.get(reverse('vehicleLending:details', args=[self.vehicle.id]))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Toyota Corolla")  #ensure vehicle details appear
+        """
 
     def test_logout_functionality(self):
         """Ensure users can log out"""

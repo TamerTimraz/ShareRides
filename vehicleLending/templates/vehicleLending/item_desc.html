@@ -21,7 +21,6 @@
                 <h2>{{ vehicle.make }} {{ vehicle.model }} ({{ vehicle.year }})</h2>
             </div>
             <div class="card-body">
-                <!-- TODO: Implement Pictures of vehicles. Would be cool if we made it a carousel type thing too. -->
                 {% if vehicle.image %}
                     <img src="{{ vehicle.image.url }}" class="card-img-top" alt="Car Image">
                 {% else %}

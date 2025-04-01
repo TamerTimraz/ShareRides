@@ -77,12 +77,12 @@ class Vehicle(models.Model):
         related_name='vehicles'
     )
 
-    make = models.CharField(max_length=255, default='Unknown Make')
-    model = models.CharField(max_length=255, default='Unknown Model')
-    year = models.CharField(max_length=255, default='Unknown Year')
+    make = models.CharField(max_length=255)
+    model = models.CharField(max_length=255)
+    year = models.CharField(max_length=255)
     is_available = models.BooleanField(default=True,blank=True,null=True)
     requested = models.BooleanField(default=True,blank=True,null=True)
-    location = models.CharField(max_length=255, default='Unknown')
+    location = models.CharField(max_length=255)
     image = models.ImageField(upload_to=vehicle_directory_path, blank=True, null=True)
     description = models.CharField(max_length=255,null=True,blank=True)
 
