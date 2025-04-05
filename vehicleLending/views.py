@@ -96,6 +96,18 @@ def add_vehicle(request):
         form = VehicleForm()
     return render(request,'vehicleLending/add_vehicle.html',{'form':form})
 
+def edit_vehicle(request, vehicle_id: int):
+    vehicle = get_object_or_404(Vehicle, id=vehicle_id)
+
+    if request.method == 'POST':
+        form = VehicleForm(request.POST, request.FILES, instance=vehicle)
+        if form.is_valid():
+            form.save()
+            return redirect(reverse('vehicleLending:details', args=[vehicle.id]))
+    else:
+        form = VehicleForm(instance=vehicle)
+    return render(request, 'vehicleLending/add_vehicle.html', {'form': form, 'vehicle': vehicle})
+
 @login_required
 def profile_view(request):
     user = request.user
