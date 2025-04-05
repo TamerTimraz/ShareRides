@@ -7,29 +7,39 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
+                {% if collection %}
+                <form method="POST" action="{% url 'vehicleLending:edit_collection' collection.name %}">
+                {% else %}
                 <form method="POST" action="{% url 'vehicleLending:add_collection' %}">
+                {% endif %}
                     {% csrf_token %}
                     <div class="mb-3">
                         <label for="name" class="form-label">Collection Name</label>
-                        <input type="text" class="form-control" id="name" name="name" required>
+                        <input type="text" class="form-control" id="name" name="name" value="{{ collection.name|default:'' }}" required>
                     </div>
                     <div class="mb-3">
                         <label for="description" class="form-label">Description</label>
-                        <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+                        <textarea class="form-control" id="description" name="description" rows="3" required>{{ collection.description|default:'' }}</textarea>
                     </div>
                     <div class="mb-3">
                         <label for="image" class="form-label">Image URL</label>
-                        <input type="url" class="form-control" id="image" name="image">
+                        <input type="url" class="form-control" id="image" name="image" 
+                        {% if collection %} placeholder="Enter a new image URL" {% endif %}>
                     </div>
                     {% if user.user_type == 'librarian' %}
                     <div class="mb-3 form-check">
-                        <input type="checkbox" class="form-check-input" id="private_collection" name="private_collection">
+                        <input type="checkbox" class="form-check-input" id="private_collection" name="private_collection"
+                        {% if collection.private_collection %} checked {% endif %}>
                         <label class="form-check-label" for="private_collection">Private Collection</label>
                     </div>
                     {% endif %}
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        {% if collection %}
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                        {% else %}
                         <button type="submit" class="btn btn-primary">Save Collection</button>
+                        {% endif %}
                     </div>
                 </form>
             </div>

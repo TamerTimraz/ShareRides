@@ -69,7 +69,7 @@ def select_collection(request):
 def select_vehicle(request, collection_name: str):
     collection = get_object_or_404(Collection, name=collection_name)
     vehicles = collection.vehicles.all()
-    context = {"collection_name": collection_name, "vehicles": vehicles}
+    context = {"collection_name": collection_name, "vehicles": vehicles, "collection": collection}
     return render(request, 'vehicleLending/select_vehicle.html', context)
 
 def item_desc(request, vehicle_id):
@@ -193,6 +193,24 @@ def add_collection(request):
         collection.save()
         
         return redirect('vehicleLending:home')
+    
+    return redirect('vehicleLending:home')
+
+@login_required
+def edit_collection(request, collection_name: str):
+    collection = get_object_or_404(Collection, name=collection_name)
+
+    if not request.user.is_authenticated:
+        return redirect('vehicleLending:home')
+    
+    if request.method == 'POST':
+        collection.name = request.POST.get('name')
+        collection.description = request.POST.get('description')
+        if request.POST.get('image', '') != '':
+            collection.image = request.POST.get('image', '')
+        collection.private_collection = request.user.user_type == 'librarian' and 'private_collection' in request.POST
+        
+        collection.save()
     
     return redirect('vehicleLending:home')
 
