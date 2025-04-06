@@ -19,7 +19,6 @@ urlpatterns = [
     path('search/', views.search_results, name='search'),
     path('all',views.all_vehicles, name='all'),
     path('vehicle/<int:vehicle_id>/request', views.request_borrow, name='request_borrow'),
-    path('manage-requests', views.manage_requests, name='manage_requests'),
     path('request/<int:request_id>/<str:response>', views.respond_to_request, name='respond_to_request'),
     path('my-vehicles', views.my_vehicles, name='my_vehicles'),
     path('my-vehicles/vehicle/<int:vehicle_id>/requests', views.vehicle_requests, name='vehicle_requests')

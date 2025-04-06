@@ -240,15 +240,6 @@ def request_borrow(request, vehicle_id):
     return redirect(reverse('vehicleLending:details', args=[vehicle_id]))
 
 @login_required
-def manage_requests(request):
-    if request.user.user_type != 'librarian':
-        messages.error(request, "You do not have permission to access this page.")
-        return redirect('vehicleLending:home')
-    
-    requests = BorrowRequest.objects.filter(lender=request.user, status='pending')
-    return render(request, 'vehicleLending/manage_requests.html', {'requests': requests})
-
-@login_required
 def respond_to_request(request, request_id, response):
     borrow_request = get_object_or_404(BorrowRequest, id=request_id, lender=request.user)
     if response == 'accept':
