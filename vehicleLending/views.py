@@ -262,3 +262,23 @@ def respond_to_request(request, request_id, response):
     
     borrow_request.save()
     return redirect('vehicleLending:manage_requests')
+
+# only for librarians right now (will add for patrons to view their requested vehicles)
+@login_required
+def my_vehicles(request):
+    if request.user.user_type != 'librarian':
+        return redirect('vehicleLending:home')
+
+    vehicles = Vehicle.objects.filter(lender=request.user)
+    return render(request, 'vehicleLending/my_vehicles.html', {'vehicles': vehicles})
+
+@login_required
+def vehicle_requests(request, vehicle_id):
+    vehicle = get_object_or_404(Vehicle, id=vehicle_id)
+
+    # only lender of this vehicle can view requests
+    if vehicle.lender != request.user:
+        return redirect('vehicleLending:home')
+
+    requests = BorrowRequest.objects.filter(vehicle=vehicle)
+    return render(request, 'vehicleLending/vehicle_requests.html', {'requests': requests})
