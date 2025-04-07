@@ -276,6 +276,13 @@
                         <span class="spec-label">Model:</span>
                         <span class="spec-value">{{ vehicle.model }}</span>
                     </div>
+                    <div class="spec-item">
+                        <span class="spec-label">Location:</span>
+                        <span class="spec-value">
+                            <a href="#map">{{ vehicle.location }}</a>
+                        </span>
+                    </div>
+                    
                     <!-- could add some more details 
                     <div class="spec-item">
                         <span class="spec-label">Mileage:</span>
@@ -292,14 +299,7 @@
                     <span class="spec-label">Description from Lender:</span>
                     <span class="spec-value">{{ vehicle.description|linebreaks }}</span>
                 </div>
-
-                <div class="vehicle-location">
-                    <span class="spec-label">Location:</span>
-                    <span class="spec-value">{{ vehicle.location }}</span>
-                    <div id="map" class="mt-2 bg-light" style="height: 200px;">
-                        <p class="text-center pt-5">Google Maps integration coming soon</p>
-                    </div>
-                </div>
+                
                 
                 <!-- Action Buttons -->
                 <div class="action-buttons">
@@ -374,7 +374,15 @@
                 </div>
             </div>
         </section>
+        
     -->
+    
+
+    <div class="vehicle-location">
+        <div id="map" class="mt-2 bg-light" style="height: 200px;">
+            <p class="text-center pt-5">Google Maps integration coming soon</p>
+        </div>
+    </div>
     </main>
 </body>
 

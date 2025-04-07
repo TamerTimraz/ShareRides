@@ -79,11 +79,11 @@ def item_desc(request, vehicle_id):
     user = (request.user)
     return render(request,'vehicleLending/item_desc.html', {'vehicle': vehicle,'user':user})
 
-#@login_required
+@login_required
 def add_vehicle(request):
     # only librarians can access page
-#    if request.user.user_type != 'librarian':
- #       return redirect('vehicleLending:home')
+    if request.user.user_type != 'librarian':
+        return redirect('vehicleLending:home')
 
     if request.method == 'POST':
         form = VehicleForm(request.POST, request.FILES)
