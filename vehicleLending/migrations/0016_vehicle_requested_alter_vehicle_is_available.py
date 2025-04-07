@@ -8,20 +8,3 @@ class Migration(migrations.Migration):
     dependencies = [
         ('vehicleLending', '0015_remove_vehicle_is_requested_borrowrequest'),
     ]
-
-    operations = [
-        migrations.AddField(
-            model_name='vehicle',
-            name='requested',
-            field=models.BooleanField(blank=True, default=True, null=True),
-        ),
-        migrations.AlterField(
-            model_name='vehicle',
-            name='is_available',
-            field=models.BooleanField(blank=True, default=True, null=True),
-        ),
-        migrations.RemoveField(
-            model_name='vehicle',
-            name='is_requested'
-        )
-    ]

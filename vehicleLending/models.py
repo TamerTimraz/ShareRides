@@ -63,11 +63,11 @@ class User(AbstractUser):
     
 class Vehicle(models.Model):
     VEHICLE_TYPES = [
-        ('bicycle','Bicycle'),
-        ('car','Car'),
-        ('truck','Truck'),
-        ('van','Van'),
-        ('motorcycle','Motorcycle')
+        ('Bicycle','Bicycle'),
+        ('Car','Car'),
+        ('Truck','Truck'),
+        ('Van','Van'),
+        ('Motorcycle','Motorcycle')
     ]
 
     vehicle_type = models.CharField(max_length=255, choices=VEHICLE_TYPES)
@@ -81,7 +81,7 @@ class Vehicle(models.Model):
     model = models.CharField(max_length=255)
     year = models.CharField(max_length=255)
     is_available = models.BooleanField(default=True,blank=True,null=True)
-    requested = models.BooleanField(default=True,blank=True,null=True)
+    is_requested = models.BooleanField(default=True,blank=True,null=True)
     location = models.CharField(max_length=255)
     image = models.ImageField(upload_to=vehicle_directory_path, blank=True, null=True)
     description = models.CharField(max_length=255,null=True,blank=True)
