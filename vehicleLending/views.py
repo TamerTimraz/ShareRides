@@ -17,8 +17,8 @@ from django.contrib import messages
 
 @csrf_exempt
 def login_view(request):
-    if(request.user != None):
-        return redirect('vehicleLending:home')
+    #if(request.user != None):
+     #   return redirect('vehicleLending:home')
     return render(request, 'vehicleLending/login.html', {"google_client_id": settings.GOOGLE_OAUTH_CLIENT_ID})  
 
 @csrf_exempt
