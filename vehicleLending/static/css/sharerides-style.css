@@ -77,7 +77,6 @@ main {
 
 /* Search bar */
 .search-container {
-  border: 1px solid var(--sharerides-border);
   border-radius: 24px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.05);
   transition: all 0.3s ease;
@@ -90,7 +89,7 @@ main {
 }
 
 #searchInput {
-  border: none;
+  border: 1px solid var(--sharerides-border) !important;
   border-radius: 24px;
   padding: 0.75rem 1.5rem;
   font-size: 0.95rem;
@@ -100,6 +99,7 @@ main {
 #searchInput:focus {
   outline: none;
   box-shadow: none;
+  border-color: var(--sharerides-pink) !important;
 }
 
 /* Card styling */
@@ -192,8 +192,8 @@ main {
   top: 0;
   left: 0;
   right: 0;
-  height: 1px;
-  background: linear-gradient(to right, transparent, var(--sharerides-border), transparent);
+  height: 0;
+  background: none;
 }
 
 /* Button styling */
