@@ -3,46 +3,154 @@
 
 <!-- Librarian Actions -->
 {% if user.user_type == 'librarian' %}
-<div class="container mt-4">
-    <h2 class="text-start fw-bold">Librarian Actions</h2>
-    <hr class="thick-line mb-4">
+<div class="container mt-4 page-header">
+    <h2 class="section-title fw-bold" data-aos="fade-up">Manage Vehicles</h2>
+    <p class="text-muted mb-4 section-subtitle" data-aos="fade-up" data-aos-delay="100">Create, edit, or delete vehicles in your inventory</p>
 
-    <a href="{% url 'vehicleLending:add_vehicle' %}" class="btn btn-primary">
-        Create a Vehicle
-    </a> 
-
-    <a href=# class="btn btn-primary">
-        Delete a Vehicle
-    </a> 
-
-    <a href=# class="btn btn-primary">
-        Edit Collection
-    </a> 
+    <div class="d-flex flex-wrap gap-3 mb-5" data-aos="fade-up" data-aos-delay="150">
+        <a href="{% url 'vehicleLending:add_vehicle' %}" class="btn btn-primary">
+            <i class="fas fa-plus-circle me-2"></i>Add Vehicle
+        </a> 
+        <a href=# class="btn btn-outline-secondary">
+            <i class="fas fa-trash-alt me-2"></i>Delete Vehicle
+        </a> 
+        <a href=# class="btn btn-outline-secondary">
+            <i class="fas fa-edit me-2"></i>Edit Collection
+        </a>
+    </div>
 </div>
 {% endif %}
 
 <!-- Header -->
-<div class="container mt-4">
-    <h2 class="text-start fw-bold">All Vehicles</h2>
-    <hr class="thick-line mb-4">
+<div class="container mt-4 mb-5">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center" data-aos="fade-up">
+        <div>
+            <h2 class="section-title fw-bold">Explore Vehicles</h2>
+            <p class="text-muted mt-3">Find the perfect vehicle for your needs</p>
+        </div>
+        <div class="d-flex gap-2 mt-4 mt-md-0">
+            <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#filtersModal">
+                <i class="fas fa-filter me-2"></i>Filters
+            </button>
+            <div class="dropdown">
+                <button class="btn btn-sm btn-outline-secondary rounded-pill px-3 dropdown-toggle" type="button" id="sortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-sort-amount-down me-2"></i>Sort
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="sortDropdown">
+                    <li><a class="dropdown-item" href="#"><i class="fas fa-arrow-down-short-wide me-2"></i>Price: High to Low</a></li>
+                    <li><a class="dropdown-item" href="#"><i class="fas fa-arrow-up-short-wide me-2"></i>Price: Low to High</a></li>
+                    <li><a class="dropdown-item" href="#"><i class="fas fa-calendar me-2"></i>Newest First</a></li>
+                    <li><a class="dropdown-item" href="#"><i class="fas fa-star me-2"></i>Highest Rated</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters Modal -->
+<div class="modal fade" id="filtersModal" tabindex="-1" aria-labelledby="filtersModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title" id="filtersModalLabel">Filter Vehicles</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Vehicle Type</label>
+                    <div class="d-flex flex-wrap gap-2">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="carCheckbox">
+                            <label class="form-check-label" for="carCheckbox">Car</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="suvCheckbox">
+                            <label class="form-check-label" for="suvCheckbox">SUV</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="truckCheckbox">
+                            <label class="form-check-label" for="truckCheckbox">Truck</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="vanCheckbox">
+                            <label class="form-check-label" for="vanCheckbox">Van</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Price Range</label>
+                    <div class="d-flex align-items-center gap-3">
+                        <input type="number" class="form-control" placeholder="Min">
+                        <span>to</span>
+                        <input type="number" class="form-control" placeholder="Max">
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Year</label>
+                    <select class="form-select">
+                        <option selected>Any Year</option>
+                        <option>2023+</option>
+                        <option>2020-2022</option>
+                        <option>2015-2019</option>
+                        <option>2010-2014</option>
+                        <option>Older than 2010</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary">Apply Filters</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Vehicle Tiles-->
-<div class="container mt-4">
+<div class="container mb-5">
     <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
     
         <!-- Vehicle Tile -->
         {% for vehicle in vehicles %}
-        <div class="col">
-            <div class="card h-100">
+        <div class="col" data-aos="fade-up" data-aos-delay="{{ forloop.counter|divisibleby:4|yesno:'150,100,50,0' }}">
+            <div class="card h-100 product-card hover-lift">
                 {% if vehicle.image %}
-                <img src='{{ vehicle.image.url }}' class="card-img-top" alt="Vehicle_Image">
+                <div class="position-relative overflow-hidden">
+                    <img src='{{ vehicle.image.url }}' class="card-img-top" alt="{{ vehicle.make }} {{ vehicle.model }}">
+                    <div class="position-absolute top-0 end-0 m-2">
+                        <button class="btn btn-sm btn-light rounded-circle p-1 shadow-sm">
+                            <i class="far fa-heart"></i>
+                        </button>
+                    </div>
+                </div>
                 {% else %}
-                <p class="text-center">Image Unavailable</p>
+                <div class="bg-light d-flex justify-content-center align-items-center position-relative" style="height: 220px;">
+                    <i class="fas fa-car fa-3x text-muted"></i>
+                    <div class="position-absolute top-0 end-0 m-2">
+                        <button class="btn btn-sm btn-light rounded-circle p-1 shadow-sm">
+                            <i class="far fa-heart"></i>
+                        </button>
+                    </div>
+                </div>
                 {% endif %}
-                <div class="card-body d-flex flex-column justify-content-end align-items-center text-center">
-                    <h5 class="card-title">{{ vehicle.make }} {{ vehicle.model }} {{ vehicle.year }} ({{ vehicle.vehicle_type }})</h5>
-                    <a href="{% url 'vehicleLending:details' vehicle.id %}" class="btn btn-primary">See Details</a>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h5 class="card-title mb-0">{{ vehicle.make }} {{ vehicle.model }}</h5>
+                        <span class="badge bg-light text-dark rounded-pill">{{ vehicle.vehicle_type }}</span>
+                    </div>
+                    <div class="d-flex align-items-center mb-2">
+                        <p class="card-text text-muted mb-0">{{ vehicle.year }}</p>
+                        {% if vehicle.is_available %}
+                        <span class="badge bg-success ms-2 rounded-pill">Available</span>
+                        {% else %}
+                        <span class="badge bg-secondary ms-2 rounded-pill">Unavailable</span>
+                        {% endif %}
+                    </div>
+                    {% if vehicle.daily_rate %}
+                    <p class="price mb-3">${{ vehicle.daily_rate }}<span class="text-muted fs-6 fw-normal">/day</span></p>
+                    {% endif %}
+                    <div class="d-grid">
+                        <a href="{% url 'vehicleLending:details' vehicle.id %}" class="btn btn-primary">View Details</a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -50,4 +158,33 @@
     </div>
 </div>
 
+<!-- No Results Message (if applicable) -->
+{% if vehicles|length == 0 %}
+<div class="container text-center py-5">
+    <div class="py-5" data-aos="fade-up">
+        <i class="fas fa-car-side fa-5x text-muted mb-4"></i>
+        <h3 class="mb-3">No vehicles found</h3>
+        <p class="text-muted mb-4">Try adjusting your search or filters to find what you're looking for.</p>
+        <a href="{% url 'vehicleLending:home' %}" class="btn btn-primary">Go to Collections</a>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Toggle heart icon when clicked
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.fa-heart').forEach(heart => {
+            heart.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                this.classList.toggle('far');
+                this.classList.toggle('fas');
+                this.classList.toggle('text-danger');
+            });
+        });
+    });
+</script>
 {% endblock %}
