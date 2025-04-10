@@ -17,6 +17,8 @@ from django.contrib import messages
 
 @csrf_exempt
 def login_view(request):
+    #if(request.user != None):
+     #   return redirect('vehicleLending:home')
     return render(request, 'vehicleLending/login.html', {"google_client_id": settings.GOOGLE_OAUTH_CLIENT_ID})  
 
 @csrf_exempt
@@ -75,13 +77,13 @@ def select_vehicle(request, collection_name: str):
 def item_desc(request, vehicle_id):
     vehicle = get_object_or_404(Vehicle, id=vehicle_id)
     user = (request.user)
-    return render(request,'vehicleLending/item_desc.html', {'vehicle': vehicle})
+    return render(request,'vehicleLending/item_desc.html', {'vehicle': vehicle,'user':user})
 
-#@login_required
+@login_required
 def add_vehicle(request):
     # only librarians can access page
-#    if request.user.user_type != 'librarian':
- #       return redirect('vehicleLending:home')
+    if request.user.user_type != 'librarian':
+        return redirect('vehicleLending:home')
 
     if request.method == 'POST':
         form = VehicleForm(request.POST, request.FILES)

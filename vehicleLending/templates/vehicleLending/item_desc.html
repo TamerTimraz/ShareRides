@@ -1,91 +1,389 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vehicle Description</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-    <style>
+{% extends "vehicleLending/base.html" %}
 
-    </style>
-    {% extends "vehicleLending/base.html" %}
-</head>
 {% block content %}
+<head>
+    <style>
+        /* Global Styles */
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #f8fafc;
+            --text: #334155;
+            --text-light: #64748b;
+            --accent: #f59e0b;
+            --border: #e2e8f0;
+            --shadow: rgba(0, 0, 0, 0.05);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f1f5f9;
+            color: var(--text);
+            line-height: 1.6;
+        }
+        
+        /* Main Content */
+        .container.item {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        
+        .vehicle-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+        
+        @media (min-width: 768px) {
+            .vehicle-container {
+                grid-template-columns: 60% 40%;
+            }
+        }
+        
+        /* Vehicle Gallery */
+        .vehicle-gallery {
+            position: relative;
+        }
+        
+        .main-image {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+        }
+        
+        .thumbnails {
+            display: flex;
+            gap: 0.5rem;
+            padding: 1rem;
+            background-color: var(--secondary);
+        }
+        
+        .thumbnail {
+            width: 80px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 4px;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+        }
+        
+        .thumbnail:hover {
+            opacity: 1;
+        }
+        
+        /* Vehicle Details */
+        .vehicle-details {
+            padding: 2rem;
+        }
+        
+        .vehicle-title {
+            font-size: 1.8rem;
+            color: var(--text);
+            margin-bottom: 0.5rem;
+        }
+        
+        .vehicle-lender {
+            font-size: 1.2rem;
+            color: var(--primary);
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+        
+        .vehicle-specs {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .spec-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .spec-label {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+        
+        .spec-value {
+            font-weight: 600;
+        }
+        
+        .vehicle-description {
+            margin-bottom: 2rem;
+            color: var(--text-light);
+        }
+        
+        /* Action Buttons */
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        
+        @media (min-width: 576px) {
+            .action-buttons {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        .btn.item{
+            padding: 1rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            text-align: center;
+            text-decoration: none;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .btn-secondary {
+            background-color: var(--secondary);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+        
+        .btn-secondary:hover {
+            background-color: #e2e8f0;
+        }
+        
+        /* Similar Vehicles */
+        .similar-vehicles {
+            margin-top: 3rem;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--text);
+        }
+        
+        .vehicles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .vehicle-card {
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px var(--shadow);
+            transition: transform 0.3s ease;
+        }
+        
+        .vehicle-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card-image {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+        
+        .card-content {
+            padding: 1rem;
+        }
+        
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .card-price {
+            color: var(--primary);
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .card-specs {
+            display: flex;
+            justify-content: space-between;
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
 <body>
-    <div class="container mt-4 mx-5 row">
-        <div class="card col-9 ms-5 px-0">
-            <div class="card-header">
-                <h2>{{ vehicle.make }} {{ vehicle.model }} ({{ vehicle.year }})</h2>
-            </div>
-            <div class="card-body">
+    <main class="container item">
+        <div class="vehicle-container">
+            <!-- Vehicle Gallery -->
+            <div class="vehicle-gallery">
                 {% if vehicle.image %}
-                    <img src="{{ vehicle.image.url }}" class="card-img-top" alt="Car Image">
+                    <img src="{{ vehicle.image.url }}" class="img-fluid" alt="{{ vehicle.make }} {{ vehicle.model }}">
                 {% else %}
-                    <p>Image Unavailable</p>
+                    <div class="bg-secondary text-white p-5 text-center rounded">
+                        <h3>No Image Available</h3>
+                    </div>
                 {% endif %}
-
-                {% if vehicle.description %}
-                    <h5 class="mt-2"></h5>
-                    <p>{{ vehicle.description }}</p>
-                {% else %}
-                    <p class="text-muted">No additional details available.</p>
-                {% endif %}
-
-                <!-- could potentially make lender pages and this could be a link to the lender's page -->
-                <p class="mt-3 mb-0"><strong>Lender:</strong> {{ vehicle.lender.name }}</p>
-
-                <p class="mt-3 mb-0"><strong>Location:</strong> {{ vehicle.location }}</p>
-
-                <p class="mt-1 mb-2">
-                    <strong>Available:</strong>
-                    {% if vehicle.is_available %}
-                        <span class="badge bg-success">✅ Yes</span>
-                    {% else %}
-                        <span class="badge bg-danger">❌ No</span>
-                    {% endif %}
-                </p>
-                
+                <!-- Could add additional images later on 
+                <div class="thumbnails">
+                    <img src="/api/placeholder/80/60" alt="BMW X5 Front" class="thumbnail">
+                    <img src="/api/placeholder/80/60" alt="BMW X5 Side" class="thumbnail">
+                    <img src="/api/placeholder/80/60" alt="BMW X5 Interior" class="thumbnail">
+                    <img src="/api/placeholder/80/60" alt="BMW X5 Rear" class="thumbnail">
+                </div>
+                -->
             </div>
-            <div class="card-footer">
-                <a href="" class="btn btn-secondary">⬅️ Back to List</a>
-                {% if vehicle.is_available %}
-                    <a href="{% url 'vehicleLending:request_borrow' vehicle.id %}" class="mx-3 btn btn-secondary">Borrow</a>
-                {% endif %}
-                {% if messages %}
-                    <ul class="messages">
-                        {% for message in messages %}
-                            <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
+            
+            <!-- Vehicle Details -->
+            <div class="vehicle-details ps-0 pe-5">
+                <div class="card-header d-flex align-items-center">
+                    <h1 class="vehicle-title">{{ vehicle.make }} {{ vehicle.model }} ({{ vehicle.year }})</h1>
+                </div>
+                <p class="vehicle-lender">{{ vehicle.lender.name }}</p>
+                
+                <div class="vehicle-specs">
+                    <div class="spec-item">
+                        <span class="spec-label">Type:</span>
+                        <span class="spec-value">{{ vehicle.vehicle_type }}</span>
+                    </div>
+                    <div class="spec-item">
+                        <span class="spec-label">Year:</span>
+                        <span class="spec-value">{{ vehicle.year }}</span>
+                    </div>
+                    <div class="spec-item">
+                        <span class="spec-label">Make:</span>
+                        <span class="spec-value">{{ vehicle.make }}</span>
+                    </div>
+                    <div class="spec-item">
+                        <span class="spec-label">Model:</span>
+                        <span class="spec-value">{{ vehicle.model }}</span>
+                    </div>
+                    <div class="spec-item">
+                        <span class="spec-label">Location:</span>
+                        <span class="spec-value">
+                            <a href="#map">{{ vehicle.location }}</a>
+                        </span>
+                    </div>
+                    
+                    <!-- could add some more details 
+                    <div class="spec-item">
+                        <span class="spec-label">Mileage:</span>
+                        <span class="spec-value">15,320 miles</span>
+                    </div>
+                    <div class="spec-item">
+                        <span class="spec-label">Fuel:</span>
+                        <span class="spec-value">Gasoline</span>
+                    </div>
+                -->
+                </div>
+                
+                <div class="vehicle-description">
+                    <span class="spec-label">Description from Lender:</span>
+                    <span class="spec-value">{{ vehicle.description|linebreaks }}</span>
+                </div>
+                
+                
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    {% if vehicle.is_available %}
+                        <a href="#" class="btn item btn-primary">Request to Borrow</a>
+                    {% else %}
+                        <a class="btn item btn-primary" disabled>
+                        Request to Borrow
+                        </a>
+                    {% endif %}
+                    {% if user_type == 'librarian' %}
+                        <a href="#" class="btn item btn-secondary"></a>
+                    {% endif %}
+                </div>
             </div>
         </div>
-        <div class="mx-0 col-2 ">
-            <ul class="nav flex-column">
-                <li class="nav-item">
-                    <a href="/../home" class="nav-link active fs-5"> All Vehicles </a>
-                </li>
-                <li class="nav-item">
-                    <a href="#" class="nav-link active fs-5"> Cars </a>
-                </li>
-                <li>
-                    <a href="#" class="nav-link active fs-5"> Bikes </a>
-                </li>
-                <li>
-                    <a href="#" class="nav-link active fs-5"> Trucks </a>
-                </li>
-                <li>
-                    <a href="#" class="nav-link active fs-5"> Vans </a>
-                </li>
-            </ul>
+        
+        <!-- Other vehicles from this lender -- could add later
+        <section class="similar-vehicles">
+            <h2 class="section-title">Other Vehicles From This Lender</h2>
+            <div class="vehicles-grid">
+                <div class="vehicle-card">
+                    <img src="/api/placeholder/280/180" alt="Mercedes GLE" class="card-image">
+                    <div class="card-content">
+                        <h3 class="card-title">2022 Mercedes-Benz GLE 450</h3>
+                        <p class="card-price">$78,900</p>
+                        <div class="card-specs">
+                            <span>20,145 miles</span>
+                            <span>AWD</span>
+                            <span>3.0L V6</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="vehicle-card">
+                    <img src="/api/placeholder/280/180" alt="Audi Q7" class="card-image">
+                    <div class="card-content">
+                        <h3 class="card-title">2023 Audi Q7 Premium Plus</h3>
+                        <p class="card-price">$82,500</p>
+                        <div class="card-specs">
+                            <span>8,790 miles</span>
+                            <span>Quattro</span>
+                            <span>3.0L V6</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="vehicle-card">
+                    <img src="/api/placeholder/280/180" alt="Range Rover Sport" class="card-image">
+                    <div class="card-content">
+                        <h3 class="card-title">2022 Range Rover Sport HSE</h3>
+                        <p class="card-price">$92,300</p>
+                        <div class="card-specs">
+                            <span>17,320 miles</span>
+                            <span>4WD</span>
+                            <span>3.0L I6</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="vehicle-card">
+                    <img src="/api/placeholder/280/180" alt="Porsche Cayenne" class="card-image">
+                    <div class="card-content">
+                        <h3 class="card-title">2021 Porsche Cayenne</h3>
+                        <p class="card-price">$86,700</p>
+                        <div class="card-specs">
+                            <span>22,480 miles</span>
+                            <span>AWD</span>
+                            <span>3.0L V6</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+    -->
+    
+
+    <div class="vehicle-location">
+        <div id="map" class="mt-2 bg-light" style="height: 200px;">
+            <p class="text-center pt-5">Google Maps integration coming soon</p>
         </div>
     </div>
-    
-    <!-- Bootstrap JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+    </main>
 </body>
+
 {% endblock %}
-</html>

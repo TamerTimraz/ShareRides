@@ -2,61 +2,205 @@
 {% load static %}
 {% block content %}
 
-<!-- Title -->
-<section class="bg-primary text-white text-center py-5">
-    <div class="container">
-        <h1>About Us</h1>
-        <p class="lead">Learn more about our mission, policies, and what we do.</p>
-    </div>
-</section>
-
-<!-- Summary, Images, Quote -->
-<div class="container mt-4">
-    <div class="card p-4">
-        <div class="card-body">
-            <p class="lead">
-                {{ summary|linebreaksbr }}
-            </p>
-        </div>
-    </div>
-
-    <div class="mb-5"></div>
-
-    <div class="row">
-        <div class="col-4">
-            <img src="{% static 'about/im1.PNG' %}" class="img-fluid" alt="Image 1">
-        </div>
-        <div class="col-4">
-            <img src="{% static 'about/im2.jpg' %}" class="img-fluid" alt="Image 2">
-        </div>
-        <div class="col-4">
-            <img src="{% static 'about/im3.jpg' %}" class="img-fluid" alt="Image 3">
-        </div>
-    </div>
-
-    <div class="container mt-4">
-        <blockquote class="blockquote text-center">
-            <p class="mb-0 font-weight-bold fs-1">"{{ quote }}"</p>
-        </blockquote>
-    </div>    
-</div>
-
-<!-- Policies -->
-<div class="container mt-4">
-    <h2 class="text-start fw-bold">Policies</h2>
-    <hr class="thick-line mb-4">
-
-    {% for policy in policies %}
-    <div class="card mb-3">
-        <div class="card-body d-flex align-items-center">
-            <i class="fas fa-file-pdf fa-2x text-danger me-3"></i>
-            <div>
-                <h5 class="card-title">{{ policy }}</h5>
-                <a href="https://youtu.be/dQw4w9WgXcQ?si=OVyEz6O9vbWdAS3T" class="btn btn-danger">View Policy</a>
+<!-- Header -->
+<div class="container mt-5 mb-5">
+    <div class="text-center" data-aos="fade-up">
+        <h1 class="display-4 fw-bold">About ShareRides</h1>
+        <p class="lead text-muted mt-3 mb-4">Learn more about our mission, policies, and what we do</p>
+        <div class="d-flex justify-content-center">
+            <div class="col-md-8">
+                <hr class="my-4">
             </div>
         </div>
     </div>
-    {% endfor %}
+</div>
+
+<!-- Our Mission -->
+<div class="container mb-5">
+    <div class="row align-items-center">
+        <div class="col-lg-6" data-aos="fade-right">
+            <h2 class="section-title fw-bold mb-4">Our Mission</h2>
+            <div class="card border-0 shadow-sm hover-lift">
+                <div class="card-body p-4">
+                    <p class="lead">
+                        {{ summary|linebreaksbr }}
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6" data-aos="fade-left" data-aos-delay="100">
+            <div class="position-relative">
+                <div class="row g-3">
+                    <div class="col-6">
+                        <img src="{% static 'about/im1.PNG' %}" class="img-fluid rounded shadow-sm hover-lift" alt="ShareRides vehicle">
+                    </div>
+                    <div class="col-6">
+                        <img src="{% static 'about/im2.jpg' %}" class="img-fluid rounded shadow-sm hover-lift" alt="Happy customer">
+                    </div>
+                    <div class="col-12 mt-3">
+                        <img src="{% static 'about/im3.jpg' %}" class="img-fluid rounded shadow-sm hover-lift" alt="Our team">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quote Section -->
+<div class="container-fluid bg-light py-5 mb-5">
+    <div class="container" data-aos="fade-up">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <i class="fas fa-quote-left fa-3x text-primary mb-3 opacity-25"></i>
+                <blockquote class="blockquote">
+                    <p class="mb-4 fs-3 fw-light fst-italic">"{{ quote }}"</p>
+                </blockquote>
+                <hr class="my-4">
+                <p class="text-muted">Our guiding principle at ShareRides</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Policies Section -->
+<div class="container mb-5">
+    <h2 class="section-title fw-bold mb-4" data-aos="fade-up">Our Policies</h2>
+    <p class="text-muted mb-4" data-aos="fade-up" data-aos-delay="50">Documents that guide our operation and ensure a fair experience for all users</p>
+    
+    <div class="row row-cols-1 row-cols-md-2 g-4">
+        {% for policy in policies %}
+        <div class="col" data-aos="fade-up" data-aos-delay="{{ forloop.counter|add:1|add:49 }}">
+            <div class="card h-100 border-0 shadow-sm hover-lift">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-primary bg-opacity-10 p-3 rounded-circle me-3">
+                            <i class="fas fa-file-pdf text-primary"></i>
+                        </div>
+                        <h5 class="card-title mb-0">{{ policy }}</h5>
+                    </div>
+                    <p class="card-text text-muted mb-3 small">Essential information about our {{ policy|lower }} and guidelines for all ShareRides users.</p>
+                    <a href="https://youtu.be/dQw4w9WgXcQ?si=OVyEz6O9vbWdAS3T" class="btn btn-outline-primary">
+                        <i class="fas fa-download me-2"></i>Download PDF
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Team Section -->
+<div class="container mb-5">
+    <h2 class="section-title fw-bold mb-4 text-center" data-aos="fade-up">Our Team</h2>
+    <p class="text-muted mb-4 text-center" data-aos="fade-up" data-aos-delay="50">The dedicated people behind ShareRides</p>
+    
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4">
+        <div class="col" data-aos="fade-up" data-aos-delay="50">
+            <div class="card border-0 text-center hover-lift">
+                <div class="position-relative">
+                    <div class="ratio ratio-1x1 rounded-circle overflow-hidden mx-auto" style="width: 150px;">
+                        <img src="https://ui-avatars.com/api/?name=Kyle+Vitayanuvatti&background=0D8ABC&color=fff" class="card-img-top" alt="Kyle Vitayanuvatti">
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title mb-1">Kyle Vitayanuvatti</h5>
+                    <p class="text-muted small">Software Architect</p>
+                    <div class="d-flex justify-content-center gap-2 mt-2">
+                        <a href="#" class="btn btn-sm btn-outline-secondary rounded-circle">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                        <a href="#" class="btn btn-sm btn-outline-secondary rounded-circle">
+                            <i class="fab fa-github"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col" data-aos="fade-up" data-aos-delay="100">
+            <div class="card border-0 text-center hover-lift">
+                <div class="position-relative">
+                    <div class="ratio ratio-1x1 rounded-circle overflow-hidden mx-auto" style="width: 150px;">
+                        <img src="https://ui-avatars.com/api/?name=Tamer+Timraz&background=E91E63&color=fff" class="card-img-top" alt="Tamer Timraz">
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title mb-1">Tamer Timraz</h5>
+                    <p class="text-muted small">Dev Ops Engineer</p>
+                    <div class="d-flex justify-content-center gap-2 mt-2">
+                        <a href="#" class="btn btn-sm btn-outline-secondary rounded-circle">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                        <a href="#" class="btn btn-sm btn-outline-secondary rounded-circle">
+                            <i class="fab fa-github"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col" data-aos="fade-up" data-aos-delay="150">
+            <div class="card border-0 text-center hover-lift">
+                <div class="position-relative">
+                    <div class="ratio ratio-1x1 rounded-circle overflow-hidden mx-auto" style="width: 150px;">
+                        <img src="https://ui-avatars.com/api/?name=Will+Baker&background=4CAF50&color=fff" class="card-img-top" alt="Will Baker">
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title mb-1">Will Baker</h5>
+                    <p class="text-muted small">Scrum Master</p>
+                    <div class="d-flex justify-content-center gap-2 mt-2">
+                        <a href="#" class="btn btn-sm btn-outline-secondary rounded-circle">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                        <a href="#" class="btn btn-sm btn-outline-secondary rounded-circle">
+                            <i class="fab fa-github"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col" data-aos="fade-up" data-aos-delay="200">
+            <div class="card border-0 text-center hover-lift">
+                <div class="position-relative">
+                    <div class="ratio ratio-1x1 rounded-circle overflow-hidden mx-auto" style="width: 150px;">
+                        <img src="https://ui-avatars.com/api/?name=Colby+Wise&background=FF9800&color=fff" class="card-img-top" alt="Colby Wise">
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title mb-1">Colby Wise</h5>
+                    <p class="text-muted small">Requirements Manager</p>
+                    <div class="d-flex justify-content-center gap-2 mt-2">
+                        <a href="#" class="btn btn-sm btn-outline-secondary rounded-circle">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                        <a href="#" class="btn btn-sm btn-outline-secondary rounded-circle">
+                            <i class="fab fa-github"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col" data-aos="fade-up" data-aos-delay="250">
+            <div class="card border-0 text-center hover-lift">
+                <div class="position-relative">
+                    <div class="ratio ratio-1x1 rounded-circle overflow-hidden mx-auto" style="width: 150px;">
+                        <img src="https://ui-avatars.com/api/?name=Shawn+Thomas&background=9C27B0&color=fff" class="card-img-top" alt="Shawn Thomas">
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title mb-1">Shawn Thomas</h5>
+                    <p class="text-muted small">Testing Manager</p>
+                    <div class="d-flex justify-content-center gap-2 mt-2">
+                        <a href="#" class="btn btn-sm btn-outline-secondary rounded-circle">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                        <a href="#" class="btn btn-sm btn-outline-secondary rounded-circle">
+                            <i class="fab fa-github"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 {% endblock %}
