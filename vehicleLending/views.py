@@ -110,6 +110,13 @@ def edit_vehicle(request, vehicle_id: int):
         form = VehicleForm(instance=vehicle)
     return render(request, 'vehicleLending/add_vehicle.html', {'form': form, 'vehicle': vehicle})
 
+def delete_vehicle(request, vehicle_id: int):
+    vehicle = get_object_or_404(Vehicle, id=vehicle_id)
+
+    vehicle.delete()
+    return redirect('vehicleLending:home')
+    
+
 @login_required
 def profile_view(request):
     user = request.user
