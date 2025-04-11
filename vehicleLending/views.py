@@ -79,10 +79,10 @@ def item_desc(request, vehicle_id):
     user = (request.user)
     return render(request,'vehicleLending/item_desc.html', {'vehicle': vehicle,'user':user})
 
-@login_required
+
 def add_vehicle(request):
     # only librarians can access page
-    if request.user.user_type != 'librarian':
+    if not request.user.is_authenticated or request.user.user_type != 'librarian':
         return redirect('vehicleLending:home')
 
     if request.method == 'POST':
@@ -99,6 +99,9 @@ def add_vehicle(request):
     return render(request,'vehicleLending/add_vehicle.html',{'form':form})
 
 def edit_vehicle(request, vehicle_id: int):
+    if not request.user.is_authenticated or request.user.user_type != 'librarian':
+        return redirect('vehicleLending:home')
+    
     vehicle = get_object_or_404(Vehicle, id=vehicle_id)
 
     if request.method == 'POST':
@@ -111,14 +114,19 @@ def edit_vehicle(request, vehicle_id: int):
     return render(request, 'vehicleLending/add_vehicle.html', {'form': form, 'vehicle': vehicle})
 
 def delete_vehicle(request, vehicle_id: int):
+    if not request.user.is_authenticated or request.user.user_type != 'librarian':
+        return redirect('vehicleLending:home')
+
     vehicle = get_object_or_404(Vehicle, id=vehicle_id)
 
     vehicle.delete()
     return redirect('vehicleLending:home')
     
 
-@login_required
 def profile_view(request):
+    if not request.user.is_authenticated:
+        return redirect('vehicleLending:login')
+
     user = request.user
     if request.method == 'POST':
         form = ProfilePictureForm(request.POST, request.FILES, instance=user)
@@ -129,8 +137,10 @@ def profile_view(request):
         form = ProfilePictureForm(instance=user)
     return render(request, 'vehicleLending/profile.html', {'form': form, 'user': user})
 
-@login_required
 def delete_profile_picture(request):
+    if not request.user.is_authenticated:
+        return redirect('vehicleLending:login')
+    
     user = request.user
     if user.profile_pic:
         user.profile_pic.delete(save=False)  # deletes from S3
@@ -179,12 +189,13 @@ def search_results(request):
         results = results[:8]
     return JsonResponse({'results': results})
 
+
 def all_vehicles(request):
     vehicles = Vehicle.objects.all()
     context = {"vehicles": vehicles}
     return render(request, 'vehicleLending/all_vehicles.html',context)
 
-@login_required
+
 def add_collection(request):
     # Both librarians and patrons can create collections
     if not request.user.is_authenticated:
