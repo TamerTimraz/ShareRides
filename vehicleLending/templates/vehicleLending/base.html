@@ -54,9 +54,10 @@
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                         <li><a class="dropdown-item" href="{% url 'vehicleLending:profile' %}"><i class="far fa-user me-2"></i>Profile</a></li>
-                        <li><a class="dropdown-item" href="{% url 'vehicleLending:manage_requests' %}"><i class="far fa-list-alt me-2"></i>Manage Requests</a></li>
+                        <li><a class="dropdown-item" href="{% url 'vehicleLending:requested_vehicles' %}"><i class="fas fa-car me-2"></i>Requested Vehicles</a></li>
 
                         {% if user.user_type == 'librarian' %}
+                        <li><a class="dropdown-item" href="{% url 'vehicleLending:my_vehicles' %}"><i class="fas fa-car me-2"></i>My Vehicles</a></li>
                         <li><a class="dropdown-item" href="{% url 'vehicleLending:promote_patron' %}"><i class="fas fa-user-plus me-2"></i>Promote Patron</a></li>
                         {% endif %}
 

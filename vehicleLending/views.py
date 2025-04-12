@@ -283,12 +283,11 @@ def request_borrow(request, vehicle_id):
         status='pending'
     )
 
-    if created:
-        messages.success(request, "Your borrow request has been submitted")
-    else:
+    if not created:
         messages.info(request, "You have already requested to borrow this vehicle")
+        return redirect(reverse('vehicleLending:details', args=[vehicle_id]))
     
-    return redirect(reverse('vehicleLending:details', args=[vehicle_id]))
+    return redirect('vehicleLending:requested_vehicles')
 
 @login_required
 def respond_to_request(request, request_id, response):
@@ -324,6 +323,15 @@ def vehicle_requests(request, vehicle_id):
 
     requests = BorrowRequest.objects.filter(vehicle=vehicle)
     return render(request, 'vehicleLending/vehicle_requests.html', {'requests': requests})
+
+@login_required
+def requested_vehicles(request):
+    if not request.user.is_authenticated:
+        return redirect('vehicleLending:home')
+    
+    borrow_requests = BorrowRequest.objects.filter(requester=request.user)
+    return render(request, 'vehicleLending/requested_vehicles.html', {'borrow_requests': borrow_requests})
+
 
 @login_required
 @require_http_methods(["GET", "POST"])
