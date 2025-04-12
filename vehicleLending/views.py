@@ -12,6 +12,7 @@ from django.contrib.auth import login, logout, get_user_model
 from .forms import VehicleForm, ProfilePictureForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.views.decorators.http import require_http_methods
 
 # Create your views here.
 
@@ -312,3 +313,29 @@ def respond_to_request(request, request_id, response):
     
     borrow_request.save()
     return redirect('vehicleLending:manage_requests')
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def promote_patron(request):
+
+    # Temporary fix, may update later to only display to librarians so no need for check.
+    if request.user.user_type != 'librarian':
+        messages.error(request, "You do not have permission to access this page.")
+        return redirect('vehicleLending:home')
+
+    patrons = User.objects.filter(user_type='patron')
+
+    if request.method == 'POST':
+        #When selected
+        selected_id = request.POST.get('patron_id')
+        try:
+            user_to_promote = User.objects.get(id=selected_id, user_type='patron')
+            user_to_promote.user_type = 'librarian'
+            user_to_promote.save()
+            messages.success(request, f"{user_to_promote.name} was promoted to librarian.")
+            return redirect('vehicleLending:promote_patron')
+        except User.DoesNotExist:
+            messages.error(request, "That user was not found or is already a librarian.")
+
+    # Stay in page
+    return render(request, 'vehicleLending/promote_patron.html', {'patrons': patrons})
