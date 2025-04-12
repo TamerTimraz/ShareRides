@@ -5,48 +5,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>My Store</title>
+    <title>ShareRides</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" />
+    <link rel="stylesheet" type="text/css" href="{% static 'css/sharerides-style.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
 </head>
 <body>
 
 <!-- Navbar -->
-<nav class="navbar navbar-expand navbar-dark bg-dark fixed-top">
+<nav class="navbar navbar-expand navbar-light fixed-top">
     <div class="container">
-        <a class="navbar-brand fw-bold" href="{% url 'vehicleLending:home' %}">ShareRides</a>
+        <a class="navbar-brand fw-bold" href="{% url 'vehicleLending:home' %}">
+            <i class="fas fa-car-side me-2"></i>ShareRides
+        </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
-            <div class="mx-auto d-flex" style="width: 50%;">
-                <input type="text" id="searchInput" class="form-control dropdown-toggle" data-bs-toggle="dropdown" placeholder="Search...">
+            <div class="mx-auto d-flex position-relative" style="width: 50%;">
+                <input type="text" id="searchInput" class="form-control rounded-pill ps-3 pe-5" placeholder="Search vehicles, locations...">
+                <div class="position-absolute end-0 top-50 translate-middle-y pe-3">
+                    <i class="fas fa-search text-muted"></i>
+                </div>
                 <ul id="searchResults" class="dropdown-menu w-100"></ul>
             </div>
-            <ul class="navbar-nav ms-auto">
+            <ul class="navbar-nav ms-auto align-items-center">
                 <li class="nav-item">
-                    <a class="nav-link active" href="{% url 'vehicleLending:all' %}">All</a>
+                    <a class="nav-link" href="{% url 'vehicleLending:all' %}">All Vehicles</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link active" href="{% url 'vehicleLending:home' %}">Collections</a>
+                    <a class="nav-link" href="{% url 'vehicleLending:home' %}">Collections</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link active" href="{% url 'vehicleLending:my_vehicles' %}">My Vehicles</a>
+                    <a class="nav-link" href="{% url 'vehicleLending:about' %}">About Us</a>
                 </li>
+                {% if user.is_authenticated %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link d-flex align-items-center py-2" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <div class="avatar-circle me-2">
+                            <span class="avatar-initials">{{ user.name.0|upper }}</span>
+                        </div>
+                        <span>{{ user.name }}</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                        <li><a class="dropdown-item" href="{% url 'vehicleLending:profile' %}"><i class="far fa-user me-2"></i>Profile</a></li>
+                        <li><a class="dropdown-item" href="{% url 'vehicleLending:manage_requests' %}"><i class="far fa-list-alt me-2"></i>Manage Requests</a></li>
+
+                        {% if user.user_type == 'librarian' %}
+                        <li><a class="dropdown-item" href="{% url 'vehicleLending:promote_patron' %}"><i class="fas fa-user-plus me-2"></i>Promote Patron</a></li>
+                        {% endif %}
+
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form action="{% url 'vehicleLending:sign_out' %}" method="post">
+                                {% csrf_token %}
+                                <button type="submit" class="dropdown-item"><i class="fas fa-sign-out-alt me-2"></i>Sign Out</button>
+                            </form>
+                        </li>
+                    </ul>
+                </li>
+                {% else %}
                 <li class="nav-item">
-                    <a class="nav-link active" href="{% url 'vehicleLending:about' %}">About Us</a>
+                    <a class="nav-link btn btn-sm btn-primary text-white ms-2 px-3" href="{% url 'vehicleLending:login' %}">Sign In</a>
                 </li>
-                <form action="{% url 'vehicleLending:sign_out' %}" method="post" style="display:inline;">
-                    {% csrf_token %}
-                    <button type="submit" class="nav-link btn btn-link text-light">Sign Out</button>
-                </form>                
-                <li class="nav-item">
-                    {% if user.is_authenticated %}
-                        <a class="nav-link" href="{% url 'vehicleLending:profile' %}">{{ user.name}} | {{ user.user_type }}</a>
-                    {% else %}
-                        <a class="nav-link" href="#">Guest User</a>
-                    {% endif %}
-                </li>
+                {% endif %}
             </ul>
         </div>
     </div>
@@ -55,23 +82,115 @@
 <!-- Spacing to prevent overlap -->
 <div class="mt-5 pt-4"></div>
 
-{% block content %}
-{% endblock %}
+<!-- Main Content -->
+<main class="container py-4">
+    {% block content %}
+    {% endblock %}
+</main>
 
 {% block scripts %}
 {% endblock %}
 
 <!-- Bootstrap Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+<script>
+    AOS.init({
+        duration: 800,
+        easing: 'ease-out',
+        once: true
+    });
+</script>
 <script src="{% static 'js/search.js' %}"></script>
+<script src="{% static 'js/sharerides-animations.js' %}"></script>
 
 <!-- Footer -->
-<footer class="bg-dark text-light text-center py-3 mt-5">
+<footer class="mt-4">
     <div class="container">
-        <p class="mb-0">&copy; 2025 ShareRides. All rights reserved.</p>
-        <p class="mb-0">This is a class project for CS 3240 'Software Engineering' at the University of Virginia. The system is not monitored, and no real information should be submitted.</p>
+        <div class="row g-4 align-items-center">
+            <div class="col-md-2">
+                <h5><i class="fas fa-car-side me-2"></i>ShareRides</h5>
+                <div class="social-icons d-flex gap-2">
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+            <div class="col-md-5 offset-md-1">
+                <div class="text-center">
+                    <h5 class="mb-2">Quick Links</h5>
+                </div>
+                <div class="d-flex justify-content-center gap-4">
+                    <a href="{% url 'vehicleLending:home' %}"><i class="fas fa-chevron-right small me-1"></i>Home</a>
+                    <a href="{% url 'vehicleLending:all' %}"><i class="fas fa-chevron-right small me-1"></i>All Vehicles</a>
+                    <a href="{% url 'vehicleLending:about' %}"><i class="fas fa-chevron-right small me-1"></i>About Us</a>
+                    <a href="#"><i class="fas fa-chevron-right small me-1"></i>Contact</a>
+                </div>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <h5 class="mb-2">Get the ShareRides App</h5>
+                <div class="d-flex gap-2 justify-content-md-end">
+                    <a href="#" class="app-button">
+                        <div class="d-flex align-items-center bg-dark text-white rounded px-3 py-2">
+                            <div class="me-2"><i class="fab fa-apple fs-4"></i></div>
+                            <div>
+                                <div class="small" style="font-size: 0.6rem;">Download on the</div>
+                                <div style="font-size: 0.9rem; font-weight: 500;">App Store</div>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="#" class="app-button">
+                        <div class="d-flex align-items-center bg-dark text-white rounded px-3 py-2">
+                            <div class="me-2"><i class="fab fa-google-play fs-4"></i></div>
+                            <div>
+                                <div class="small" style="font-size: 0.6rem;">GET IT ON</div>
+                                <div style="font-size: 0.9rem; font-weight: 500;">Google Play</div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <hr class="my-2">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center">
+            <p class="mb-1">&copy; 2025 ShareRides. All rights reserved.</p>
+            <p class="text-muted mb-0">CS 3240 'Software Engineering' project at UVA</p>
+        </div>
     </div>
 </footer>
 
+<style>
+    .avatar-circle {
+        width: 32px;
+        height: 32px;
+        background-color: var(--sharerides-pink);
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .avatar-initials {
+        color: white;
+        font-size: 14px;
+        font-weight: 600;
+    }
+    
+    .app-button {
+        text-decoration: none;
+        transition: transform 0.2s;
+    }
+    
+    .app-button:hover {
+        transform: translateY(-3px);
+    }
+    
+    .navbar .nav-link {
+        padding-top: 0.75rem;
+        padding-bottom: 0.75rem;
+    }
+</style>
+
 </body>
 </html>
+

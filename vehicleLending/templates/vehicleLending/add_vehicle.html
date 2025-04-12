@@ -1,19 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vehicle Description</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-
-    {% extends "vehicleLending/base.html" %}
-    <style>
-
-    </style>
-</head>
+{% extends "vehicleLending/base.html" %}
 {% block content %}
 <body>
     <div class="container mt-4">
@@ -59,7 +44,7 @@
                 <label for="{{ form.image.id_for_label }}" class="form-label">Image</label>
                 {{ form.image }}
             </div>
-
+<!--
             <div class="mb-3">
                 <label for="{{ form.model.id_for_label }}" class="form-label">Available</label>
                 {{ form.is_available }}
@@ -67,6 +52,7 @@
                     <div class="text-danger">{{ form.is_available.errors.0 }}</div>
                 {% endif %}
             </div>
+        -->
 
             <div class="mb-3">
                 <label for="{{ form.location.id_for_label }}" class="form-label">Location</label>
@@ -88,6 +74,4 @@
             <a href="#" class="btn btn-secondary">Cancel</a>
         </form>
     </div>
-</body>
 {% endblock %}
-</html>

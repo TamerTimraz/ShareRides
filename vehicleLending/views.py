@@ -12,11 +12,14 @@ from django.contrib.auth import login, logout, get_user_model
 from .forms import VehicleForm, ProfilePictureForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.views.decorators.http import require_http_methods
 
 # Create your views here.
 
 @csrf_exempt
 def login_view(request):
+    #if(request.user != None):
+     #   return redirect('vehicleLending:home')
     return render(request, 'vehicleLending/login.html', {"google_client_id": settings.GOOGLE_OAUTH_CLIENT_ID})  
 
 @csrf_exempt
@@ -69,18 +72,18 @@ def select_collection(request):
 def select_vehicle(request, collection_name: str):
     collection = get_object_or_404(Collection, name=collection_name)
     vehicles = collection.vehicles.all()
-    context = {"collection_name": collection_name, "vehicles": vehicles}
+    context = {"collection_name": collection_name, "vehicles": vehicles, "collection": collection}
     return render(request, 'vehicleLending/select_vehicle.html', context)
 
 def item_desc(request, vehicle_id):
     vehicle = get_object_or_404(Vehicle, id=vehicle_id)
     user = (request.user)
-    return render(request,'vehicleLending/item_desc.html', {'vehicle': vehicle})
+    return render(request,'vehicleLending/item_desc.html', {'vehicle': vehicle,'user':user})
 
-@login_required
+
 def add_vehicle(request):
     # only librarians can access page
-    if request.user.user_type != 'librarian':
+    if not request.user.is_authenticated or request.user.user_type != 'librarian':
         return redirect('vehicleLending:home')
 
     if request.method == 'POST':
@@ -96,8 +99,35 @@ def add_vehicle(request):
         form = VehicleForm()
     return render(request,'vehicleLending/add_vehicle.html',{'form':form})
 
-@login_required
+def edit_vehicle(request, vehicle_id: int):
+    if not request.user.is_authenticated or request.user.user_type != 'librarian':
+        return redirect('vehicleLending:home')
+    
+    vehicle = get_object_or_404(Vehicle, id=vehicle_id)
+
+    if request.method == 'POST':
+        form = VehicleForm(request.POST, request.FILES, instance=vehicle)
+        if form.is_valid():
+            form.save()
+            return redirect(reverse('vehicleLending:details', args=[vehicle.id]))
+    else:
+        form = VehicleForm(instance=vehicle)
+    return render(request, 'vehicleLending/add_vehicle.html', {'form': form, 'vehicle': vehicle})
+
+def delete_vehicle(request, vehicle_id: int):
+    if not request.user.is_authenticated or request.user.user_type != 'librarian':
+        return redirect('vehicleLending:home')
+
+    vehicle = get_object_or_404(Vehicle, id=vehicle_id)
+
+    vehicle.delete()
+    return redirect('vehicleLending:home')
+    
+
 def profile_view(request):
+    if not request.user.is_authenticated:
+        return redirect('vehicleLending:login')
+
     user = request.user
     if request.method == 'POST':
         form = ProfilePictureForm(request.POST, request.FILES, instance=user)
@@ -108,8 +138,10 @@ def profile_view(request):
         form = ProfilePictureForm(instance=user)
     return render(request, 'vehicleLending/profile.html', {'form': form, 'user': user})
 
-@login_required
 def delete_profile_picture(request):
+    if not request.user.is_authenticated:
+        return redirect('vehicleLending:login')
+    
     user = request.user
     if user.profile_pic:
         user.profile_pic.delete(save=False)  # deletes from S3
@@ -158,12 +190,13 @@ def search_results(request):
         results = results[:8]
     return JsonResponse({'results': results})
 
+
 def all_vehicles(request):
     vehicles = Vehicle.objects.all()
     context = {"vehicles": vehicles}
     return render(request, 'vehicleLending/all_vehicles.html',context)
 
-@login_required
+
 def add_collection(request):
     # Both librarians and patrons can create collections
     if not request.user.is_authenticated:
@@ -193,6 +226,24 @@ def add_collection(request):
         collection.save()
         
         return redirect('vehicleLending:home')
+    
+    return redirect('vehicleLending:home')
+
+@login_required
+def edit_collection(request, collection_name: str):
+    collection = get_object_or_404(Collection, name=collection_name)
+
+    if not request.user.is_authenticated:
+        return redirect('vehicleLending:home')
+    
+    if request.method == 'POST':
+        collection.name = request.POST.get('name')
+        collection.description = request.POST.get('description')
+        if request.POST.get('image', '') != '':
+            collection.image = request.POST.get('image', '')
+        collection.private_collection = request.user.user_type == 'librarian' and 'private_collection' in request.POST
+        
+        collection.save()
     
     return redirect('vehicleLending:home')
 
@@ -273,3 +324,40 @@ def vehicle_requests(request, vehicle_id):
 
     requests = BorrowRequest.objects.filter(vehicle=vehicle)
     return render(request, 'vehicleLending/vehicle_requests.html', {'requests': requests})
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def promote_patron(request):
+
+    # Temporary fix, may update later to only display to librarians so no need for check.
+    if request.user.user_type != 'librarian':
+        messages.error(request, "You do not have permission to access this page.")
+        return redirect('vehicleLending:home')
+
+    patrons = User.objects.filter(user_type='patron')
+
+    if request.method == 'POST':
+        #When selected
+        selected_id = request.POST.get('patron_id')
+        try:
+            user_to_promote = User.objects.get(id=selected_id, user_type='patron')
+            user_to_promote.user_type = 'librarian'
+            user_to_promote.save()
+            messages.success(request, f"{user_to_promote.name} was promoted to librarian.")
+            return redirect('vehicleLending:promote_patron')
+        except User.DoesNotExist:
+            messages.error(request, "That user was not found or is already a librarian.")
+
+    # Stay in page
+    return render(request, 'vehicleLending/promote_patron.html', {'patrons': patrons})
+
+####-----IGNORE----_#####
+# def dev_login_as_librarian(request):
+#     if not settings.DEBUG:
+#         return HttpResponse("Not allowed in production.")
+
+#     librarian = User.objects.filter(user_type='librarian').first()
+#     if librarian:
+#         login(request, librarian)
+#         return redirect('vehicleLending:promote_patron')
+#     return HttpResponse("No librarian user found.")
