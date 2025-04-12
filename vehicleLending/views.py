@@ -286,7 +286,7 @@ def request_borrow(request, vehicle_id):
         lender=vehicle.lender
     )
 
-    if borrow_request:
+    if not created:
         if borrow_request.status == 'pending':
             messages.info(request, "You have already requested to borrow this vehicle")
             return redirect(reverse('vehicleLending:details', args=[vehicle_id]))
