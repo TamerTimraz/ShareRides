@@ -304,7 +304,7 @@
                 <!-- Action Buttons -->
                 <div class="action-buttons">
                     {% if vehicle.is_available %}
-                        <a href="#" class="btn item btn-primary">Request to Borrow</a>
+                        <a href="{% url 'vehicleLending:request_borrow' vehicle.id %}" class="btn item btn-primary">Request to Borrow</a>
                     {% else %}
                         <a class="btn item btn-primary" disabled>
                         Request to Borrow
@@ -314,6 +314,17 @@
                         <a href="#" class="btn item btn-secondary"></a>
                     {% endif %}
                 </div>
+                {% if messages %}
+                    <div class="mt-4">
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
             </div>
         </div>
         
