@@ -1,0 +1,24 @@
+{% extends "vehicleLending/base.html" %}
+{% block content %}
+
+  <h2>Promote Patron to Librarian</h2>
+
+  <form method="post">
+    {% csrf_token %}
+    <label for="patron_id">Select Patron:</label>
+    <select name="patron_id" id="patron_id">
+      {% for user in patrons %}
+        <option value="{{ user.id }}">{{ user.name }} ({{ user.email }})</option>
+      {% endfor %}
+    </select>
+    <button type="submit">Promote</button>
+  </form>
+
+  {% if messages %}
+    <ul>
+      {% for message in messages %}
+        <li>{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endblock %}
