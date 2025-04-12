@@ -273,36 +273,48 @@ def request_borrow(request, vehicle_id):
     vehicle = get_object_or_404(Vehicle, id=vehicle_id)
     
     if vehicle.lender == request.user:
-        messages.error(request, "You cannot request to borrow your own vehicle.")
+        messages.info(request, "You cannot request to borrow your own vehicle.")
+        return redirect(reverse('vehicleLending:details', args=[vehicle_id]))
+    
+    if not vehicle.is_available:
+        messages.info(request, "Vehicle is unavailable.")
         return redirect(reverse('vehicleLending:details', args=[vehicle_id]))
     
     borrow_request, created = BorrowRequest.objects.get_or_create(
         vehicle=vehicle,
         requester=request.user,
-        lender=vehicle.lender,
-        status='pending'
+        lender=vehicle.lender
     )
 
-    if not created:
-        messages.info(request, "You have already requested to borrow this vehicle")
-        return redirect(reverse('vehicleLending:details', args=[vehicle_id]))
+    if borrow_request:
+        if borrow_request.status == 'pending':
+            messages.info(request, "You have already requested to borrow this vehicle")
+            return redirect(reverse('vehicleLending:details', args=[vehicle_id]))
+        else: # status is denied; delete old request and create new borrow request
+            borrow_request.delete()
+            BorrowRequest.objects.create(vehicle=vehicle, requester=request.user, lender=vehicle.lender, status='pending')
     
     return redirect('vehicleLending:requested_vehicles')
 
 @login_required
 def respond_to_request(request, request_id, response):
     borrow_request = get_object_or_404(BorrowRequest, id=request_id, lender=request.user)
+
     if response == 'accept':
+        if not borrow_request.vehicle.is_available:
+            messages.info(request, "Vehicle currently lent. Cannot accept request at this time.")
+            return redirect(reverse('vehicleLending:vehicle_requests', args=[borrow_request.vehicle.id]))
+        
         borrow_request.status = 'accepted'
         borrow_request.vehicle.is_available = False
         borrow_request.vehicle.save()
     elif response == 'deny':
         borrow_request.status = 'denied'
     else:
-        return redirect('vehicleLending:manage_requests')
+        return redirect(reverse('vehicleLending:vehicle_requests', args=[borrow_request.vehicle.id]))
     
     borrow_request.save()
-    return redirect('vehicleLending:manage_requests')
+    return redirect(reverse('vehicleLending:vehicle_requests', args=[borrow_request.vehicle.id]))
 
 # only for librarians right now (will add for patrons to view their requested vehicles)
 @login_required
@@ -321,7 +333,7 @@ def vehicle_requests(request, vehicle_id):
     if vehicle.lender != request.user:
         return redirect('vehicleLending:home')
 
-    requests = BorrowRequest.objects.filter(vehicle=vehicle)
+    requests = BorrowRequest.objects.filter(vehicle=vehicle, status='pending')
     return render(request, 'vehicleLending/vehicle_requests.html', {'requests': requests})
 
 @login_required
@@ -331,6 +343,19 @@ def requested_vehicles(request):
     
     borrow_requests = BorrowRequest.objects.filter(requester=request.user)
     return render(request, 'vehicleLending/requested_vehicles.html', {'borrow_requests': borrow_requests})
+
+@login_required
+def return_vehicle(request, vehicle_id):
+    vehicle = get_object_or_404(Vehicle, id=vehicle_id)
+    borrow_request = BorrowRequest.objects.filter(vehicle=vehicle, requester=request.user, status='accepted')
+
+    if borrow_request:
+        vehicle.is_available = True
+        borrow_request.delete()
+
+    vehicle.save()
+
+    return redirect('vehicleLending:requested_vehicles')
 
 
 @login_required

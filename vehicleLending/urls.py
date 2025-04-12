@@ -26,6 +26,7 @@ urlpatterns = [
     path('my-vehicles', views.my_vehicles, name='my_vehicles'),
     path('my-vehicles/vehicle/<int:vehicle_id>/requests', views.vehicle_requests, name='vehicle_requests'),
     path('requested-vehicles', views.requested_vehicles, name='requested_vehicles'),
+    path('return-vehicle/<int:vehicle_id>', views.return_vehicle, name='return_vehicle'),
     path('promote-patron/', views.promote_patron, name='promote_patron'),
 
 ###IGNORE###    
