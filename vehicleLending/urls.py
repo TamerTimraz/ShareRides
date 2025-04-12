@@ -24,4 +24,7 @@ urlpatterns = [
     path('vehicle/<int:vehicle_id>/request', views.request_borrow, name='request_borrow'),
     path('manage-requests', views.manage_requests, name='manage_requests'),
     path('request/<int:request_id>/<str:response>', views.respond_to_request, name='respond_to_request'),
+    path('promote-patron/', views.promote_patron, name='promote_patron'),
+    path('dev-login/', views.dev_login_as_librarian, name='dev_login'),
+
 ]
