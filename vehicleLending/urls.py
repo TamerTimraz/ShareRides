@@ -24,7 +24,7 @@ urlpatterns = [
     path('vehicle/<int:vehicle_id>/request', views.request_borrow, name='request_borrow'),
     path('request/<int:request_id>/<str:response>', views.respond_to_request, name='respond_to_request'),
     path('my-vehicles', views.my_vehicles, name='my_vehicles'),
-    path('my-vehicles/vehicle/<int:vehicle_id>/requests', views.vehicle_requests, name='vehicle_requests')
+    path('my-vehicles/vehicle/<int:vehicle_id>/requests', views.vehicle_requests, name='vehicle_requests'),
     path('promote-patron/', views.promote_patron, name='promote_patron'),
 
 ###IGNORE###    
