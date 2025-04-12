@@ -340,12 +340,13 @@ def promote_patron(request):
     # Stay in page
     return render(request, 'vehicleLending/promote_patron.html', {'patrons': patrons})
 
-def dev_login_as_librarian(request):
-    if not settings.DEBUG:
-        return HttpResponse("Not allowed in production.")
+####-----IGNORE----_#####
+# def dev_login_as_librarian(request):
+#     if not settings.DEBUG:
+#         return HttpResponse("Not allowed in production.")
 
-    librarian = User.objects.filter(user_type='librarian').first()
-    if librarian:
-        login(request, librarian)
-        return redirect('vehicleLending:promote_patron')
-    return HttpResponse("No librarian user found.")
+#     librarian = User.objects.filter(user_type='librarian').first()
+#     if librarian:
+#         login(request, librarian)
+#         return redirect('vehicleLending:promote_patron')
+#     return HttpResponse("No librarian user found.")
