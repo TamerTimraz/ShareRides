@@ -34,7 +34,7 @@ urlpatterns = [
     path('access-requests/', views.manage_access_requests, name='manage_access_requests'),
     path('access-request/<int:request_id>/<str:action>/', views.process_access_request, name='process_access_request'),
 
-###IGNORE###    
-    path('dev-login/', views.dev_login_as_librarian, name='dev_login'),
+# ###IGNORE###    
+#     path('dev-login/', views.dev_login_as_librarian, name='dev_login'),
 
 ]
