@@ -429,14 +429,104 @@ def delete_review(request, review_id):
     messages.success(request, "Your review has been deleted.")
     return redirect('vehicleLending:details', vehicle_id=vehicle_id)
 
-# ####-----IGNORE----_#####
-# def dev_login_as_librarian(request):
-#     if not settings.DEBUG:
-#         return HttpResponse("Not allowed in production.")
+# from django.shortcuts import get_object_or_404, redirect, render
+# from django.contrib.auth.decorators import login_required
+# from django.contrib import messages
+# from .models import Collection, CollectionAccessRequest
 
-#     librarian = User.objects.filter(user_type='librarian').first()
-#     if librarian:
-#         login(request, librarian)
-#         return redirect('vehicleLending:promote_patron')
-#     return HttpResponse("No librarian user found.")
+@login_required
+def request_private_collection(request):
+    # We want to allow patrons to request access even if they don't yet see the private collection
+    # So we list all private collections that the current user does NOT already have access to.
+    if request.method == 'POST':
+        collection_id = request.POST.get('collection_id')
+        collection = get_object_or_404(Collection, id=collection_id, private_collection=True)
+        
+        # If the user already has access, show an info message.
+        if request.user in collection.users_with_access.all():
+            messages.info(request, "You already have access to this collection.")
+            return redirect('vehicleLending:home')
+        
+        # If there's already a pending request, inform the user.
+        existing_request = CollectionAccessRequest.objects.filter(collection=collection, requester=request.user).first()
+        if existing_request:
+            messages.info(request, "You have already requested access to this collection.")
+        else:
+            CollectionAccessRequest.objects.create(collection=collection, requester=request.user)
+            messages.success(request, "Your request for access has been submitted.")
+        return redirect('vehicleLending:home')
+    
+    else:
+        # For GET, list all private collections that the user does not have access to.
+        available_collections = Collection.objects.filter(private_collection=True)
+        # Filter out any collections where the user already has access.
+        collections_to_request = [c for c in available_collections if request.user not in c.users_with_access.all()]
+        context = {
+            'collections_to_request': collections_to_request,
+        }
+        return render(request, 'vehicleLending/request_private_collection.html', context)
+
+# from django.shortcuts import get_object_or_404, render, redirect
+# from django.contrib.auth.decorators import login_required
+# from django.contrib import messages
+# from .models import CollectionAccessRequest
+
+@login_required
+def manage_access_requests(request):
+    """
+    Display all pending access requests for private collections. Users see only requests for collections they created.
+    """
+    pending_requests = CollectionAccessRequest.objects.filter(
+            status="pending", collection__creator=request.user
+        )
+    context = {"pending_requests": pending_requests}
+    return render(request, "vehicleLending/manage_access_requests.html", context)
+    
+@login_required
+def process_access_request(request, request_id, action):
+    """
+    Process a specific access request.
+    
+    This action is allowed if the current user is the creator of the requested collection.
+    'action' should be either 'accept' or 'deny'.
+    """
+    access_request = get_object_or_404(CollectionAccessRequest, id=request_id, status="pending")
+    collection = access_request.collection
+    
+    # Check permission: must be collection's creator.
+    if collection.creator != request.user:
+        messages.error(request, "You do not have permission to process this request.")
+        return redirect("vehicleLending:manage_access_requests")
+    
+    if action == "accept":
+        # Grant access by adding the requester to the collection’s users_with_access.
+        collection.users_with_access.add(access_request.requester)
+        access_request.status = "accepted"
+        messages.success(
+            request,
+            f"Access granted to {access_request.requester.name} for {collection.name}.",
+        )
+    elif action == "deny":
+        access_request.status = "denied"
+        messages.info(
+            request, f"Access request denied for {access_request.requester.name} on {collection.name}."
+        )
+    else:
+        messages.error(request, "Invalid action.")
+    access_request.save()
+    return redirect("vehicleLending:manage_access_requests")
+
+
+####-----IGNORE----_#####
+def dev_login_as_librarian(request):
+    if not settings.DEBUG:
+        return HttpResponse("Not allowed in production.")
+
+    librarian = User.objects.filter(user_type='librarian').first()
+    if librarian:
+        login(request, librarian)
+        return redirect('vehicleLending:promote_patron')
+    return HttpResponse("No librarian user found.")
+
+
 

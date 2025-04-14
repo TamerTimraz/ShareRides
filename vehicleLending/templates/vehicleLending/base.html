@@ -61,6 +61,12 @@
                         <li><a class="dropdown-item" href="{% url 'vehicleLending:promote_patron' %}"><i class="fas fa-user-plus me-2"></i>Promote Patron</a></li>
                         {% endif %}
 
+                        <li>
+                            <a class="dropdown-item" href="{% url 'vehicleLending:manage_access_requests' %}">
+                                <i class="fas fa-key me-2"></i>Manage Collection Access Requests
+                            </a>
+                        </li>
+
                         <li><hr class="dropdown-divider"></li>
                         <li>
                             <form action="{% url 'vehicleLending:sign_out' %}" method="post">

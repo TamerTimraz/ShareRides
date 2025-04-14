@@ -29,8 +29,12 @@ urlpatterns = [
     path('return-vehicle/<int:vehicle_id>', views.return_vehicle, name='return_vehicle'),
     path('promote-patron/', views.promote_patron, name='promote_patron'),
     path('review/<int:review_id>/delete', views.delete_review, name='delete_review'),
+    path('request-private-collection/', views.request_private_collection, name='request_private_collection'),
+    # Access request management
+    path('access-requests/', views.manage_access_requests, name='manage_access_requests'),
+    path('access-request/<int:request_id>/<str:action>/', views.process_access_request, name='process_access_request'),
 
 ###IGNORE###    
-#    path('dev-login/', views.dev_login_as_librarian, name='dev_login'),
+    path('dev-login/', views.dev_login_as_librarian, name='dev_login'),
 
 ]

@@ -1,0 +1,23 @@
+{% extends 'vehicleLending/base.html' %}
+{% load static %}
+{% block content %}
+<div class="container mt-4">
+    <h2 class="fw-bold mb-3">Request Access to a Private Collection</h2>
+    {% if collections_to_request %}
+        <form method="POST">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="collectionSelect" class="form-label">Select a Collection</label>
+                <select name="collection_id" id="collectionSelect" class="form-select">
+                    {% for collection in collections_to_request %}
+                        <option value="{{ collection.id }}">{{ collection.name }} – {{ collection.description }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Request Access</button>
+        </form>
+    {% else %}
+        <p class="text-muted">There are no private collections available for request.</p>
+    {% endif %}
+</div>
+{% endblock %}

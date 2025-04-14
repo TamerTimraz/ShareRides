@@ -1,0 +1,29 @@
+{% extends 'vehicleLending/base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2 class="fw-bold mb-3">Manage Collection Access Requests</h2>
+    
+    {% if pending_requests %}
+        <div class="list-group">
+            {% for req in pending_requests %}
+                <div class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong>{{ req.requester.name }}</strong> requested access to
+                        <strong>{{ req.collection.name }}</strong> on {{ req.request_date|date:"M d, Y" }}.
+                    </div>
+                    <div>
+                        <a href="{% url 'vehicleLending:process_access_request' req.id 'accept' %}" class="btn btn-sm btn-success me-2">
+                            Accept
+                        </a>
+                        <a href="{% url 'vehicleLending:process_access_request' req.id 'deny' %}" class="btn btn-sm btn-danger">
+                            Deny
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-muted">There are no pending access requests at this time.</p>
+    {% endif %}
+</div>
+{% endblock %}

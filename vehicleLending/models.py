@@ -152,3 +152,21 @@ class Review(models.Model):
 
     def __str__(self):
         return f"{self.reviewer.name} - {self.rating} stars"
+
+class CollectionAccessRequest(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('accepted', 'Accepted'),
+        ('denied', 'Denied'),
+    ]
+    
+    collection = models.ForeignKey(Collection, on_delete=models.CASCADE, related_name='access_requests')
+    requester = models.ForeignKey(User, on_delete=models.CASCADE, related_name='collection_requests')
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
+    request_date = models.DateTimeField(default=now)
+    
+    class Meta:
+        unique_together = ('collection', 'requester')
+    
+    def __str__(self):
+        return f"{self.requester.email} → {self.collection.name} ({self.status})"
