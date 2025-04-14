@@ -28,6 +28,7 @@ urlpatterns = [
     path('requested-vehicles', views.requested_vehicles, name='requested_vehicles'),
     path('return-vehicle/<int:vehicle_id>', views.return_vehicle, name='return_vehicle'),
     path('promote-patron/', views.promote_patron, name='promote_patron'),
+    path('review/<int:review_id>/delete', views.delete_review, name='delete_review'),
 
 ###IGNORE###    
 #    path('dev-login/', views.dev_login_as_librarian, name='dev_login'),

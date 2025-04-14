@@ -256,6 +256,18 @@
             <div class="vehicle-details ps-0 pe-5">
                 <div class="card-header d-flex align-items-center">
                     <h1 class="vehicle-title">{{ vehicle.make }} {{ vehicle.model }} ({{ vehicle.year }})</h1>
+
+                    <!-- START: Average Rating -->
+                    {% if vehicle.average_rating %}
+                    <p class="mt-1">
+                        <strong>Average Rating:</strong> 
+                        {{ vehicle.average_rating }} / 5 
+                        ⭐
+                    </p>
+                    {% else %}
+                        <p class="mt-1 text-muted">No ratings yet</p>
+                    {% endif %}
+                    <!-- END: Average Rating -->
                 </div>
                 <p class="vehicle-lender">{{ vehicle.lender.name }}</p>
                 
@@ -394,6 +406,51 @@
             <p class="text-center pt-5">Google Maps integration coming soon</p>
         </div>
     </div>
+
+        <!-- new -->
+    <div class="mt-5">
+        <h3>Leave a Review</h3>
+
+        {% if user.is_authenticated %}
+            <form method="POST" class="bg-white p-4 rounded shadow-sm">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="id_rating" class="form-label fw-semibold">Rating</label>
+                    {{ form.rating }}
+                </div>
+                <div class="mb-3">
+                    <label for="id_comment" class="form-label fw-semibold">Comment</label>
+                    {{ form.comment }}
+                </div>
+                <button type="submit" class="btn btn-primary px-4 py-2">Submit Review</button>
+            </form>
+        {% else %}
+            <p class="text-muted">You must be logged in to leave a review.</p>
+        {% endif %}
+    </div>
+
+    <div class="mt-5">
+        <h3>User Reviews</h3>
+        {% for review in reviews %}
+            <div class="border rounded p-3 my-3">
+                <strong>{{ review.reviewer.name }}</strong> 
+                – {{ review.rating }} / 5 ⭐<br>
+                <small class="text-muted">{{ review.date|date:"F j, Y" }}</small>
+                <p class="mt-2">{{ review.comment }}</p>
+
+                {% if user == review.reviewer %}
+                <form method="POST" action="{% url 'vehicleLending:delete_review' review.id %}" class="mt-2">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-outline-danger">Delete Review</button>
+                </form>
+                {% endif %}
+            </div>
+        {% empty %}
+            <p class="text-muted">No reviews have been written yet.</p>
+        {% endfor %}
+    </div>
+
+
     </main>
 </body>
 

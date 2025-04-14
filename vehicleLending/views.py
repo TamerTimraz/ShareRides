@@ -9,7 +9,7 @@ from django.conf import settings
 from django.urls import reverse
 from .models import *
 from django.contrib.auth import login, logout, get_user_model
-from .forms import VehicleForm, ProfilePictureForm
+from .forms import VehicleForm, ProfilePictureForm, ReviewForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.views.decorators.http import require_http_methods
@@ -384,7 +384,52 @@ def promote_patron(request):
     # Stay in page
     return render(request, 'vehicleLending/promote_patron.html', {'patrons': patrons})
 
-####-----IGNORE----_#####
+@login_required
+def item_desc(request, vehicle_id):
+    vehicle = get_object_or_404(Vehicle, id=vehicle_id)
+    user = request.user
+    reviews = vehicle.reviews.select_related('reviewer').order_by('-date')
+
+    # Check if the user already reviewed this vehicle
+    existing_review = Review.objects.filter(vehicle=vehicle, reviewer=user).first()
+
+    if request.method == 'POST':
+        if existing_review:
+            messages.error(request, "You have already submitted a review for this vehicle.")
+            return redirect('vehicleLending:details', vehicle_id=vehicle.id)
+
+        form = ReviewForm(request.POST)
+        if form.is_valid():
+            review = form.save(commit=False)
+            review.vehicle = vehicle
+            review.reviewer = user
+            review.save()
+            messages.success(request, "Your review has been submitted.")
+            return redirect('vehicleLending:details', vehicle_id=vehicle.id)
+    else:
+        form = ReviewForm()
+
+    return render(request, 'vehicleLending/item_desc.html', {
+        'vehicle': vehicle,
+        'user': user,
+        'form': form,
+        'reviews': reviews,
+    })
+
+@login_required
+def delete_review(request, review_id):
+    review = get_object_or_404(Review, id=review_id)
+
+    if review.reviewer != request.user:
+        messages.error(request, "You can't delete someone else's review.")
+        return redirect('vehicleLending:details', vehicle_id=review.vehicle.id)
+
+    vehicle_id = review.vehicle.id
+    review.delete()
+    messages.success(request, "Your review has been deleted.")
+    return redirect('vehicleLending:details', vehicle_id=vehicle_id)
+
+# ####-----IGNORE----_#####
 # def dev_login_as_librarian(request):
 #     if not settings.DEBUG:
 #         return HttpResponse("Not allowed in production.")
@@ -394,3 +439,4 @@ def promote_patron(request):
 #         login(request, librarian)
 #         return redirect('vehicleLending:promote_patron')
 #     return HttpResponse("No librarian user found.")
+

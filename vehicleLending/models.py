@@ -99,6 +99,14 @@ class Vehicle(models.Model):
             self.image.delete(save=False)
         super().delete(*args, **kwargs)
 
+    @property
+    def average_rating(self):
+        reviews = self.reviews.all()
+        if not reviews:
+            return None
+        return round(sum([r.rating for r in reviews]) / len(reviews), 1)
+
+
     def __str__(self):
         return f"{self.vehicle_type.upper()} {self.make} {self.model} {self.year} {self.lender}"
 
@@ -134,3 +142,13 @@ class BorrowRequest(models.Model):
 
     def __str__(self):
         return f"Request by {self.requester} for {self.vehicle} - {self.status}"
+
+class Review(models.Model):
+    vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE, related_name='reviews')
+    reviewer = models.ForeignKey(User, on_delete=models.CASCADE)
+    rating = models.IntegerField(choices=[(i, i) for i in range(1, 6)])  # 1 to 5 stars
+    comment = models.TextField(blank=True)
+    date = models.DateTimeField(default=now)
+
+    def __str__(self):
+        return f"{self.reviewer.name} - {self.rating} stars"
