@@ -313,6 +313,11 @@
                     {% if user_type == 'librarian' %}
                         <a href="#" class="btn item btn-secondary"></a>
                     {% endif %}
+
+                    {% if user.user_type == 'librarian' %}
+                        <a href="{% url 'vehicleLending:edit_vehicle' vehicle.id %}" class="btn item btn-primary">Edit Vehicle</a>
+                        <a href="{% url 'vehicleLending:delete_vehicle' vehicle.id %}" class="btn item btn-primary">Delete Vehicle</a>
+                    {% endif %}
                 </div>
                 {% if messages %}
                     <div class="mt-4">
