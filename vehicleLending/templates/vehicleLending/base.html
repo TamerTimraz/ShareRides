@@ -59,13 +59,14 @@
                         {% if user.user_type == 'librarian' %}
                         <li><a class="dropdown-item" href="{% url 'vehicleLending:my_vehicles' %}"><i class="fas fa-car me-2"></i>My Vehicles</a></li>
                         <li><a class="dropdown-item" href="{% url 'vehicleLending:promote_patron' %}"><i class="fas fa-user-plus me-2"></i>Promote Patron</a></li>
-                        {% endif %}
-
+                        
                         <li>
                             <a class="dropdown-item" href="{% url 'vehicleLending:manage_access_requests' %}">
-                                <i class="fas fa-key me-2"></i>Manage Collection Access Requests
+                                <i class="fas fa-key me-2"></i>Collection Access Requests
                             </a>
                         </li>
+                        {% endif %}
+
 
                         <li><hr class="dropdown-divider"></li>
                         <li>
