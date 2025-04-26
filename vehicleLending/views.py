@@ -72,7 +72,8 @@ def select_collection(request):
 def select_vehicle(request, collection_name: str):
     collection = get_object_or_404(Collection, name=collection_name)
     vehicles = collection.vehicles.all()
-    context = {"collection_name": collection_name, "vehicles": vehicles, "collection": collection}
+    all_vehicles = Vehicle.objects.all()
+    context = {"collection_name": collection_name, "vehicles": vehicles, "collection": collection, "all_vehicles": all_vehicles}
     return render(request, 'vehicleLending/select_vehicle.html', context)
 
 def item_desc(request, vehicle_id):
@@ -543,4 +544,13 @@ def process_access_request(request, request_id, action):
 #     return HttpResponse("No librarian user found.")
 
 
+def add_vehicle_to_collection(request, vehicle_id: int, collection_id: int):
+    vehicle = get_object_or_404(Vehicle, id=vehicle_id)
+    collection = get_object_or_404(Collection, id=collection_id)
 
+    if request.method == 'POST':
+        collection.vehicles.add(vehicle)
+        messages.success(request, f"Vehicle {vehicle} added to collection {collection}.")
+        return redirect('vehicleLending:collection', collection_name=collection.name)
+
+    return render(request, 'vehicleLending/add_vehicle_to_collection.html', {'vehicle': vehicle, 'collection': collection})

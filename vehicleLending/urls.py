@@ -33,6 +33,7 @@ urlpatterns = [
     # Access request management
     path('access-requests/', views.manage_access_requests, name='manage_access_requests'),
     path('access-request/<int:request_id>/<str:action>/', views.process_access_request, name='process_access_request'),
+    path('add_vehicle_to_collection/<int:vehicle_id>/<int:collection_id>/', views.add_vehicle_to_collection, name='add_vehicle_to_collection'),
 
 # ###IGNORE###    
 #    path('dev-login/', views.dev_login_as_librarian, name='dev_login'),
