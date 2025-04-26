@@ -43,6 +43,9 @@
             <div class="mb-3">
                 <label for="{{ form.image.id_for_label }}" class="form-label">Image</label>
                 {{ form.image }}
+                {% if form.image.errors %}
+                    <div class="text-danger">{{ form.image.errors.0 }}</div>
+                {% endif %}
             </div>
 <!--
             <div class="mb-3">
@@ -71,7 +74,7 @@
             </div>
     
             <button type="submit" class="btn btn-primary">Save Vehicle</button>
-            <a href="#" class="btn btn-secondary">Cancel</a>
+            <a href="javascript:history.go(-1)" class="btn btn-secondary">Cancel</a>
         </form>
     </div>
 {% endblock %}
