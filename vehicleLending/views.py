@@ -554,3 +554,14 @@ def add_vehicle_to_collection(request, vehicle_id: int, collection_id: int):
         return redirect('vehicleLending:collection', collection_name=collection.name)
 
     return render(request, 'vehicleLending/add_vehicle_to_collection.html', {'vehicle': vehicle, 'collection': collection})
+
+def remove_vehicle_from_collection(request, vehicle_id: int, collection_id: int):
+    vehicle = get_object_or_404(Vehicle, id=vehicle_id)
+    collection = get_object_or_404(Collection, id=collection_id)
+
+    if request.method == 'POST':
+        collection.vehicles.remove(vehicle)
+        messages.success(request, f"Vehicle {vehicle} removed from collection {collection}.")
+        return redirect('vehicleLending:collection', collection_name=collection.name)
+
+    return render(request, 'vehicleLending/remove_vehicle_from_collection.html', {'vehicle': vehicle, 'collection': collection})

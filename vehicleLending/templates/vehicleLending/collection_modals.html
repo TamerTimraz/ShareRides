@@ -126,6 +126,39 @@
     </div>
 </div>
 
+<!--Remove Vehicle Modal-->
+<div class="modal fade" id="removeVehicleModal" tabindex="-1" aria-labelledby="removeVehicleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="removeVehicleModalLabel">Remove Vehicle from Collection</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="" id="removeVehicleForm">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="vehicle_select_remove" class="form-label">Select Vehicle to Remove</label>
+                        <select class="form-select" id="vehicle_select_remove" name="vehicle_id" required>
+                            <option value="" selected disabled>Choose a vehicle...</option>
+                            {% for vehicle in vehicles %}
+                                <option value="{{ vehicle.id }}">{{ vehicle.make }} {{ vehicle.model }} {{ vehicle.year }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="alert alert-danger">
+                        Warning! The vehicle will remain in the system but will be removed from this collection.
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger">Remove Vehicle</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -170,6 +203,21 @@
             if (vehicleId) {
                 // Set the form action dynamically
                 addVehicleForm.action = `/add_vehicle_to_collection/${vehicleId}/${collectionId}/`;
+            }
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const removeVehicleForm = document.getElementById('removeVehicleForm');
+        const vehicleSelectRemove = document.getElementById('vehicle_select_remove');
+        const collectionId = "{{ collection.id }}"; // Pass the collection ID from the template
+
+        // Update the form action dynamically when a vehicle is selected
+        vehicleSelectRemove.addEventListener('change', function () {
+            const vehicleId = vehicleSelectRemove.value; // Get the selected vehicle ID
+            if (vehicleId) {
+                // Set the form action dynamically
+                removeVehicleForm.action = `/remove_vehicle_from_collection/${vehicleId}/${collectionId}/`;
             }
         });
     });
