@@ -73,7 +73,8 @@ def select_vehicle(request, collection_name: str):
     collection = get_object_or_404(Collection, name=collection_name)
     vehicles = collection.vehicles.all()
     all_vehicles = Vehicle.objects.all()
-    context = {"collection_name": collection_name, "vehicles": vehicles, "collection": collection, "all_vehicles": all_vehicles}
+    is_patron_owner = request.user.is_authenticated and request.user.user_type == 'patron' and collection.creator == request.user
+    context = {"collection_name": collection_name, "vehicles": vehicles, "collection": collection, "all_vehicles": all_vehicles, "is_patron_owner": is_patron_owner}
     return render(request, 'vehicleLending/select_vehicle.html', context)
 
 def item_desc(request, vehicle_id):

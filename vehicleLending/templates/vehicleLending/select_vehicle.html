@@ -12,7 +12,7 @@
     </a> 
 
     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCollectionModal">
-        Edit a Collection
+        Edit the Collection
     </button>
 
     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addVehicleModal">
@@ -24,9 +24,31 @@
     </button>
 </div>
 
-{% include 'vehicleLending/collection_modals.html' %}
+{% endif %}
+
+<!-- Patron Owner Actions -->
+{% if user.user_type == 'patron' and is_patron_owner %}
+<div class="container mt-4">
+    <h2 class="text-start fw-bold">Patron Owner Actions</h2>
+    <hr class="thick-line mb-4">
+
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCollectionModal">
+        Edit the Collection
+    </button>
+
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addVehicleModal">
+        Add a Vehicle
+    </button>
+
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#removeVehicleModal">
+        Remove a Vehicle
+    </button>
+</div>
 
 {% endif %}
+
+{% include 'vehicleLending/collection_modals.html' %}
+
 
 <!-- Header -->
 <div class="container mt-4">
