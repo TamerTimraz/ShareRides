@@ -3,17 +3,18 @@
 
 <!-- Librarian Actions -->
 {% if user.user_type == 'librarian' %}
-<div class="container mt-4">
-    <h2 class="text-start fw-bold">Librarian Actions</h2>
-    <hr class="thick-line mb-4">
+<div class="container mt-4 page-header">
+    <h2 class="section-title fw-bold" data-aos="fade-up">Manage Collection</h2>
+    <p class="text-muted mb-4 section-subtitle" data-aos="fade-up" data-aos-delay="100">Add vehicles to collection and edit collection</p>
 
-    <a href="{% url 'vehicleLending:add_vehicle' %}" class="btn btn-primary">
-        Create a Vehicle
-    </a> 
-
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCollectionModal">
-        Edit a Collection
-    </button>
+    <div class="d-flex flex-wrap gap-3 mb-5" data-aos="fade-up" data-aos-delay="150">
+        <a href="{% url 'vehicleLending:add_vehicle' %}" class="btn btn-primary">
+            <i class="fas fa-plus-circle me-2"></i>Add Vehicle
+        </a> 
+        <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#addCollectionModal">
+            <i class="fas fa-edit me-2"></i>Edit Collection
+        </button>
+    </div>
 </div>
 
 {% include 'vehicleLending/collection_modals.html' %}
@@ -21,9 +22,13 @@
 {% endif %}
 
 <!-- Header -->
-<div class="container mt-4">
-    <h2 class="text-start fw-bold">{{ collection_name }}</h2>
-    <hr class="thick-line mb-4">
+<div class="container mt-4 mb-5">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center" data-aos="fade-up">
+        <div>
+            <h2 class="section-title fw-bold">{{ collection_name }}</h2>
+            <p class="text-muted mt-3">{{ collection.description }}</p>
+        </div>
+    </div>
 </div>
 
 <!-- Vehicle Tiles-->
