@@ -72,7 +72,9 @@ def select_collection(request):
 def select_vehicle(request, collection_name: str):
     collection = get_object_or_404(Collection, name=collection_name)
     vehicles = collection.vehicles.all()
-    context = {"collection_name": collection_name, "vehicles": vehicles, "collection": collection}
+    all_vehicles = Vehicle.objects.all()
+    is_patron_owner = request.user.is_authenticated and request.user.user_type == 'patron' and collection.creator == request.user
+    context = {"collection_name": collection_name, "vehicles": vehicles, "collection": collection, "all_vehicles": all_vehicles, "is_patron_owner": is_patron_owner}
     return render(request, 'vehicleLending/select_vehicle.html', context)
 
 def item_desc(request, vehicle_id):
@@ -259,8 +261,8 @@ def remove_collection(request):
         try:
             collection = Collection.objects.get(id=collection_id)
             
-            # Check if user is the creator of the collection
-            if collection.creator == request.user:
+            # Check if user is the creator of the collection or a librarian
+            if collection.creator == request.user or request.user.user_type == 'librarian':
                 collection.delete()
             
         except Collection.DoesNotExist:
@@ -543,4 +545,24 @@ def process_access_request(request, request_id, action):
 #     return HttpResponse("No librarian user found.")
 
 
+def add_vehicle_to_collection(request, vehicle_id: int, collection_id: int):
+    vehicle = get_object_or_404(Vehicle, id=vehicle_id)
+    collection = get_object_or_404(Collection, id=collection_id)
 
+    if request.method == 'POST':
+        collection.vehicles.add(vehicle)
+        messages.success(request, f"Vehicle {vehicle} added to collection {collection}.")
+        return redirect('vehicleLending:collection', collection_name=collection.name)
+
+    return render(request, 'vehicleLending/add_vehicle_to_collection.html', {'vehicle': vehicle, 'collection': collection})
+
+def remove_vehicle_from_collection(request, vehicle_id: int, collection_id: int):
+    vehicle = get_object_or_404(Vehicle, id=vehicle_id)
+    collection = get_object_or_404(Collection, id=collection_id)
+
+    if request.method == 'POST':
+        collection.vehicles.remove(vehicle)
+        messages.success(request, f"Vehicle {vehicle} removed from collection {collection}.")
+        return redirect('vehicleLending:collection', collection_name=collection.name)
+
+    return render(request, 'vehicleLending/remove_vehicle_from_collection.html', {'vehicle': vehicle, 'collection': collection})

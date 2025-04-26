@@ -9,17 +9,45 @@
 
     <div class="d-flex flex-wrap gap-3 mb-5" data-aos="fade-up" data-aos-delay="150">
         <a href="{% url 'vehicleLending:add_vehicle' %}" class="btn btn-primary">
-            <i class="fas fa-plus-circle me-2"></i>Add Vehicle
+            <i class="fas fa-plus-circle me-2"></i>Create a Vehicle
         </a> 
         <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#addCollectionModal">
-            <i class="fas fa-edit me-2"></i>Edit Collection
+            <i class="fas fa-edit me-2"></i>Edit the Collection
+        </button>
+        <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#addVehicleModal">
+            <i class="fas fa-edit me-2"></i>Add a Vehicle
+        </button>
+        <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#removeVehicleModal">
+            <i class="fas fa-edit me-2"></i>Remove a Vehicle
         </button>
     </div>
 </div>
 
-{% include 'vehicleLending/collection_modals.html' %}
+{% endif %}
+
+<!-- Patron Owner Actions -->
+{% if user.user_type == 'patron' and is_patron_owner %}
+<div class="container mt-4">
+    <h2 class="text-start fw-bold">Patron Owner Actions</h2>
+    <hr class="thick-line mb-4">
+
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCollectionModal">
+        Edit the Collection
+    </button>
+
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addVehicleModal">
+        Add a Vehicle
+    </button>
+
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#removeVehicleModal">
+        Remove a Vehicle
+    </button>
+</div>
 
 {% endif %}
+
+{% include 'vehicleLending/collection_modals.html' %}
+
 
 <!-- Header -->
 <div class="container mt-4 mb-5">
