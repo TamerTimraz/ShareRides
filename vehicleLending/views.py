@@ -259,8 +259,8 @@ def remove_collection(request):
         try:
             collection = Collection.objects.get(id=collection_id)
             
-            # Check if user is the creator of the collection
-            if collection.creator == request.user:
+            # Check if user is the creator of the collection or a librarian
+            if collection.creator == request.user or request.user.user_type == 'librarian':
                 collection.delete()
             
         except Collection.DoesNotExist:
