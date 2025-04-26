@@ -317,13 +317,6 @@
                 <div class="action-buttons">
                     {% if vehicle.is_available %}
                         <a href="{% url 'vehicleLending:request_borrow' vehicle.id %}" class="btn item btn-primary">Request to Borrow</a>
-                    {% else %}
-                        <a class="btn item btn-primary" disabled>
-                        Request to Borrow
-                        </a>
-                    {% endif %}
-                    {% if user_type == 'librarian' %}
-                        <a href="#" class="btn item btn-secondary"></a>
                     {% endif %}
 
                     {% if user.user_type == 'librarian' %}
