@@ -12,7 +12,7 @@
             <i class="fas fa-plus-circle me-2"></i>Create a Vehicle
         </a> 
         <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#addCollectionModal">
-            <i class="fas fa-edit me-2"></i>Edit the Collection
+            <i class="fas fa-edit me-2"></i>Edit Collection
         </button>
         <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#addVehicleModal">
             <i class="fas fa-edit me-2"></i>Add a Vehicle
@@ -27,12 +27,12 @@
 
 <!-- Patron Owner Actions -->
 {% if user.user_type == 'patron' and is_patron_owner %}
-<div class="container mt-4">
-    <h2 class="text-start fw-bold">Patron Owner Actions</h2>
-    <hr class="thick-line mb-4">
+<div class="container mt-4 page-header">
+    <h2 class="section-title fw-bold" data-aos="fade-up">Manage Collection</h2>
+    <p class="text-muted mb-4 section-subtitle" data-aos="fade-up" data-aos-delay="100">Add vehicles to collection and edit collection</p>
 
     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCollectionModal">
-        Edit the Collection
+        Edit Collection
     </button>
 
     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addVehicleModal">
