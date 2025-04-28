@@ -49,7 +49,7 @@
                 </li>
                 {% if user.is_authenticated %}
                 <li class="nav-item dropdown">
-                    <a class="nav-link d-flex align-items-center py-2" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <a class="nav-link dropdown-toggle d-flex align-items-center py-2" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <div class="avatar-circle me-2">
                             <span class="avatar-initials">{{ user.name.0|upper }}</span>
                         </div>
@@ -111,6 +111,15 @@
         easing: 'ease-out',
         once: true
     });
+    
+    // Ensure dropdown works on all pages
+    document.addEventListener('DOMContentLoaded', function() {
+        // Use Bootstrap's dropdown API to initialize all dropdowns
+        var dropdownElementList = [].slice.call(document.querySelectorAll('.dropdown-toggle'));
+        dropdownElementList.map(function(dropdownToggleEl) {
+            return new bootstrap.Dropdown(dropdownToggleEl);
+        });
+    });
 </script>
 <script src="{% static 'js/search.js' %}"></script>
 <script src="{% static 'js/sharerides-animations.js' %}"></script>
@@ -170,6 +179,23 @@
     .navbar .nav-link {
         padding-top: 0.75rem;
         padding-bottom: 0.75rem;
+    }
+    
+    /* Ensure dropdown menu is visible when shown */
+    .dropdown-menu.show {
+        display: block;
+        z-index: 1050;
+        position: absolute;
+    }
+    
+    /* Hide dropdown arrow but preserve all animations */
+    .dropdown-toggle::after {
+        display: none !important;
+    }
+    
+    /* Ensure profile hover animations are preserved */
+    .nav-item.dropdown:hover {
+        transition: all 0.3s ease;
     }
 </style>
 
