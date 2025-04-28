@@ -13,6 +13,7 @@ from .forms import VehicleForm, ProfilePictureForm, ReviewForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.views.decorators.http import require_http_methods
+from django.db.models import Q
 
 # Create your views here.
 
@@ -169,28 +170,79 @@ def about(request):
     return render(request, 'vehicleLending/about.html', context)
 
 def search_results(request):
-    query = request.GET.get('query')
+    """
+    API endpoint for search functionality. Returns vehicle and collection matches.
+    This is used by the AJAX search in the navbar.
+    """
+    try:
+        query = request.GET.get('q', '').strip()
+        
+        # Debug output
+        print(f"Search query received: '{query}', GET params: {request.GET}")
+        
+        if not query:
+            print("No query provided")
+            return JsonResponse({'results': [{"text": "Please enter a search term", "url": "javascript:void(0)"}]})
 
-    vehicles = Vehicle.objects.filter(make__icontains=query)
-    vehicles = [{"text": str(vehicle), "url": f"vehicle/{vehicle.id}"} for vehicle in vehicles]
+        # Search for vehicles by make, model, or year
+        vehicles = Vehicle.objects.filter(
+            Q(make__icontains=query) | 
+            Q(model__icontains=query) |
+            Q(year__icontains=query)
+        )
+        print(f"Found {vehicles.count()} vehicles")
+        vehicle_results = [{"text": f"{vehicle.make} {vehicle.model} {vehicle.year}", "url": f"/vehicle/{vehicle.id}"} for vehicle in vehicles]
 
-    public_collections = Collection.objects.filter(name__icontains=query, private_collection=False)
-    public_collections = [{"text": f"COLLECTION {str(collection)}", "url": f"collection/{collection.name}"} for collection in public_collections]
+        # Search for public collections by name or description
+        public_collections = Collection.objects.filter(
+            Q(name__icontains=query) | 
+            Q(description__icontains=query),
+            private_collection=False
+        )
+        print(f"Found {public_collections.count()} public collections")
+        public_collection_results = [{"text": f"Collection: {collection.name}", "url": f"/collection/{collection.name}"} for collection in public_collections]
 
-    if request.user.is_authenticated and request.user.user_type == 'librarian':
-        private_collections = Collection.objects.filter(name__icontains=query, private_collection=True)
-    elif request.user.is_authenticated and request.user.user_type == 'patron':
-        private_collections = Collection.objects.filter(name__icontains=query, users_with_access=request.user, private_collection=True)
-    else: # guest user
-        private_collections = list()
-    private_collections = [{"text": f"COLLECTION {str(collection)}", "url": f"collection/{collection.name}"} for collection in private_collections]
+        # Handle private collections based on user authentication
+        private_collection_results = []
+        if request.user.is_authenticated:
+            if request.user.user_type == 'librarian':
+                # Librarians can see all private collections
+                private_collections = Collection.objects.filter(
+                    Q(name__icontains=query) | 
+                    Q(description__icontains=query),
+                    private_collection=True
+                )
+            else:  # patron
+                # Patrons can only see private collections they have access to
+                private_collections = Collection.objects.filter(
+                    Q(name__icontains=query) | 
+                    Q(description__icontains=query),
+                    users_with_access=request.user, 
+                    private_collection=True
+                )
+            print(f"Found {len(private_collections)} private collections")
+            private_collection_results = [{"text": f"Private Collection: {collection.name}", "url": f"/collection/{collection.name}"} for collection in private_collections]
 
-    results = vehicles + public_collections + private_collections
-    if len(results) == 0:
-        results = [{"text": "No results found", "url": "javascript:void(0)"}]
-    elif len(results) > 8:
-        results = results[:8]
-    return JsonResponse({'results': results})
+        # Combine all results
+        results = vehicle_results + public_collection_results + private_collection_results
+        
+        print(f"Total results: {len(results)}")
+        if not results:
+            results = [{"text": f"No results found for '{query}'", "url": "javascript:void(0)"}]
+        elif len(results) > 10:
+            results = results[:10]  # Limit to top 10 results
+        
+        response_data = {'results': results}
+        print(f"Response data: {response_data}")
+        return JsonResponse(response_data)
+    except Exception as e:
+        print(f"Error in search: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return JsonResponse({
+            'error': str(e),
+            'results': [{"text": "An error occurred during search", "url": "javascript:void(0)"}]
+        }, status=500)
 
 
 def all_vehicles(request):
