@@ -195,8 +195,46 @@ def search_results(request):
 
 def all_vehicles(request):
     vehicles = Vehicle.objects.all()
-    context = {"vehicles": vehicles}
-    return render(request, 'vehicleLending/all_vehicles.html',context)
+    
+    # Apply filters if they exist in the request
+    vehicle_type = request.GET.get('vehicle_type')
+    min_price = request.GET.get('min_price')
+    max_price = request.GET.get('max_price')
+    year_range = request.GET.get('year')
+    
+    # Filter by vehicle type
+    if vehicle_type:
+        vehicles = vehicles.filter(vehicle_type=vehicle_type)
+    
+    # Filter by price range
+    if min_price and min_price.isdigit():
+        vehicles = vehicles.filter(daily_rate__gte=int(min_price))
+    if max_price and max_price.isdigit():
+        vehicles = vehicles.filter(daily_rate__lte=int(max_price))
+    
+    # Filter by year range
+    if year_range:
+        if year_range == '2023+':
+            vehicles = vehicles.filter(year__gte=2023)
+        elif year_range == '2020-2022':
+            vehicles = vehicles.filter(year__gte=2020, year__lte=2022)
+        elif year_range == '2015-2019':
+            vehicles = vehicles.filter(year__gte=2015, year__lte=2019)
+        elif year_range == '2010-2014':
+            vehicles = vehicles.filter(year__gte=2010, year__lte=2014)
+        elif year_range == 'Older than 2010':
+            vehicles = vehicles.filter(year__lt=2010)
+    
+    # Prepare filter values for the template to maintain state
+    context = {
+        "vehicles": vehicles,
+        "filter_vehicle_type": vehicle_type or '',
+        "filter_min_price": min_price or '',
+        "filter_max_price": max_price or '',
+        "filter_year": year_range or 'Any Year'
+    }
+    
+    return render(request, 'vehicleLending/all_vehicles.html', context)
 
 
 def add_collection(request):
@@ -518,7 +556,7 @@ def process_access_request(request, request_id, action):
         return redirect("vehicleLending:manage_access_requests")
     
     if action == "accept":
-        # Grant access by adding the requester to the collection’s users_with_access.
+        # Grant access by adding the requester to the collection's users_with_access.
         collection.users_with_access.add(access_request.requester)
         access_request.status = "accepted"
         messages.success(request,

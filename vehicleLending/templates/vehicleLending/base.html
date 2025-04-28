@@ -28,11 +28,14 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <div class="mx-auto d-flex position-relative" style="width: 50%;">
-                <input type="text" id="searchInput" class="form-control rounded-pill ps-3 pe-5" placeholder="Search vehicles, locations...">
-                <div class="position-absolute end-0 top-50 translate-middle-y pe-3">
-                    <i class="fas fa-search text-muted"></i>
-                </div>
-                <ul id="searchResults" class="dropdown-menu w-100"></ul>
+                <form action="{% url 'vehicleLending:search' %}" method="GET" class="w-100">
+                    <div class="position-relative">
+                        <input type="text" name="q" class="form-control rounded-pill ps-3 pe-5" placeholder="Search vehicles, locations...">
+                        <button type="submit" class="btn position-absolute end-0 top-50 translate-middle-y pe-3 border-0 bg-transparent">
+                            <i class="fas fa-search text-muted"></i>
+                        </button>
+                    </div>
+                </form>
             </div>
             <ul class="navbar-nav ms-auto align-items-center">
                 <li class="nav-item">
@@ -132,31 +135,11 @@
                     <a href="{% url 'vehicleLending:home' %}"><i class="fas fa-chevron-right small me-1"></i>Home</a>
                     <a href="{% url 'vehicleLending:all' %}"><i class="fas fa-chevron-right small me-1"></i>All Vehicles</a>
                     <a href="{% url 'vehicleLending:about' %}"><i class="fas fa-chevron-right small me-1"></i>About Us</a>
-                    <a href="#"><i class="fas fa-chevron-right small me-1"></i>Contact</a>
                 </div>
             </div>
             <div class="col-md-4 text-md-end">
-                <h5 class="mb-2">Get the ShareRides App</h5>
-                <div class="d-flex gap-2 justify-content-md-end">
-                    <a href="#" class="app-button">
-                        <div class="d-flex align-items-center bg-dark text-white rounded px-3 py-2">
-                            <div class="me-2"><i class="fab fa-apple fs-4"></i></div>
-                            <div>
-                                <div class="small" style="font-size: 0.6rem;">Download on the</div>
-                                <div style="font-size: 0.9rem; font-weight: 500;">App Store</div>
-                            </div>
-                        </div>
-                    </a>
-                    <a href="#" class="app-button">
-                        <div class="d-flex align-items-center bg-dark text-white rounded px-3 py-2">
-                            <div class="me-2"><i class="fab fa-google-play fs-4"></i></div>
-                            <div>
-                                <div class="small" style="font-size: 0.6rem;">GET IT ON</div>
-                                <div style="font-size: 0.9rem; font-weight: 500;">Google Play</div>
-                            </div>
-                        </div>
-                    </a>
-                </div>
+                <h5 class="mb-2">About ShareRides</h5>
+                <p class="mb-0">A UVA CS 3240 'Software Engineering' project for sharing vehicles.</p>
             </div>
         </div>
         <hr class="my-2">
@@ -182,15 +165,6 @@
         color: white;
         font-size: 14px;
         font-weight: 600;
-    }
-    
-    .app-button {
-        text-decoration: none;
-        transition: transform 0.2s;
-    }
-    
-    .app-button:hover {
-        transform: translateY(-3px);
     }
     
     .navbar .nav-link {

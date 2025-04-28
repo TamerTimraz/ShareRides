@@ -70,20 +70,10 @@
                 {% if vehicle.image %}
                 <div class="position-relative overflow-hidden">
                     <img src='{{ vehicle.image.url }}' class="card-img-top" alt="{{ vehicle.make }} {{ vehicle.model }}">
-                    <div class="position-absolute top-0 end-0 m-2">
-                        <button class="btn btn-sm btn-light rounded-circle p-1 shadow-sm">
-                            <i class="far fa-heart"></i>
-                        </button>
-                    </div>
                 </div>
                 {% else %}
                 <div class="bg-light d-flex justify-content-center align-items-center position-relative" style="height: 220px;">
                     <i class="fas fa-car fa-3x text-muted"></i>
-                    <div class="position-absolute top-0 end-0 m-2">
-                        <button class="btn btn-sm btn-light rounded-circle p-1 shadow-sm">
-                            <i class="far fa-heart"></i>
-                        </button>
-                    </div>
                 </div>
                 {% endif %}
                 <div class="card-body">
