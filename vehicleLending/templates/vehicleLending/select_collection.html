@@ -28,18 +28,6 @@
             <h2 class="section-title fw-bold">Public Collections</h2>
             <p class="text-muted mt-3">Browse our selection of vehicle collections</p>
         </div>
-        <div class="d-flex gap-2 mt-4 mt-md-0">
-            <div class="dropdown">
-                <button class="btn btn-sm btn-outline-secondary rounded-pill px-3 dropdown-toggle" type="button" id="sortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="fas fa-sort-amount-down me-2"></i>Sort
-                </button>
-                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="sortDropdown">
-                    <li><a class="dropdown-item" href="#"><i class="fas fa-clock me-2"></i>Newest First</a></li>
-                    <li><a class="dropdown-item" href="#"><i class="fas fa-font me-2"></i>Alphabetical</a></li>
-                    <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>By Creator</a></li>
-                </ul>
-            </div>
-        </div>
     </div>
 </div>
 
@@ -54,20 +42,10 @@
                 {% if collection.image %}
                 <div class="position-relative overflow-hidden">
                     <img src='{{ collection.image }}' class="card-img-top" alt="{{ collection.name }}">
-                    <div class="position-absolute top-0 end-0 m-2">
-                        <button class="btn btn-sm btn-light rounded-circle p-1 shadow-sm">
-                            <i class="far fa-heart"></i>
-                        </button>
-                    </div>
                 </div>
                 {% else %}
                 <div class="bg-light d-flex justify-content-center align-items-center position-relative" style="height: 220px;">
                     <i class="fas fa-layer-group fa-3x text-muted"></i>
-                    <div class="position-absolute top-0 end-0 m-2">
-                        <button class="btn btn-sm btn-light rounded-circle p-1 shadow-sm">
-                            <i class="far fa-heart"></i>
-                        </button>
-                    </div>
                 </div>
                 {% endif %}
                 <div class="card-body">
@@ -120,20 +98,10 @@
                 {% if collection.image %}
                 <div class="position-relative overflow-hidden">
                     <img src='{{ collection.image }}' class="card-img-top" alt="{{ collection.name }}">
-                    <div class="position-absolute top-0 end-0 m-2">
-                        <button class="btn btn-sm btn-light rounded-circle p-1 shadow-sm">
-                            <i class="far fa-heart"></i>
-                        </button>
-                    </div>
                 </div>
                 {% else %}
                 <div class="bg-light d-flex justify-content-center align-items-center position-relative" style="height: 220px;">
                     <i class="fas fa-lock fa-3x text-muted"></i>
-                    <div class="position-absolute top-0 end-0 m-2">
-                        <button class="btn btn-sm btn-light rounded-circle p-1 shadow-sm">
-                            <i class="far fa-heart"></i>
-                        </button>
-                    </div>
                 </div>
                 {% endif %}
                 <div class="card-body">
@@ -172,18 +140,4 @@
 {% endblock %}
 
 {% block scripts %}
-<script>
-    // Toggle heart icon when clicked
-    document.addEventListener('DOMContentLoaded', function() {
-        document.querySelectorAll('.fa-heart').forEach(heart => {
-            heart.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                this.classList.toggle('far');
-                this.classList.toggle('fas');
-                this.classList.toggle('text-danger');
-            });
-        });
-    });
-</script>
 {% endblock %}
