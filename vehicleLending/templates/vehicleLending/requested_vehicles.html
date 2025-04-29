@@ -15,9 +15,11 @@
     <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
 
         {% if borrow_requests|length == 0 %}
-        <div class="text-center text-muted mb-5">
-            <i class="fas fa-car fa-2x mb-2"></i>
-            <p>You have no requested vehicles.</p>
+        <div class="col" data-aos="fade-up">
+            <div class="text-center text-muted mb-5">
+                <i class="fas fa-car fa-2x mb-2"></i>
+                <p>You have no requested vehicles.</p>
+            </div>
         </div>
         {% endif %}
     
@@ -70,9 +72,11 @@
     <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
 
         {% if accepted_borrow_requests|length == 0 %}
-        <div class="text-center text-muted mb-5">
-            <i class="fas fa-car fa-2x mb-2"></i>
-            <p>You are not borrowing any vehicles currently.</p>
+        <div class="col" data-aos="fade-up">
+            <div class="text-center text-muted mb-5">
+                <i class="fas fa-car fa-2x mb-2"></i>
+                <p>You are not borrowing any vehicles currently.</p>
+            </div>
         </div>
         {% endif %}
     
