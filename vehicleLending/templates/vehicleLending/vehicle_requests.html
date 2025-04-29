@@ -2,46 +2,59 @@
 {% block content %}
 
 <!-- Header -->
-<div class="container mt-4">
-    <h2 class="text-start fw-bold">Pending Requests</h2>
-    <hr class="thick-line mb-4">
+<div class="container mt-4 mb-5">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center" data-aos="fade-up">
+        <div>
+            <h2 class="section-title fw-bold">Pending Requests</h2>
+        </div>
+    </div>
 </div>
 
 <!-- User Tiles-->
-<div class="container mt-4">
+<div class="container mb-5">
     <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+
+        {% if requests|length == 0 or requests|dictsort:"status"|length == 0 %}
+        <div class="text-center text-muted mb-5">
+            <i class="fas fa-user-circle fa-3x text-muted"></i>
+            <p>No pending requests for this vehicle.</p>
+        </div>
+        {% endif %}
     
         <!-- User Tile -->
         {% for request in requests %}
-        <div class="col">
-            <div class="card h-100">
+        <div class="col" data-aos="fade-up" data-aos-delay="{{ forloop.counter|divisibleby:4|yesno:'150,100,50,0' }}">
+            <div class="card h-100 product-card hover-lift">
                 {% if request.requester.profile_pic %}
-                <img src='{{ request.requester.profile_pic.url }}' class="card-img-top" alt="Profile_Pic">
+                <div class="position-relative overflow-hidden">
+                    <img src='{{ request.requester.profile_pic.url }}' class="card-img-top" alt="Profile Pic">
+                </div>
                 {% else %}
-                <p class="text-center">No Profile Pic</p>
+                <div class="bg-light d-flex justify-content-center align-items-center position-relative" style="height: 220px;">
+                    <i class="fas fa-user-circle fa-3x text-muted"></i>
+                </div>
                 {% endif %}
-                <div class="card-body d-flex flex-column justify-content-end align-items-center text-center">
-                    <h5 class="card-title">{{ request.requester.name }}</h5>
-                    <h5 class="card-title">{{ request.requester.email }}</h5>
-                </div>
-                <div class="d-grid gap-2 d-md-flex justify-content-md-center mb-2">
-                    <a href="{% url 'vehicleLending:respond_to_request' request.id 'accept' %}" class="btn btn-primary">Accept</a>
-                    <a href="{% url 'vehicleLending:respond_to_request' request.id 'deny' %}" class="btn btn-danger">Deny</a>
-                </div>
-
-                {% if messages %}
-                    <div class="mt-4">
-                        {% for message in messages %}
-                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                            {{ message }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                        {% endfor %}
+                <div class="card-body text-center">
+                    <h5 class="card-title mb-1">{{ request.requester.name }}</h5>
+                    <p class="card-text text-muted mb-3">{{ request.requester.email }}</p>
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                        <a href="{% url 'vehicleLending:respond_to_request' request.id 'accept' %}" class="btn btn-primary">Accept</a>
+                        <a href="{% url 'vehicleLending:respond_to_request' request.id 'deny' %}" class="btn btn-danger">Deny</a>
                     </div>
+                </div>
+                {% if messages %}
+                <div class="px-3 pb-3">
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    {% endfor %}
+                </div>
                 {% endif %}
             </div>
         </div>
-        {% endfor %}  
+        {% endfor %}
     </div>
 </div>
 

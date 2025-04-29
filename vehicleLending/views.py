@@ -450,7 +450,6 @@ def respond_to_request(request, request_id, response):
     borrow_request.save()
     return redirect(reverse('vehicleLending:vehicle_requests', args=[borrow_request.vehicle.id]))
 
-# only for librarians right now (will add for patrons to view their requested vehicles)
 @login_required
 def my_vehicles(request):
     if request.user.user_type != 'librarian':
@@ -475,8 +474,9 @@ def requested_vehicles(request):
     if not request.user.is_authenticated:
         return redirect('vehicleLending:home')
     
-    borrow_requests = BorrowRequest.objects.filter(requester=request.user)
-    return render(request, 'vehicleLending/requested_vehicles.html', {'borrow_requests': borrow_requests})
+    accepted_borrow_requests = BorrowRequest.objects.filter(requester=request.user, status='accepted')
+    borrow_requests = BorrowRequest.objects.filter(requester=request.user, status__in=['pending', 'denied'])
+    return render(request, 'vehicleLending/requested_vehicles.html', {'accepted_borrow_requests': accepted_borrow_requests, 'borrow_requests': borrow_requests})
 
 @login_required
 def return_vehicle(request, vehicle_id):
@@ -702,7 +702,7 @@ def remove_vehicle(request):
 #         return redirect('vehicleLending:promote_patron')
 #     return HttpResponse("No librarian user found.")
 
-
+@login_required
 def add_vehicle_to_collection(request, vehicle_id: int, collection_id: int):
     vehicle = get_object_or_404(Vehicle, id=vehicle_id)
     collection = get_object_or_404(Collection, id=collection_id)
@@ -723,13 +723,13 @@ def add_vehicle_to_collection(request, vehicle_id: int, collection_id: int):
 
     return render(request, 'vehicleLending/add_vehicle_to_collection.html', {'vehicle': vehicle, 'collection': collection})
 
+@login_required
 def remove_vehicle_from_collection(request, vehicle_id: int, collection_id: int):
     vehicle = get_object_or_404(Vehicle, id=vehicle_id)
     collection = get_object_or_404(Collection, id=collection_id)
 
     if request.method == 'POST':
         collection.vehicles.remove(vehicle)
-        messages.success(request, f"Vehicle {vehicle} removed from collection {collection}.")
         return redirect('vehicleLending:collection', collection_name=collection.name)
 
     return render(request, 'vehicleLending/remove_vehicle_from_collection.html', {'vehicle': vehicle, 'collection': collection})
