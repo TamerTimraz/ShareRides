@@ -14,6 +14,18 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" />
     <link rel="stylesheet" type="text/css" href="{% static 'css/sharerides-style.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+    <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
+
+    <style>
+        .sign-in {
+            font-family: 'Arial';
+            font-size: 16px;
+        }
+        .btn-primary:active {
+            background-color: #b82c3c !important;
+            border-color: #b82c3c !important;
+        }
+    </style>
 </head>
 <body>
 
@@ -83,7 +95,7 @@
                 </li>
                 {% else %}
                 <li class="nav-item">
-                    <a class="nav-link btn btn-sm btn-primary text-white ms-2 px-3" href="{% url 'vehicleLending:login' %}">Sign In</a>
+                    <a class="sign-in btn btn-sm btn-primary text-white ms-2 px-3" href="{% url 'vehicleLending:login' %}">Sign In</a>
                 </li>
                 {% endif %}
             </ul>

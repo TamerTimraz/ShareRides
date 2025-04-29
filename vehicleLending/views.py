@@ -78,7 +78,10 @@ def select_vehicle(request, collection_name: str):
     context = {"collection_name": collection_name, "vehicles": vehicles, "collection": collection, "all_vehicles": all_vehicles, "is_patron_owner": is_patron_owner}
     return render(request, 'vehicleLending/select_vehicle.html', context)
 
-def add_vehicle(request):
+def add_vehicle(request, collection_name=None):
+    collection = None
+    if collection_name:
+        collection = get_object_or_404(Collection, name=collection_name)
     # only librarians can access page
     if not request.user.is_authenticated or request.user.user_type != 'librarian':
         return redirect('vehicleLending:home')
@@ -89,12 +92,14 @@ def add_vehicle(request):
             vehicle = form.save(commit=False)
             vehicle.lender = request.user
             vehicle.save()
+            if collection:
+                collection.vehicles.add(vehicle)
             return redirect(reverse('vehicleLending:details',args=[vehicle.id]))
         else:
             print(form.errors)
     else:
         form = VehicleForm()
-    return render(request,'vehicleLending/add_vehicle.html',{'form':form})
+    return render(request,'vehicleLending/add_vehicle.html',{'form':form, 'collection':collection})
 
 def edit_vehicle(request, vehicle_id: int):
     if not request.user.is_authenticated or request.user.user_type != 'librarian':

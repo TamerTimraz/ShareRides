@@ -13,6 +13,7 @@ urlpatterns = [
     path('vehicle/<int:vehicle_id>', views.item_desc, name='details'),
     path('collection/<str:collection_name>', views.select_vehicle, name='collection'),
     path('add-vehicle', views.add_vehicle, name='add_vehicle'),
+    path('add-vehicle/<str:collection_name>', views.add_vehicle, name='add_vehicle_inside_collection'),
     path('edit_vehicle/<int:vehicle_id>', views.edit_vehicle, name='edit_vehicle'),
     path('delete_vehicle/<int:vehicle_id>', views.delete_vehicle, name='delete_vehicle'),
     path('add-collection', views.add_collection, name='add_collection'),
