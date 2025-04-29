@@ -274,7 +274,12 @@ def search_results(request):
 
 
 def all_vehicles(request):
-    vehicles = Vehicle.objects.all()
+    vehicles = set(Vehicle.objects.all())
+
+    for collection in Collection.objects.all():
+        for collection_vehicle in collection.vehicles.all():
+            if collection_vehicle in vehicles:
+                vehicles.remove(collection_vehicle)
     
     # Apply filters if they exist in the request
     vehicle_type = request.GET.get('vehicle_type')
