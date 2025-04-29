@@ -94,9 +94,11 @@ def add_vehicle(request, collection_name=None):
         if form.is_valid():
             vehicle = form.save(commit=False)
             vehicle.lender = request.user
-            vehicle.save()
             if collection:
                 collection.vehicles.add(vehicle)
+                if collection.private_collection:
+                    vehicle.private_collection = collection
+            vehicle.save()
             return redirect(reverse('vehicleLending:details',args=[vehicle.id]))
         else:
             print(form.errors)
