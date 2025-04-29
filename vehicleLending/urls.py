@@ -13,6 +13,7 @@ urlpatterns = [
     path('vehicle/<int:vehicle_id>', views.item_desc, name='details'),
     path('collection/<str:collection_name>', views.select_vehicle, name='collection'),
     path('add-vehicle', views.add_vehicle, name='add_vehicle'),
+    path('add-vehicle/<str:collection_name>', views.add_vehicle, name='add_vehicle_inside_collection'),
     path('edit_vehicle/<int:vehicle_id>', views.edit_vehicle, name='edit_vehicle'),
     path('delete_vehicle/<int:vehicle_id>', views.delete_vehicle, name='delete_vehicle'),
     path('add-collection', views.add_collection, name='add_collection'),
@@ -34,6 +35,8 @@ urlpatterns = [
     path('access-requests/', views.manage_access_requests, name='manage_access_requests'),
     path('access-request/<int:request_id>/<str:action>/', views.process_access_request, name='process_access_request'),
     path('remove-vehicle/', views.remove_vehicle, name='remove_vehicle'),
+    path('add_vehicle_to_collection/<int:vehicle_id>/<int:collection_id>/', views.add_vehicle_to_collection, name='add_vehicle_to_collection'),
+    path('remove_vehicle_from_collection/<int:vehicle_id>/<int:collection_id>/', views.remove_vehicle_from_collection, name='remove_vehicle_from_collection'),
 
 # ###IGNORE###    
 #    path('dev-login/', views.dev_login_as_librarian, name='dev_login'),

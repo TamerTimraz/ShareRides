@@ -1,48 +1,105 @@
-document.getElementById("searchInput").addEventListener("input", function() {
-    let query = this.value.trim();
-    let resultsContainer = document.getElementById("searchResults");
-    console.log("Search query:", query);
-
-    // Clear previous results and hide dropdown if input is empty
-    if (query.length > 0) {
-        fetch(`/search/?query=${encodeURIComponent(query)}`)
-            .then(response => response.json())
+// This script handles the search functionality for the site
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById("searchInput");
+    const searchResults = document.getElementById("searchResults");
+    const searchForm = document.getElementById("searchForm");
+    
+    if (!searchInput || !searchResults || !searchForm) {
+        console.error("Search elements not found:", { searchInput, searchResults, searchForm });
+        return;
+    }
+    
+    // Prevent normal form submission
+    searchForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        console.log("Form submission prevented");
+        return false;
+    });
+    
+    // Handle search when typing
+    let debounceTimer;
+    searchInput.addEventListener('input', function() {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(function() {
+            const query = searchInput.value.trim();
+            if (query.length > 0) {
+                doSearch(query);
+            } else {
+                searchResults.classList.remove("show");
+            }
+        }, 300); // Debounce for 300ms
+    });
+    
+    // Handle Enter key
+    searchInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const query = searchInput.value.trim();
+            if (query.length > 0) {
+                doSearch(query);
+            }
+            return false;
+        }
+    });
+    
+    // Search button click
+    const searchButton = document.getElementById("searchButton");
+    if (searchButton) {
+        searchButton.addEventListener('click', function() {
+            const query = searchInput.value.trim();
+            if (query.length > 0) {
+                doSearch(query);
+            }
+        });
+    }
+    
+    // Function to perform search
+    function doSearch(query) {
+        console.log("Performing search for:", query);
+        
+        // Show loading indicator
+        searchResults.innerHTML = "<li class='dropdown-item'><i class='fas fa-spinner fa-spin me-2'></i>Searching...</li>";
+        searchResults.classList.add("show");
+        
+        // Perform the AJAX search
+        fetch(`/search/?q=${encodeURIComponent(query)}`)
+            .then(response => {
+                console.log("Search response status:", response.status);
+                return response.json();
+            })
             .then(data => {
                 console.log("Search results:", data);
-
-                resultsContainer.innerHTML = ""; // Clear previous results
-
-                let results = data.results;
-
+                
+                searchResults.innerHTML = "";
+                const results = data.results || [];
+                
                 if (results.length > 0) {
-                    results.forEach(item => {
-                        let resultItem = document.createElement("li");
-                        let link = document.createElement("a");
-                        link.href = new URL(item.url, window.location.origin).href;
-                        link.className = "dropdown-item";
-                        link.textContent = item.text;
-                        resultItem.appendChild(link);
-                        resultsContainer.appendChild(resultItem);
+                    results.forEach(result => {
+                        const li = document.createElement('li');
+                        const a = document.createElement('a');
+                        a.href = new URL(result.url, window.location.origin).href;
+                        a.className = 'dropdown-item';
+                        a.textContent = result.text;
+                        li.appendChild(a);
+                        searchResults.appendChild(li);
                     });
-
-                    // Show the dropdown
-                    resultsContainer.classList.add("show");
                 } else {
-                    resultsContainer.innerHTML = "<li class='dropdown-item text-muted'>No results found</li>";
-                    resultsContainer.classList.add("show");
+                    searchResults.innerHTML = "<li class='dropdown-item text-muted'>No results found</li>";
                 }
+                
+                searchResults.classList.add("show");
             })
-            .catch(error => console.error("Error fetching search results:", error));
-    } else {
-        resultsContainer.classList.remove("show"); // Hide dropdown when empty
+            .catch(error => {
+                console.error("Search error:", error);
+                searchResults.innerHTML = "<li class='dropdown-item text-danger'>Error searching</li>";
+                searchResults.classList.add("show");
+            });
     }
-});
-
-// Hide dropdown when clicking outside
-document.addEventListener("click", function(event) {
-    let searchBox = document.getElementById("searchInput");
-    let resultsContainer = document.getElementById("searchResults");
-    if (!searchBox.contains(event.target) && !resultsContainer.contains(event.target)) {
-        resultsContainer.classList.remove("show");
-    }
+    
+    // Hide results when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+            searchResults.classList.remove("show");
+        }
+    });
 });

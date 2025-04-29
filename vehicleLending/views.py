@@ -13,6 +13,7 @@ from .forms import VehicleForm, ProfilePictureForm, ReviewForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.views.decorators.http import require_http_methods
+from django.db.models import Q
 
 # Create your views here.
 
@@ -56,12 +57,15 @@ def select_collection(request):
         if request.user.user_type == 'librarian':
             all_collections = Collection.objects.all()
             private_collections = Collection.objects.filter(private_collection=True)
+            private_collections_with_access = Collection.objects.filter(private_collection=True)
         else:  # patron
             all_collections = Collection.objects.filter(creator=request.user)
-            private_collections = Collection.objects.filter(users_with_access=request.user, private_collection=True)
+            private_collections = Collection.objects.filter(private_collection=True)
+            private_collections_with_access = Collection.objects.filter(users_with_access=request.user, private_collection=True)
     else:  # guest user
         all_collections = []
         private_collections = []
+        private_collections_with_access = []
         
     return render(request, 'vehicleLending/select_collection.html', {
         'public_collections': public_collections, 
@@ -72,16 +76,15 @@ def select_collection(request):
 def select_vehicle(request, collection_name: str):
     collection = get_object_or_404(Collection, name=collection_name)
     vehicles = collection.vehicles.all()
-    context = {"collection_name": collection_name, "vehicles": vehicles, "collection": collection}
+    all_vehicles = Vehicle.objects.all()
+    is_patron_owner = request.user.is_authenticated and request.user.user_type == 'patron' and collection.creator == request.user
+    context = {"collection_name": collection_name, "vehicles": vehicles, "collection": collection, "all_vehicles": all_vehicles, "is_patron_owner": is_patron_owner}
     return render(request, 'vehicleLending/select_vehicle.html', context)
 
-def item_desc(request, vehicle_id):
-    vehicle = get_object_or_404(Vehicle, id=vehicle_id)
-    user = (request.user)
-    return render(request,'vehicleLending/item_desc.html', {'vehicle': vehicle,'user':user})
-
-
-def add_vehicle(request):
+def add_vehicle(request, collection_name=None):
+    collection = None
+    if collection_name:
+        collection = get_object_or_404(Collection, name=collection_name)
     # only librarians can access page
     if not request.user.is_authenticated or request.user.user_type != 'librarian':
         return redirect('vehicleLending:home')
@@ -92,12 +95,14 @@ def add_vehicle(request):
             vehicle = form.save(commit=False)
             vehicle.lender = request.user
             vehicle.save()
+            if collection:
+                collection.vehicles.add(vehicle)
             return redirect(reverse('vehicleLending:details',args=[vehicle.id]))
         else:
             print(form.errors)
     else:
         form = VehicleForm()
-    return render(request,'vehicleLending/add_vehicle.html',{'form':form})
+    return render(request,'vehicleLending/add_vehicle.html',{'form':form, 'collection':collection})
 
 def edit_vehicle(request, vehicle_id: int):
     if not request.user.is_authenticated or request.user.user_type != 'librarian':
@@ -167,34 +172,123 @@ def about(request):
     return render(request, 'vehicleLending/about.html', context)
 
 def search_results(request):
-    query = request.GET.get('query')
+    """
+    API endpoint for search functionality. Returns vehicle and collection matches.
+    This is used by the AJAX search in the navbar.
+    """
+    try:
+        query = request.GET.get('q', '').strip()
+        
+        # Debug output
+        print(f"Search query received: '{query}', GET params: {request.GET}")
+        
+        if not query:
+            print("No query provided")
+            return JsonResponse({'results': [{"text": "Please enter a search term", "url": "javascript:void(0)"}]})
 
-    vehicles = Vehicle.objects.filter(make__icontains=query)
-    vehicles = [{"text": str(vehicle), "url": f"vehicle/{vehicle.id}"} for vehicle in vehicles]
+        # Search for vehicles by make, model, or year
+        vehicles = Vehicle.objects.filter(
+            Q(make__icontains=query) | 
+            Q(model__icontains=query) |
+            Q(year__icontains=query)
+        )
+        print(f"Found {vehicles.count()} vehicles")
+        vehicle_results = [{"text": f"{vehicle.make} {vehicle.model} {vehicle.year}", "url": f"/vehicle/{vehicle.id}"} for vehicle in vehicles]
 
-    public_collections = Collection.objects.filter(name__icontains=query, private_collection=False)
-    public_collections = [{"text": f"COLLECTION {str(collection)}", "url": f"collection/{collection.name}"} for collection in public_collections]
+        # Search for public collections by name or description
+        public_collections = Collection.objects.filter(
+            Q(name__icontains=query) | 
+            Q(description__icontains=query),
+            private_collection=False
+        )
+        print(f"Found {public_collections.count()} public collections")
+        public_collection_results = [{"text": f"Collection: {collection.name}", "url": f"/collection/{collection.name}"} for collection in public_collections]
 
-    if request.user.is_authenticated and request.user.user_type == 'librarian':
-        private_collections = Collection.objects.filter(name__icontains=query, private_collection=True)
-    elif request.user.is_authenticated and request.user.user_type == 'patron':
-        private_collections = Collection.objects.filter(name__icontains=query, users_with_access=request.user, private_collection=True)
-    else: # guest user
-        private_collections = list()
-    private_collections = [{"text": f"COLLECTION {str(collection)}", "url": f"collection/{collection.name}"} for collection in private_collections]
+        # Handle private collections based on user authentication
+        private_collection_results = []
+        if request.user.is_authenticated:
+            if request.user.user_type == 'librarian':
+                # Librarians can see all private collections
+                private_collections = Collection.objects.filter(
+                    Q(name__icontains=query) | 
+                    Q(description__icontains=query),
+                    private_collection=True
+                )
+            else:  # patron
+                # Patrons can only see private collections they have access to
+                private_collections = Collection.objects.filter(
+                    Q(name__icontains=query) | 
+                    Q(description__icontains=query),
+                    users_with_access=request.user, 
+                    private_collection=True
+                )
+            print(f"Found {len(private_collections)} private collections")
+            private_collection_results = [{"text": f"Private Collection: {collection.name}", "url": f"/collection/{collection.name}"} for collection in private_collections]
 
-    results = vehicles + public_collections + private_collections
-    if len(results) == 0:
-        results = [{"text": "No results found", "url": "javascript:void(0)"}]
-    elif len(results) > 8:
-        results = results[:8]
-    return JsonResponse({'results': results})
+        # Combine all results
+        results = vehicle_results + public_collection_results + private_collection_results
+        
+        print(f"Total results: {len(results)}")
+        if not results:
+            results = [{"text": f"No results found for '{query}'", "url": "javascript:void(0)"}]
+        elif len(results) > 10:
+            results = results[:10]  # Limit to top 10 results
+        
+        response_data = {'results': results}
+        print(f"Response data: {response_data}")
+        return JsonResponse(response_data)
+    except Exception as e:
+        print(f"Error in search: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return JsonResponse({
+            'error': str(e),
+            'results': [{"text": "An error occurred during search", "url": "javascript:void(0)"}]
+        }, status=500)
 
 
 def all_vehicles(request):
     vehicles = Vehicle.objects.all()
-    context = {"vehicles": vehicles}
-    return render(request, 'vehicleLending/all_vehicles.html',context)
+    
+    # Apply filters if they exist in the request
+    vehicle_type = request.GET.get('vehicle_type')
+    min_price = request.GET.get('min_price')
+    max_price = request.GET.get('max_price')
+    year_range = request.GET.get('year')
+    
+    # Filter by vehicle type
+    if vehicle_type:
+        vehicles = vehicles.filter(vehicle_type=vehicle_type)
+    
+    # Filter by price range
+    if min_price and min_price.isdigit():
+        vehicles = vehicles.filter(daily_rate__gte=int(min_price))
+    if max_price and max_price.isdigit():
+        vehicles = vehicles.filter(daily_rate__lte=int(max_price))
+    
+    # Filter by year range
+    if year_range:
+        if year_range == '2023+':
+            vehicles = vehicles.filter(year__gte=2023)
+        elif year_range == '2020-2022':
+            vehicles = vehicles.filter(year__gte=2020, year__lte=2022)
+        elif year_range == '2015-2019':
+            vehicles = vehicles.filter(year__gte=2015, year__lte=2019)
+        elif year_range == '2010-2014':
+            vehicles = vehicles.filter(year__gte=2010, year__lte=2014)
+        elif year_range == 'Older than 2010':
+            vehicles = vehicles.filter(year__lt=2010)
+    
+    # Prepare filter values for the template to maintain state
+    context = {
+        "vehicles": vehicles,
+        "filter_vehicle_type": vehicle_type or '',
+        "filter_min_price": min_price or '',
+        "filter_max_price": max_price or '',
+        "filter_year": year_range or 'Any Year'
+    }
+    
+    return render(request, 'vehicleLending/all_vehicles.html', context)
 
 
 def add_collection(request):
@@ -212,6 +306,10 @@ def add_collection(request):
         if request.user.user_type == 'librarian' and 'private_collection' in request.POST:
             private_collection = True
         
+        if Collection.objects.filter(name=name).exists():
+            messages.info(request, "A collection with this name already exists.")
+            return redirect('vehicleLending:home')
+
         # Create and save the collection
         collection = Collection(
             name=name,
@@ -259,8 +357,8 @@ def remove_collection(request):
         try:
             collection = Collection.objects.get(id=collection_id)
             
-            # Check if user is the creator of the collection
-            if collection.creator == request.user:
+            # Check if user is the creator of the collection or a librarian
+            if collection.creator == request.user or request.user.user_type == 'librarian':
                 collection.delete()
             
         except Collection.DoesNotExist:
@@ -384,37 +482,47 @@ def promote_patron(request):
     # Stay in page
     return render(request, 'vehicleLending/promote_patron.html', {'patrons': patrons})
 
-@login_required
 def item_desc(request, vehicle_id):
     vehicle = get_object_or_404(Vehicle, id=vehicle_id)
     user = request.user
+
     reviews = vehicle.reviews.select_related('reviewer').order_by('-date')
 
+    
+
+        
+    if user.is_authenticated:
     # Check if the user already reviewed this vehicle
-    existing_review = Review.objects.filter(vehicle=vehicle, reviewer=user).first()
+        existing_review = Review.objects.filter(vehicle=vehicle, reviewer=user).first()
 
-    if request.method == 'POST':
-        if existing_review:
-            messages.error(request, "You have already submitted a review for this vehicle.")
-            return redirect('vehicleLending:details', vehicle_id=vehicle.id)
+        if request.method == 'POST':
+            if existing_review:
+                messages.error(request, "You have already submitted a review for this vehicle.")
+                return redirect('vehicleLending:details', vehicle_id=vehicle.id)
 
-        form = ReviewForm(request.POST)
-        if form.is_valid():
-            review = form.save(commit=False)
-            review.vehicle = vehicle
-            review.reviewer = user
-            review.save()
-            messages.success(request, "Your review has been submitted.")
-            return redirect('vehicleLending:details', vehicle_id=vehicle.id)
+            form = ReviewForm(request.POST)
+            if form.is_valid():
+                review = form.save(commit=False)
+                review.vehicle = vehicle
+                review.reviewer = user
+                review.save()
+                messages.success(request, "Your review has been submitted.")
+                return redirect('vehicleLending:details', vehicle_id=vehicle.id)
+        else:
+            form = ReviewForm()
+
+        return render(request, 'vehicleLending/item_desc.html', {
+            'vehicle': vehicle,
+            'user': user,
+            'form': form,
+            'reviews': reviews,
+        })
     else:
-        form = ReviewForm()
-
-    return render(request, 'vehicleLending/item_desc.html', {
-        'vehicle': vehicle,
-        'user': user,
-        'form': form,
-        'reviews': reviews,
-    })
+        return render(request, 'vehicleLending/item_desc.html', {
+            'vehicle': vehicle,
+            'user': user,
+            'reviews':reviews
+        })
 
 @login_required
 def delete_review(request, review_id):
@@ -516,7 +624,7 @@ def process_access_request(request, request_id, action):
         return redirect("vehicleLending:manage_access_requests")
     
     if action == "accept":
-        # Grant access by adding the requester to the collection’s users_with_access.
+        # Grant access by adding the requester to the collection's users_with_access.
         collection.users_with_access.add(access_request.requester)
         access_request.status = "accepted"
         messages.success(request,
@@ -559,4 +667,24 @@ def remove_vehicle(request):
 #     return HttpResponse("No librarian user found.")
 
 
+def add_vehicle_to_collection(request, vehicle_id: int, collection_id: int):
+    vehicle = get_object_or_404(Vehicle, id=vehicle_id)
+    collection = get_object_or_404(Collection, id=collection_id)
 
+    if request.method == 'POST':
+        collection.vehicles.add(vehicle)
+        messages.success(request, f"Vehicle {vehicle} added to collection {collection}.")
+        return redirect('vehicleLending:collection', collection_name=collection.name)
+
+    return render(request, 'vehicleLending/add_vehicle_to_collection.html', {'vehicle': vehicle, 'collection': collection})
+
+def remove_vehicle_from_collection(request, vehicle_id: int, collection_id: int):
+    vehicle = get_object_or_404(Vehicle, id=vehicle_id)
+    collection = get_object_or_404(Collection, id=collection_id)
+
+    if request.method == 'POST':
+        collection.vehicles.remove(vehicle)
+        messages.success(request, f"Vehicle {vehicle} removed from collection {collection}.")
+        return redirect('vehicleLending:collection', collection_name=collection.name)
+
+    return render(request, 'vehicleLending/remove_vehicle_from_collection.html', {'vehicle': vehicle, 'collection': collection})
