@@ -78,10 +78,7 @@ def select_vehicle(request, collection_name: str):
     context = {"collection_name": collection_name, "vehicles": vehicles, "collection": collection, "all_vehicles": all_vehicles, "is_patron_owner": is_patron_owner}
     return render(request, 'vehicleLending/select_vehicle.html', context)
 
-def item_desc(request, vehicle_id):
-    vehicle = get_object_or_404(Vehicle, id=vehicle_id)
-    user = (request.user)
-    return render(request,'vehicleLending/item_desc.html', {'vehicle': vehicle,'user':user})
+
 
 
 def add_vehicle(request):
@@ -472,41 +469,45 @@ def promote_patron(request):
             return redirect('vehicleLending:promote_patron')
         except User.DoesNotExist:
             messages.error(request, "That user was not found or is already a librarian.")
-
     # Stay in page
     return render(request, 'vehicleLending/promote_patron.html', {'patrons': patrons})
 
-@login_required
 def item_desc(request, vehicle_id):
     vehicle = get_object_or_404(Vehicle, id=vehicle_id)
     user = request.user
-    reviews = vehicle.reviews.select_related('reviewer').order_by('-date')
+    if user.is_authenticated:
+        reviews = vehicle.reviews.select_related('reviewer').order_by('-date')
 
-    # Check if the user already reviewed this vehicle
-    existing_review = Review.objects.filter(vehicle=vehicle, reviewer=user).first()
+        # Check if the user already reviewed this vehicle
+        existing_review = Review.objects.filter(vehicle=vehicle, reviewer=user).first()
 
-    if request.method == 'POST':
-        if existing_review:
-            messages.error(request, "You have already submitted a review for this vehicle.")
-            return redirect('vehicleLending:details', vehicle_id=vehicle.id)
+        if request.method == 'POST':
+            if existing_review:
+                messages.error(request, "You have already submitted a review for this vehicle.")
+                return redirect('vehicleLending:details', vehicle_id=vehicle.id)
 
-        form = ReviewForm(request.POST)
-        if form.is_valid():
-            review = form.save(commit=False)
-            review.vehicle = vehicle
-            review.reviewer = user
-            review.save()
-            messages.success(request, "Your review has been submitted.")
-            return redirect('vehicleLending:details', vehicle_id=vehicle.id)
+            form = ReviewForm(request.POST)
+            if form.is_valid():
+                review = form.save(commit=False)
+                review.vehicle = vehicle
+                review.reviewer = user
+                review.save()
+                messages.success(request, "Your review has been submitted.")
+                return redirect('vehicleLending:details', vehicle_id=vehicle.id)
+        else:
+            form = ReviewForm()
+
+        return render(request, 'vehicleLending/item_desc.html', {
+            'vehicle': vehicle,
+            'user': user,
+            'form': form,
+            'reviews': reviews,
+        })
     else:
-        form = ReviewForm()
-
-    return render(request, 'vehicleLending/item_desc.html', {
-        'vehicle': vehicle,
-        'user': user,
-        'form': form,
-        'reviews': reviews,
-    })
+        return render(request, 'vehicleLending/item_desc.html', {
+            'vehicle': vehicle,
+            'user': user
+        })
 
 @login_required
 def delete_review(request, review_id):

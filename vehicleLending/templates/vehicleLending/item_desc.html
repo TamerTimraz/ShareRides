@@ -4,16 +4,6 @@
 <head>
     <style>
         /* Global Styles */
-        :root {
-            --primary: #2563eb;
-            --primary-dark: #1d4ed8;
-            --secondary: #f8fafc;
-            --text: #334155;
-            --text-light: #64748b;
-            --accent: #f59e0b;
-            --border: #e2e8f0;
-            --shadow: rgba(0, 0, 0, 0.05);
-        }
         
         * {
             margin: 0;
@@ -140,36 +130,7 @@
                 grid-template-columns: repeat(2, 1fr);
             }
         }
-        .btn.item{
-            padding: 1rem;
-            border: none;
-            border-radius: 6px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            text-align: center;
-            text-decoration: none;
-        }
         
-        .btn-primary {
-            background-color: var(--primary);
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background-color: var(--primary-dark);
-        }
-        
-        .btn-secondary {
-            background-color: var(--secondary);
-            color: var(--text);
-            border: 1px solid var(--border);
-        }
-        
-        .btn-secondary:hover {
-            background-color: #e2e8f0;
-        }
         
         /* Similar Vehicles */
         .similar-vehicles {
@@ -315,7 +276,7 @@
                 
                 <!-- Action Buttons -->
                 <div class="action-buttons">
-                    {% if vehicle.is_available %}
+                    {% if vehicle.is_available and user.is_authenticated %}
                         <a href="{% url 'vehicleLending:request_borrow' vehicle.id %}" class="btn item btn-primary">Request to Borrow</a>
                     {% endif %}
 
