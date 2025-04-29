@@ -78,9 +78,6 @@ def select_vehicle(request, collection_name: str):
     context = {"collection_name": collection_name, "vehicles": vehicles, "collection": collection, "all_vehicles": all_vehicles, "is_patron_owner": is_patron_owner}
     return render(request, 'vehicleLending/select_vehicle.html', context)
 
-
-
-
 def add_vehicle(request):
     # only librarians can access page
     if not request.user.is_authenticated or request.user.user_type != 'librarian':
@@ -469,16 +466,21 @@ def promote_patron(request):
             return redirect('vehicleLending:promote_patron')
         except User.DoesNotExist:
             messages.error(request, "That user was not found or is already a librarian.")
+
     # Stay in page
     return render(request, 'vehicleLending/promote_patron.html', {'patrons': patrons})
 
 def item_desc(request, vehicle_id):
     vehicle = get_object_or_404(Vehicle, id=vehicle_id)
     user = request.user
-    if user.is_authenticated:
-        reviews = vehicle.reviews.select_related('reviewer').order_by('-date')
 
-        # Check if the user already reviewed this vehicle
+    reviews = vehicle.reviews.select_related('reviewer').order_by('-date')
+
+    
+
+        
+    if user.is_authenticated:
+    # Check if the user already reviewed this vehicle
         existing_review = Review.objects.filter(vehicle=vehicle, reviewer=user).first()
 
         if request.method == 'POST':
@@ -506,7 +508,8 @@ def item_desc(request, vehicle_id):
     else:
         return render(request, 'vehicleLending/item_desc.html', {
             'vehicle': vehicle,
-            'user': user
+            'user': user,
+            'reviews':reviews
         })
 
 @login_required
