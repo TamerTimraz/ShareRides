@@ -79,7 +79,8 @@ def select_vehicle(request, collection_name: str):
     all_vehicles = [vehicle for vehicle in Vehicle.objects.all() if not vehicle.private_collection]
     is_patron_owner = request.user.is_authenticated and request.user.user_type == 'patron' and collection.creator == request.user
     creator = f"{collection.creator.name} ({collection.creator.email})" if collection.creator else "Unknown"
-    context = {"collection_name": collection_name, "vehicles": vehicles, "collection": collection, "all_vehicles": all_vehicles, "is_patron_owner": is_patron_owner, "creator": creator}
+    authorized_patrons = [f"{user.name} ({user.email})" for user in collection.users_with_access.all()]
+    context = {"collection_name": collection_name, "vehicles": vehicles, "collection": collection, "all_vehicles": all_vehicles, "is_patron_owner": is_patron_owner, "creator": creator, "authorized_patrons": authorized_patrons}
     return render(request, 'vehicleLending/select_vehicle.html', context)
 
 def add_vehicle(request, collection_name=None):
