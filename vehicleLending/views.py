@@ -346,7 +346,12 @@ def edit_collection(request, collection_name: str):
     for vehicle in collection.vehicles.all():
         vehicle.private_collection = collection if collection.private_collection else None
         vehicle.save()
-    
+
+        for other_collection in vehicle.collections.all():
+            if other_collection != collection:
+                other_collection.vehicles.remove(vehicle)
+                other_collection.save()
+
     return redirect('vehicleLending:home')
 
 @login_required
@@ -664,6 +669,12 @@ def add_vehicle_to_collection(request, vehicle_id: int, collection_id: int):
         if collection.private_collection:
             vehicle.private_collection = collection
             vehicle.save()
+
+            for other_collection in vehicle.collections.all():
+                if other_collection != collection:
+                    other_collection.vehicles.remove(vehicle)
+                    other_collection.save()
+
         messages.success(request, f"Vehicle {vehicle} added to collection {collection}.")
         return redirect('vehicleLending:collection', collection_name=collection.name)
 
