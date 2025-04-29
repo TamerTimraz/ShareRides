@@ -22,6 +22,7 @@ urlpatterns = [
     path('about', views.about, name='about'),
     path('search/', views.search_results, name='search'),
     path('all',views.all_vehicles, name='all'),
+    path('map', views.map_view, name='map'),
     path('vehicle/<int:vehicle_id>/request', views.request_borrow, name='request_borrow'),
     path('request/<int:request_id>/<str:response>', views.respond_to_request, name='respond_to_request'),
     path('my-vehicles', views.my_vehicles, name='my_vehicles'),

@@ -1,0 +1,266 @@
+{% extends 'vehicleLending/base.html' %}
+{% block content %}
+
+<div class="container mt-4 mb-5">
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center" data-aos="fade-up">
+    <div>
+      <h2 class="section-title fw-bold">Vehicle Map</h2>
+      <p class="text-muted mt-3">Explore all vehicles in your area</p>
+    </div>
+    <div class="d-flex gap-2 mt-4 mt-md-0">
+      <a href="{% url 'vehicleLending:all' %}" class="btn btn-outline-primary rounded-pill px-3">
+        <i class="fas fa-list me-2"></i>List View
+      </a>
+      {% if user.is_authenticated and user.user_type == 'librarian' %}
+      <a href="{% url 'vehicleLending:update_vehicle_coordinates' %}" class="btn btn-outline-secondary rounded-pill px-3">
+        <i class="fas fa-map-pin me-2"></i>Update Coordinates
+      </a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="container mb-5">
+  <!-- Search Box -->
+  <div class="card shadow-sm mb-3">
+    <div class="card-body">
+      <div class="input-group">
+        <span class="input-group-text"><i class="fas fa-search"></i></span>
+        <input id="map-search" type="text" class="form-control" placeholder="Search for locations...">
+        <button id="search-btn" class="btn btn-primary">Search</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-body p-0">
+      <div id="map" style="width: 100%; height: 600px;"></div>
+    </div>
+  </div>
+  
+  <div class="mt-4">
+    <div class="alert alert-info">
+      <i class="fas fa-info-circle me-2"></i> Click on a marker to see vehicle details. Use the search box to find specific locations.
+    </div>
+  </div>
+
+  <div class="mt-4">
+    <h4>Vehicles in System</h4>
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Vehicle</th>
+            <th>Type</th>
+            <th>Location</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for vehicle in vehicles %}
+          <tr>
+            <td>{{ vehicle.make }} {{ vehicle.model }} ({{ vehicle.year }})</td>
+            <td>{{ vehicle.vehicle_type }}</td>
+            <td>{{ vehicle.location }}</td>
+            <td>
+              <a href="{% url 'vehicleLending:details' vehicle.id %}" class="btn btn-sm btn-primary">View</a>
+              {% if user.is_authenticated and vehicle.lender == user or user.user_type == 'librarian' %}
+              <a href="{% url 'vehicleLending:edit_vehicle' vehicle.id %}" class="btn btn-sm btn-outline-secondary">Edit</a>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script async defer
+  src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&libraries=places&callback=initMap">
+</script>
+<script>
+  function initMap() {
+    // Create a map centered at a default location
+    const defaultCenter = { lat: 37.7749, lng: -122.4194 }; // San Francisco as default
+    const map = new google.maps.Map(document.getElementById("map"), {
+      zoom: 10,
+      center: defaultCenter,
+    });
+    
+    // Info window to display details when marker is clicked
+    const infoWindow = new google.maps.InfoWindow();
+    
+    // Bounds to adjust the map view to include all markers
+    const bounds = new google.maps.LatLngBounds();
+    
+    // Add markers for each vehicle with coordinates
+    const vehicles = [];
+    
+    {% for vehicle in vehicles %}
+      {% if vehicle.latitude and vehicle.longitude %}
+        vehicles.push({
+          id: {{ vehicle.id }},
+          position: { 
+            lat: parseFloat("{{ vehicle.latitude }}"), 
+            lng: parseFloat("{{ vehicle.longitude }}") 
+          },
+          title: "{{ vehicle.make }} {{ vehicle.model }} ({{ vehicle.year }})",
+          type: "{{ vehicle.vehicle_type }}",
+          available: {% if vehicle.is_available %}true{% else %}false{% endif %},
+          location: "{{ vehicle.location }}",
+          url: "{% url 'vehicleLending:details' vehicle.id %}"
+        });
+      {% else %}
+        // If vehicle has a location but no coordinates, try to geocode it
+        {% if vehicle.location %}
+          console.log("Vehicle '{{ vehicle.make }} {{ vehicle.model }}' has a location but no coordinates. Location: {{ vehicle.location }}");
+        {% endif %}
+      {% endif %}
+    {% endfor %}
+    
+    console.log("Total vehicles with coordinates:", vehicles.length);
+    
+    // Create markers for each vehicle
+    vehicles.forEach(vehicle => {
+      const marker = new google.maps.Marker({
+        position: vehicle.position,
+        map: map,
+        title: vehicle.title,
+        icon: {
+          url: getMarkerIcon(vehicle.type, vehicle.available),
+          scaledSize: new google.maps.Size(40, 40)
+        }
+      });
+      
+      // Extend bounds to include this marker
+      bounds.extend(vehicle.position);
+      
+      // Add click listener to show info window
+      marker.addListener("click", () => {
+        const contentString = `
+          <div class="p-2">
+            <h5>${vehicle.title}</h5>
+            <p><strong>Type:</strong> ${vehicle.type}</p>
+            <p><strong>Location:</strong> ${vehicle.location}</p>
+            <p><strong>Status:</strong> ${vehicle.available ? 'Available' : 'Not Available'}</p>
+            <a href="${vehicle.url}" class="btn btn-primary btn-sm mt-2">View Details</a>
+          </div>
+        `;
+        
+        infoWindow.setContent(contentString);
+        infoWindow.open(map, marker);
+      });
+    });
+    
+    // Adjust map to fit all markers if there are any
+    if (vehicles.length > 0) {
+      map.fitBounds(bounds);
+    }
+    
+    // Add search box functionality
+    const searchInput = document.getElementById("map-search");
+    const searchButton = document.getElementById("search-btn");
+    const searchBox = new google.maps.places.Autocomplete(searchInput);
+    
+    // Bind the search box to the map
+    searchBox.bindTo('bounds', map);
+    
+    // Listen for place changed event
+    searchBox.addListener('place_changed', function() {
+      performSearch();
+    });
+    
+    // Also trigger search when button is clicked
+    searchButton.addEventListener('click', function() {
+      performSearch();
+    });
+    
+    function performSearch() {
+      const place = searchBox.getPlace();
+      
+      if (!place || !place.geometry || !place.geometry.location) {
+        // If the user entered a location that wasn't suggested, try to geocode it
+        const geocoder = new google.maps.Geocoder();
+        geocoder.geocode({ address: searchInput.value }, function(results, status) {
+          if (status === "OK" && results[0]) {
+            map.setCenter(results[0].geometry.location);
+            map.setZoom(14);
+            
+            // Show a marker at the searched location
+            new google.maps.Marker({
+              position: results[0].geometry.location,
+              map: map,
+              title: searchInput.value,
+              icon: {
+                url: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png",
+                scaledSize: new google.maps.Size(40, 40)
+              }
+            });
+          } else {
+            console.error("Geocode was not successful for the following reason:", status);
+          }
+        });
+        return;
+      }
+      
+      // If the place has a geometry, set the map center and zoom
+      if (place.geometry.viewport) {
+        map.fitBounds(place.geometry.viewport);
+      } else {
+        map.setCenter(place.geometry.location);
+        map.setZoom(14);
+      }
+      
+      // Clear previous search marker
+      if (window.searchMarker) {
+        window.searchMarker.setMap(null);
+      }
+      
+      // Add a marker for the searched location
+      window.searchMarker = new google.maps.Marker({
+        position: place.geometry.location,
+        map: map,
+        title: place.name,
+        icon: {
+          url: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png",
+          scaledSize: new google.maps.Size(40, 40)
+        }
+      });
+    }
+  }
+  
+  // Function to get custom marker icon based on vehicle type and availability
+  function getMarkerIcon(type, available) {
+    // Default marker
+    let icon = "https://maps.google.com/mapfiles/ms/icons/red-dot.png";
+    
+    if (!available) {
+      return "https://maps.google.com/mapfiles/ms/icons/grey-dot.png";
+    }
+    
+    switch(type.toLowerCase()) {
+      case "car":
+        icon = "https://maps.google.com/mapfiles/ms/icons/blue-dot.png";
+        break;
+      case "truck":
+        icon = "https://maps.google.com/mapfiles/ms/icons/green-dot.png";
+        break;
+      case "motorcycle":
+        icon = "https://maps.google.com/mapfiles/ms/icons/purple-dot.png";
+        break;
+      case "bicycle":
+        icon = "https://maps.google.com/mapfiles/ms/icons/yellow-dot.png";
+        break;
+      case "van":
+        icon = "https://maps.google.com/mapfiles/ms/icons/orange-dot.png";
+        break;
+    }
+    
+    return icon;
+  }
+</script>
+{% endblock %} 

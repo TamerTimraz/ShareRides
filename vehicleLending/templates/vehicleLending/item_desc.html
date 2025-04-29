@@ -361,10 +361,81 @@
     
 
     <div class="vehicle-location">
-        <div id="map" class="mt-2 bg-light" style="height: 200px;">
-            <p class="text-center pt-5">Google Maps integration coming soon</p>
-        </div>
+        <h3 class="mt-4 mb-2">Vehicle Location</h3>
+        <div id="map" class="mt-2 bg-light" style="height: 400px; width: 100%; border-radius: 8px;"></div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Default coordinates for UVA campus
+            const defaultLat = 38.0336;
+            const defaultLng = -78.5080;
+            
+            // Get vehicle coordinates from data attributes
+            const mapElement = document.getElementById('map');
+            mapElement.dataset.lat = "{{ vehicle.latitude|default:'38.0336' }}";
+            mapElement.dataset.lng = "{{ vehicle.longitude|default:'-78.5080' }}";
+            
+            const lat = parseFloat(mapElement.dataset.lat) || defaultLat;
+            const lng = parseFloat(mapElement.dataset.lng) || defaultLng;
+            
+            const vehicleLocation = { lat: lat, lng: lng };
+            
+            // Check if Google Maps is loaded
+            if (window.google && window.google.maps) {
+                initMap();
+            } else {
+                // Wait for Maps API to load
+                const checkInterval = setInterval(function() {
+                    if (window.google && window.google.maps) {
+                        clearInterval(checkInterval);
+                        initMap();
+                    }
+                }, 100);
+                
+                // Stop checking after 10 seconds
+                setTimeout(function() {
+                    clearInterval(checkInterval);
+                }, 10000);
+            }
+            
+            function initMap() {
+                const map = new google.maps.Map(document.getElementById('map'), {
+                    center: vehicleLocation,
+                    zoom: 15,
+                    mapTypeControl: true,
+                    streetViewControl: true
+                });
+                
+                const marker = new google.maps.Marker({
+                    position: vehicleLocation,
+                    map: map,
+                    title: "{{ vehicle.make }} {{ vehicle.model }} ({{ vehicle.year }})"
+                });
+                
+                const contentString = 
+                    '<div class="info-window">' +
+                    '<h5>{{ vehicle.make }} {{ vehicle.model }} ({{ vehicle.year }})</h5>' +
+                    '<p><strong>Type:</strong> {{ vehicle.vehicle_type }}</p>' +
+                    '<p><strong>Location:</strong> {{ vehicle.location }}</p>' +
+                    '{% if vehicle.is_available %}' +
+                    '<p class="text-success"><strong>Status:</strong> Available</p>' +
+                    '{% else %}' +
+                    '<p class="text-danger"><strong>Status:</strong> Not Available</p>' +
+                    '{% endif %}' +
+                    '<a href="{{ request.path }}" class="btn btn-sm btn-primary">View Details</a>' +
+                    '</div>';
+                
+                const infoWindow = new google.maps.InfoWindow({
+                    content: contentString
+                });
+                
+                marker.addListener('click', function() {
+                    infoWindow.open(map, marker);
+                });
+            }
+        });
+    </script>
 
         <!-- new -->
     <div class="mt-5">

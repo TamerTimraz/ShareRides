@@ -83,6 +83,8 @@ class Vehicle(models.Model):
     is_available = models.BooleanField(default=True,blank=True,null=True)
     is_requested = models.BooleanField(default=True,blank=True,null=True)
     location = models.CharField(max_length=255)
+    latitude = models.FloatField(null=True, blank=True)
+    longitude = models.FloatField(null=True, blank=True)
     image = models.ImageField(upload_to=vehicle_directory_path, blank=True, null=True)
     description = models.CharField(max_length=255,null=True,blank=True)
 

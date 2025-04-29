@@ -94,6 +94,17 @@ def add_vehicle(request, collection_name=None):
         if form.is_valid():
             vehicle = form.save(commit=False)
             vehicle.lender = request.user
+            
+            # Get latitude and longitude from the form
+            if 'latitude' in request.POST and 'longitude' in request.POST:
+                try:
+                    vehicle.latitude = float(request.POST.get('latitude'))
+                    vehicle.longitude = float(request.POST.get('longitude'))
+                except (ValueError, TypeError):
+                    # If conversion fails, attempt to geocode the location
+                    if vehicle.location:
+                        pass  # Geocoding will be handled by the JavaScript
+            
             vehicle.save()
             if collection:
                 collection.vehicles.add(vehicle)
@@ -113,7 +124,18 @@ def edit_vehicle(request, vehicle_id: int):
     if request.method == 'POST':
         form = VehicleForm(request.POST, request.FILES, instance=vehicle)
         if form.is_valid():
-            form.save()
+            vehicle = form.save(commit=False)
+            
+            # Get latitude and longitude from the form
+            if 'latitude' in request.POST and 'longitude' in request.POST:
+                try:
+                    vehicle.latitude = float(request.POST.get('latitude'))
+                    vehicle.longitude = float(request.POST.get('longitude'))
+                except (ValueError, TypeError):
+                    # If conversion fails, we'll keep the existing coordinates
+                    pass
+                
+            vehicle.save()
             return redirect(reverse('vehicleLending:details', args=[vehicle.id]))
     else:
         form = VehicleForm(instance=vehicle)
@@ -290,6 +312,9 @@ def all_vehicles(request):
     
     return render(request, 'vehicleLending/all_vehicles.html', context)
 
+def map_view(request):
+    vehicles = Vehicle.objects.all()
+    return render(request, 'vehicleLending/map_view.html', {'vehicles': vehicles})
 
 def add_collection(request):
     # Both librarians and patrons can create collections

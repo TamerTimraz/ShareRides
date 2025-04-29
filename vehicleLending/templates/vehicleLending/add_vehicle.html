@@ -64,6 +64,10 @@
                     <div class="text-danger">{{ form.location.errors.0 }}</div>
                 {% endif %}
             </div>
+            
+            <!-- Hidden fields for latitude and longitude -->
+            <input type="hidden" id="id_latitude" name="latitude" value="{% if vehicle.latitude %}{{ vehicle.latitude }}{% endif %}">
+            <input type="hidden" id="id_longitude" name="longitude" value="{% if vehicle.longitude %}{{ vehicle.longitude }}{% endif %}">
 
             <div class="mb-3">
                 <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
@@ -77,4 +81,67 @@
             <a href="javascript:history.go(-1)" class="btn btn-secondary">Cancel</a>
         </form>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const locationInput = document.getElementById('id_location');
+            if (!locationInput) return;
+            
+            const latField = document.getElementById('id_latitude');
+            const lngField = document.getElementById('id_longitude');
+            
+            // Wait for Google Maps to be available
+            function initAutocomplete() {
+                if (!window.google || !window.google.maps || !window.google.maps.places) {
+                    setTimeout(initAutocomplete, 100);
+                    return;
+                }
+                
+                // Create autocomplete with options
+                const options = {
+                    types: ['address'],
+                    componentRestrictions: { country: 'us' }
+                };
+                
+                const autocomplete = new google.maps.places.Autocomplete(locationInput, options);
+                
+                // When a place is selected, fill in the lat/lng fields
+                autocomplete.addListener('place_changed', function() {
+                    const place = autocomplete.getPlace();
+                    
+                    if (place.geometry && place.geometry.location) {
+                        latField.value = place.geometry.location.lat();
+                        lngField.value = place.geometry.location.lng();
+                        locationInput.value = place.formatted_address || locationInput.value;
+                    }
+                });
+                
+                // Try to geocode existing location if editing and no coordinates
+                const existingLocation = locationInput.value;
+                if (existingLocation && (!latField.value || !lngField.value)) {
+                    if (window.google.maps.Geocoder) {
+                        const geocoder = new google.maps.Geocoder();
+                        geocoder.geocode({ address: existingLocation }, function(results, status) {
+                            if (status === 'OK' && results[0] && results[0].geometry) {
+                                latField.value = results[0].geometry.location.lat();
+                                lngField.value = results[0].geometry.location.lng();
+                            }
+                        });
+                    }
+                }
+            }
+            
+            // Start the initialization process
+            initAutocomplete();
+            
+            // Prevent form submission when Enter is pressed
+            locationInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    return false;
+                }
+            });
+        });
+    </script>
+</body>
 {% endblock %}

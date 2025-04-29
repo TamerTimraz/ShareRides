@@ -1,13 +1,12 @@
 from django import forms
 from .models import User, Vehicle, Collection, Review
+from django.core.exceptions import ValidationError
 
 class ProfilePictureForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ['profile_pic']
-        widgets = {
-            'profile_pic': forms.FileInput()
-        }
+        exclude = ()
 
 class VehicleForm(forms.ModelForm):
     class Meta:
@@ -20,7 +19,16 @@ class VehicleForm(forms.ModelForm):
                 ('bike','Bike'),
                 ('truck','Truck'),
                 ('van','Van'),
-            ])
+            ]),
+            'location': forms.TextInput(attrs={
+                'placeholder': 'Enter an address',
+                'class': 'form-control',
+                'autocomplete': 'off',  # Prevent browser autocomplete from interfering
+            }),
+            'description': forms.Textarea(attrs={
+                'rows': 3,
+                'class': 'form-control'
+            })
         }
 
 class CollectionForm(forms.ModelForm):
@@ -39,6 +47,6 @@ class ReviewForm(forms.ModelForm):
         model = Review
         fields = ['rating', 'comment']
         widgets = {
-            'rating': forms.Select(choices=[(i, f"{i} Star{'s' if i > 1 else ''}") for i in range(1, 6)]),
-            'comment': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Write your experience...'}),
+            'rating': forms.Select(attrs={'class': 'form-select mb-3'}),
+            'comment': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
         }

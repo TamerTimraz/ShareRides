@@ -1,0 +1,152 @@
+{% extends 'vehicleLending/base.html' %}
+{% block content %}
+{% csrf_token %}
+
+<div class="container mt-4 mb-5">
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center" data-aos="fade-up">
+    <div>
+      <h2 class="section-title fw-bold">Update Vehicle Coordinates</h2>
+      <p class="text-muted mt-3">Update coordinates for vehicles that have locations but are missing latitude/longitude</p>
+    </div>
+    <div class="d-flex gap-2 mt-4 mt-md-0">
+      <a href="{% url 'vehicleLending:vehicles_map' %}" class="btn btn-outline-primary rounded-pill px-3">
+        <i class="fas fa-map-marker-alt me-2"></i>Return to Map
+      </a>
+    </div>
+  </div>
+  
+  {% if messages %}
+  <div class="alert alert-info mt-3">
+    {% for message in messages %}
+      {{ message }}
+    {% endfor %}
+  </div>
+  {% endif %}
+  
+  {% if vehicles_to_update %}
+    <div class="alert alert-warning mt-4">
+      <i class="fas fa-exclamation-triangle me-2"></i>
+      There are {{ vehicles_to_update|length }} vehicles with locations but missing coordinates.
+    </div>
+    
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title">Vehicles Needing Coordinate Updates</h5>
+        <p class="text-muted">Click the "Geocode" button to try to convert the address to coordinates</p>
+        
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Vehicle</th>
+              <th>Location</th>
+              <th>Action</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for vehicle in vehicles_to_update %}
+              <tr id="vehicle-row-{{ vehicle.id }}">
+                <td>{{ vehicle.make }} {{ vehicle.model }} ({{ vehicle.year }})</td>
+                <td>{{ vehicle.location }}</td>
+                <td>
+                  <button 
+                    class="btn btn-sm btn-primary geocode-btn" 
+                    data-vehicle-id="{{ vehicle.id }}" 
+                    data-location="{{ vehicle.location }}"
+                    onclick="geocodeVehicle({{ vehicle.id }}, '{{ vehicle.location }}')"
+                  >
+                    Geocode
+                  </button>
+                </td>
+                <td id="status-{{ vehicle.id }}">Pending</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        
+        <div class="mt-3">
+          <button class="btn btn-success" id="geocode-all-btn">Geocode All Vehicles</button>
+        </div>
+      </div>
+    </div>
+  {% else %}
+    <div class="alert alert-success mt-4">
+      <i class="fas fa-check-circle me-2"></i>
+      All vehicles have coordinates set. No updates needed.
+    </div>
+  {% endif %}
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script async defer
+  src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&libraries=places&callback=initMap">
+</script>
+<script>
+  let geocoder;
+  
+  function initMap() {
+    geocoder = new google.maps.Geocoder();
+    
+    // Set up the "Geocode All" button
+    document.getElementById('geocode-all-btn').addEventListener('click', function() {
+      const buttons = document.querySelectorAll('.geocode-btn');
+      
+      // Process one by one with a delay to avoid hitting rate limits
+      buttons.forEach((button, index) => {
+        setTimeout(() => {
+          button.click();
+        }, index * 1000); // 1 second delay between each geocoding request
+      });
+    });
+  }
+  
+  function geocodeVehicle(vehicleId, location) {
+    const statusCell = document.getElementById(`status-${vehicleId}`);
+    statusCell.innerHTML = '<span class="text-primary">Processing...</span>';
+    
+    geocoder.geocode({ 'address': location }, function(results, status) {
+      if (status === google.maps.GeocoderStatus.OK && results[0]) {
+        const lat = results[0].geometry.location.lat();
+        const lng = results[0].geometry.location.lng();
+        
+        // Update the database with the new coordinates
+        updateVehicleCoordinates(vehicleId, lat, lng, statusCell);
+      } else {
+        statusCell.innerHTML = `<span class="text-danger">Error: ${status}</span>`;
+      }
+    });
+  }
+  
+  function updateVehicleCoordinates(vehicleId, lat, lng, statusCell) {
+    // Make an AJAX request to update the coordinates
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', `/update-vehicle-coordinates/${vehicleId}/`);
+    
+    // Add CSRF token
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    xhr.setRequestHeader('X-CSRFToken', csrfToken);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    
+    xhr.onload = function() {
+      if (xhr.status === 200) {
+        statusCell.innerHTML = '<span class="text-success">Updated successfully</span>';
+        // Disable the geocode button
+        document.querySelector(`[data-vehicle-id="${vehicleId}"]`).disabled = true;
+      } else {
+        statusCell.innerHTML = `<span class="text-danger">Error saving: ${xhr.statusText}</span>`;
+      }
+    };
+    
+    xhr.onerror = function() {
+      statusCell.innerHTML = '<span class="text-danger">Network error</span>';
+    };
+    
+    xhr.send(JSON.stringify({
+      latitude: lat,
+      longitude: lng
+    }));
+  }
+</script>
+{% endblock %} 
