@@ -2,27 +2,54 @@
 {% block content %}
 
 <!-- Header -->
-<div class="container mt-4">
-    <h2 class="text-start fw-bold">My Vehicles</h2>
-    <hr class="thick-line mb-4">
+<div class="container mt-4 mb-5">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center" data-aos="fade-up">
+        <div>
+            <h2 class="section-title fw-bold">My Vehicles</h2>
+        </div>
+    </div>
 </div>
 
 <!-- Vehicle Tiles-->
-<div class="container mt-4">
+<div class="container mb-5">
     <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+
+        {% if vehicles|length == 0 %}
+        <div class="text-center text-muted mb-5">
+            <i class="fas fa-car fa-2x mb-2"></i>
+            <p>You have no vehicles currently listed.</p>
+        </div>
+        {% endif %}
     
         <!-- Vehicle Tile -->
         {% for vehicle in vehicles %}
-        <div class="col">
-            <div class="card h-100">
+        <div class="col" data-aos="fade-up" data-aos-delay="{{ forloop.counter|divisibleby:4|yesno:'150,100,50,0' }}">
+            <div class="card h-100 product-card hover-lift">
                 {% if vehicle.image %}
-                <img src='{{ vehicle.image.url }}' class="card-img-top" alt="Vehicle_Image">
+                <div class="position-relative overflow-hidden">
+                    <img src='{{ vehicle.image.url }}' class="card-img-top" alt="{{ vehicle.make }} {{ vehicle.model }}">
+                </div>
                 {% else %}
-                <p class="text-center">Image Unavailable</p>
+                <div class="bg-light d-flex justify-content-center align-items-center position-relative" style="height: 220px;">
+                    <i class="fas fa-car fa-3x text-muted"></i>
+                </div>
                 {% endif %}
-                <div class="card-body d-flex flex-column justify-content-end align-items-center text-center">
-                    <h5 class="card-title">{{ vehicle.make }} {{ vehicle.model }} {{ vehicle.year }} ({{ vehicle.vehicle_type }})</h5>
-                    <a href="{% url 'vehicleLending:vehicle_requests' vehicle.id %}" class="btn btn-primary">View Requests</a>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h5 class="card-title mb-0">{{ vehicle.make }} {{ vehicle.model }}</h5>
+                        <span class="badge bg-light text-dark rounded-pill">{{ vehicle.vehicle_type }}</span>
+                    </div>
+                    <div class="d-flex align-items-center mb-2">
+                        <p class="card-text text-muted mb-0">{{ vehicle.year }}</p>
+                        {% if vehicle.is_available %}
+                        <span class="badge bg-success ms-2 rounded-pill">Available</span>
+                        {% else %}
+                        <span class="badge bg-secondary ms-2 rounded-pill">Unavailable</span>
+                        {% endif %}
+                    </div>
+                    <div class="d-grid">
+                        <a href="{% url 'vehicleLending:vehicle_requests' vehicle.id %}" class="btn btn-primary">View Requests</a>
+                    </div>
                 </div>
             </div>
         </div>

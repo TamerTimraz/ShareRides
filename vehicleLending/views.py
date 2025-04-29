@@ -414,7 +414,6 @@ def respond_to_request(request, request_id, response):
     borrow_request.save()
     return redirect(reverse('vehicleLending:vehicle_requests', args=[borrow_request.vehicle.id]))
 
-# only for librarians right now (will add for patrons to view their requested vehicles)
 @login_required
 def my_vehicles(request):
     if request.user.user_type != 'librarian':
@@ -439,8 +438,9 @@ def requested_vehicles(request):
     if not request.user.is_authenticated:
         return redirect('vehicleLending:home')
     
-    borrow_requests = BorrowRequest.objects.filter(requester=request.user)
-    return render(request, 'vehicleLending/requested_vehicles.html', {'borrow_requests': borrow_requests})
+    accepted_borrow_requests = BorrowRequest.objects.filter(requester=request.user, status='accepted')
+    borrow_requests = BorrowRequest.objects.filter(requester=request.user, status__in=['pending', 'denied'])
+    return render(request, 'vehicleLending/requested_vehicles.html', {'accepted_borrow_requests': accepted_borrow_requests, 'borrow_requests': borrow_requests})
 
 @login_required
 def return_vehicle(request, vehicle_id):
