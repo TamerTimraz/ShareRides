@@ -57,12 +57,15 @@ def select_collection(request):
         if request.user.user_type == 'librarian':
             all_collections = Collection.objects.all()
             private_collections = Collection.objects.filter(private_collection=True)
+            private_collections_with_access = Collection.objects.filter(private_collection=True)
         else:  # patron
             all_collections = Collection.objects.filter(creator=request.user)
-            private_collections = Collection.objects.filter(users_with_access=request.user, private_collection=True)
+            private_collections = Collection.objects.filter(private_collection=True)
+            private_collections_with_access = Collection.objects.filter(users_with_access=request.user, private_collection=True)
     else:  # guest user
         all_collections = []
         private_collections = []
+        private_collections_with_access = []
         
     return render(request, 'vehicleLending/select_collection.html', {
         'public_collections': public_collections, 
