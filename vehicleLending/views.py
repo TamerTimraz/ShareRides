@@ -38,7 +38,7 @@ def auth_receiver(request):
         return HttpResponse(status=403)
     
     email = user_data.get('email')
-    name = user_data.get('given_name')
+    name = f"{user_data.get('given_name')} {user_data.get('family_name')}"
 
     user, created = User.objects.get_or_create(email=email, defaults={'name': name})
 
