@@ -554,17 +554,23 @@ def item_desc(request, vehicle_id):
         else:
             form = ReviewForm()
 
+        present_collections = list()
+        for collection in Collection.objects.all():
+            if vehicle in collection.vehicles.all() and (collection.private_collection == False or user in collection.users_with_access.all()):
+                present_collections.append(collection.name)
+
         return render(request, 'vehicleLending/item_desc.html', {
             'vehicle': vehicle,
             'user': user,
             'form': form,
             'reviews': reviews,
+            "present_collections": present_collections,
         })
     else:
         return render(request, 'vehicleLending/item_desc.html', {
             'vehicle': vehicle,
             'user': user,
-            'reviews':reviews
+            'reviews':reviews,
         })
 
 @login_required
