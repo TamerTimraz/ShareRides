@@ -1,87 +1,95 @@
 {% extends "vehicleLending/base.html" %}
+
 {% block content %}
-<body>
-    <div class="container mt-4">
-        <h2>Add a New Vehicle</h2>
-        
-        <form method="POST" class="mt-4" enctype="multipart/form-data">
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+
+      <div class="card shadow-sm rounded">
+        <div class="card-header bg-white border-0">
+          <h2 class="section-title fw-bold mb-0">Add a New Vehicle</h2>
+        </div>
+        <div class="card-body">
+          <form method="POST" enctype="multipart/form-data" novalidate>
             {% csrf_token %}
-    
-            <!-- Render each field using Bootstrap styling -->
-            <div class="mb-3">
-                <label for="{{ form.vehicle_type.id_for_label }}" class="form-label">Vehicle Type</label>
-                {{ form.vehicle_type }}
-                {% if form.vehicle_type.errors %}
-                    <div class="text-danger">{{ form.vehicle_type.errors.0 }}</div>
-                {% endif %}
-            </div>
-    
-            <div class="mb-3">
-                <label for="{{ form.make.id_for_label }}" class="form-label">Make</label>
-                {{ form.make }}
-                {% if form.make.errors %}
-                    <div class="text-danger">{{ form.make.errors.0 }}</div>
-                {% endif %}
-            </div>
-    
-            <div class="mb-3">
-                <label for="{{ form.model.id_for_label }}" class="form-label">Model</label>
-                {{ form.model }}
-                {% if form.model.errors %}
-                    <div class="text-danger">{{ form.model.errors.0 }}</div>
-                {% endif %}
-            </div>
-    
-            <div class="mb-3">
-                <label for="{{ form.year.id_for_label }}" class="form-label">Year</label>
-                {{ form.year }}
-                {% if form.year.errors %}
-                    <div class="text-danger">{{ form.year.errors.0 }}</div>
-                {% endif %}
+
+            <!-- Vehicle Type -->
+            <div class="mb-4">
+              <label for="{{ form.vehicle_type.id_for_label }}" class="form-label fw-semibold">Vehicle Type</label>
+              {{ form.vehicle_type }}
+              {% if form.vehicle_type.errors %}
+                <div class="text-danger small">{{ form.vehicle_type.errors.0 }}</div>
+              {% endif %}
             </div>
 
-            <div class="mb-3">
-                <label for="{{ form.image.id_for_label }}" class="form-label">Image</label>
-                {{ form.image }}
-                {% if form.image.errors %}
-                    <div class="text-danger">{{ form.image.errors.0 }}</div>
-                {% endif %}
+            <!-- Make -->
+            <div class="mb-4">
+              <label for="{{ form.make.id_for_label }}" class="form-label fw-semibold">Make</label>
+              {{ form.make }}
+              {% if form.make.errors %}
+                <div class="text-danger small">{{ form.make.errors.0 }}</div>
+              {% endif %}
             </div>
-<!--
-            <div class="mb-3">
-                <label for="{{ form.model.id_for_label }}" class="form-label">Available</label>
-                {{ form.is_available }}
-                {% if form.is_available.errors %}
-                    <div class="text-danger">{{ form.is_available.errors.0 }}</div>
-                {% endif %}
-            </div>
-        -->
 
-            <div class="mb-3">
-                <label for="{{ form.location.id_for_label }}" class="form-label">Location</label>
-                {{ form.location }}
-                {% if form.location.errors %}
-                    <div class="text-danger">{{ form.location.errors.0 }}</div>
-                {% endif %}
+            <!-- Model -->
+            <div class="mb-4">
+              <label for="{{ form.model.id_for_label }}" class="form-label fw-semibold">Model</label>
+              {{ form.model }}
+              {% if form.model.errors %}
+                <div class="text-danger small">{{ form.model.errors.0 }}</div>
+              {% endif %}
             </div>
-            
-            <!-- Hidden fields for latitude and longitude -->
-            <input type="hidden" id="id_latitude" name="latitude" value="{% if vehicle.latitude %}{{ vehicle.latitude }}{% endif %}">
-            <input type="hidden" id="id_longitude" name="longitude" value="{% if vehicle.longitude %}{{ vehicle.longitude }}{% endif %}">
 
-            <div class="mb-3">
-                <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
-                {{ form.description }}
-                {% if form.description.errors %}
-                    <div class="text-danger">{{ form.is_available.errors.0 }}</div>
-                {% endif %}
+            <!-- Year -->
+            <div class="mb-4">
+              <label for="{{ form.year.id_for_label }}" class="form-label fw-semibold">Year</label>
+              {{ form.year }}
+              {% if form.year.errors %}
+                <div class="text-danger small">{{ form.year.errors.0 }}</div>
+              {% endif %}
             </div>
-    
-            <button type="submit" class="btn btn-primary">Save Vehicle</button>
-            <a href="javascript:history.go(-1)" class="btn btn-secondary">Cancel</a>
-        </form>
+
+            <!-- Image -->
+            <div class="mb-4">
+              <label for="{{ form.image.id_for_label }}" class="form-label fw-semibold">Image</label>
+              {{ form.image }}
+              {% if form.image.errors %}
+                <div class="text-danger small">{{ form.image.errors.0 }}</div>
+              {% endif %}
+            </div>
+
+            <!-- Location + hidden lat/lng -->
+            <div class="mb-4">
+              <label for="{{ form.location.id_for_label }}" class="form-label fw-semibold">Location</label>
+              {{ form.location }}
+              {% if form.location.errors %}
+                <div class="text-danger small">{{ form.location.errors.0 }}</div>
+              {% endif %}
+            </div>
+            <input type="hidden" id="id_latitude"  name="latitude"  value="{{ vehicle.latitude|default_if_none:'' }}">
+            <input type="hidden" id="id_longitude" name="longitude" value="{{ vehicle.longitude|default_if_none:'' }}">
+
+            <!-- Description -->
+            <div class="mb-4">
+              <label for="{{ form.description.id_for_label }}" class="form-label fw-semibold">Description</label>
+              {{ form.description }}
+              {% if form.description.errors %}
+                <div class="text-danger small">{{ form.description.errors.0 }}</div>
+              {% endif %}
+            </div>
+
+            <!-- Actions -->
+            <div class="d-flex justify-content-end gap-2">
+              <a href="javascript:history.back()" class="btn btn-outline-secondary">Cancel</a>
+              <button type="submit" class="btn btn-primary">Save Vehicle</button>
+            </div>
+          </form>
+        </div>
+      </div><!-- /.card -->
+
     </div>
-
+  </div>
+</div>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const locationInput = document.getElementById('id_location');

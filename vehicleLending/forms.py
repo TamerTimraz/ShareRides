@@ -8,27 +8,69 @@ class ProfilePictureForm(forms.ModelForm):
         fields = ['profile_pic']
         exclude = ()
 
+# class VehicleForm(forms.ModelForm):
+#     class Meta:
+#         model = Vehicle
+#         fields=["vehicle_type",'make','model','year','is_available','image','location','description']
+#         exclude = ()
+#         widgets = {
+#             'vehicle_type': forms.Select(choices=[
+#                 ('car','Car'),
+#                 ('bike','Bike'),
+#                 ('truck','Truck'),
+#                 ('van','Van'),
+#             ]),
+#             'location': forms.TextInput(attrs={
+#                 'placeholder': 'Enter an address',
+#                 'class': 'form-control',
+#                 'autocomplete': 'off',  # Prevent browser autocomplete from interfering
+#             }),
+#             'description': forms.Textarea(attrs={
+#                 'rows': 3,
+#                 'class': 'form-control'
+#             })
+#         }
+
 class VehicleForm(forms.ModelForm):
     class Meta:
         model = Vehicle
-        fields=["vehicle_type",'make','model','year','is_available','image','location','description']
-        exclude = ()
+        fields = [
+            "vehicle_type",
+            "make",
+            "model",
+            "year",
+            "image",
+            "location",
+            "description",
+        ]
         widgets = {
-            'vehicle_type': forms.Select(choices=[
-                ('car','Car'),
-                ('bike','Bike'),
-                ('truck','Truck'),
-                ('van','Van'),
-            ]),
-            'location': forms.TextInput(attrs={
-                'placeholder': 'Enter an address',
-                'class': 'form-control',
-                'autocomplete': 'off',  # Prevent browser autocomplete from interfering
+            "vehicle_type": forms.Select(attrs={
+                "class": "form-select",
             }),
-            'description': forms.Textarea(attrs={
-                'rows': 3,
-                'class': 'form-control'
-            })
+            "make": forms.TextInput(attrs={
+                "class": "form-control",
+                "placeholder": "e.g. Toyota",
+            }),
+            "model": forms.TextInput(attrs={
+                "class": "form-control",
+                "placeholder": "e.g. Camry",
+            }),
+            "year": forms.NumberInput(attrs={
+                "class": "form-control",
+                "placeholder": "e.g. 2023",
+            }),
+            "image": forms.ClearableFileInput(attrs={
+                "class": "form-control",
+            }),
+            "location": forms.TextInput(attrs={
+                "class": "form-control",
+                "placeholder": "Enter an address",
+                "autocomplete": "off",  # Prevent browser autocomplete from interfering
+            }),
+            "description": forms.Textarea(attrs={
+                "class": "form-control",
+                "rows": 4,
+            }),
         }
 
 class CollectionForm(forms.ModelForm):
