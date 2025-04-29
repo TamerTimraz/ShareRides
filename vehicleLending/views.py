@@ -105,7 +105,6 @@ def add_vehicle(request, collection_name=None):
                     if vehicle.location:
                         pass  # Geocoding will be handled by the JavaScript
             
-            vehicle.save()
             if collection:
                 collection.vehicles.add(vehicle)
                 if collection.private_collection:
