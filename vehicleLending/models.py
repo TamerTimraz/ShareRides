@@ -86,6 +86,8 @@ class Vehicle(models.Model):
     image = models.ImageField(upload_to=vehicle_directory_path, blank=True, null=True)
     description = models.CharField(max_length=255,null=True,blank=True)
 
+    private_collection = models.ForeignKey("Collection", related_name="collection", blank=True, null=True, on_delete=models.SET_NULL)
+
     @property
     def title(self):
         return f"{self.year} {self.make} {self.model}"
