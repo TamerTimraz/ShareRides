@@ -298,6 +298,10 @@ def add_collection(request):
         if request.user.user_type == 'librarian' and 'private_collection' in request.POST:
             private_collection = True
         
+        if Collection.objects.filter(name=name).exists():
+            messages.info(request, "A collection with this name already exists.")
+            return redirect('vehicleLending:home')
+
         # Create and save the collection
         collection = Collection(
             name=name,
