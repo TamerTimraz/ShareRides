@@ -605,9 +605,10 @@ def request_private_collection(request):
         
         # Check if there is already a pending request.
         existing_request = CollectionAccessRequest.objects.filter(collection=collection, requester=request.user).first()
-        if existing_request:
+        if existing_request.status == 'pending':
             messages.info(request, "You have already requested access to this collection.")
-        else:
+        else: # denied request; delete existing request and create a new request
+            existing_request.delete()
             CollectionAccessRequest.objects.create(collection=collection, requester=request.user)
             messages.success(request, "Your request for access has been submitted.")
         return redirect('vehicleLending:home')
@@ -636,9 +637,7 @@ def manage_access_requests(request):
         messages.error(request, "Only librarians can manage collection access requests.")
         return redirect('vehicleLending:home')
     
-    pending_requests = CollectionAccessRequest.objects.filter(
-        status="pending", collection__creator=request.user
-    )
+    pending_requests = CollectionAccessRequest.objects.filter(status="pending")
     context = {"pending_requests": pending_requests}
     return render(request, "vehicleLending/manage_access_requests.html", context)
 
@@ -654,8 +653,8 @@ def process_access_request(request, request_id, action):
     access_request = get_object_or_404(CollectionAccessRequest, id=request_id, status="pending")
     collection = access_request.collection
 
-    # Only the creator (a librarian) can process.
-    if collection.creator != request.user:
+    # Only a librarian can process.
+    if request.user.user_type != 'librarian':
         messages.error(request, "You do not have permission to process this request.")
         return redirect("vehicleLending:manage_access_requests")
     
