@@ -34,6 +34,7 @@ urlpatterns = [
     # Access request management
     path('access-requests/', views.manage_access_requests, name='manage_access_requests'),
     path('access-request/<int:request_id>/<str:action>/', views.process_access_request, name='process_access_request'),
+    path('remove-vehicle/', views.remove_vehicle, name='remove_vehicle'),
     path('add_vehicle_to_collection/<int:vehicle_id>/<int:collection_id>/', views.add_vehicle_to_collection, name='add_vehicle_to_collection'),
     path('remove_vehicle_from_collection/<int:vehicle_id>/<int:collection_id>/', views.remove_vehicle_from_collection, name='remove_vehicle_from_collection'),
 

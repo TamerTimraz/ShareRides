@@ -648,6 +648,22 @@ def process_access_request(request, request_id, action):
     return redirect("vehicleLending:manage_access_requests")
 
 
+@login_required
+def remove_vehicle(request):
+    # Only librarians can delete vehicles
+    if request.user.user_type != 'librarian':
+        messages.error(request, "Only librarians may delete vehicles.")
+        return redirect('vehicleLending:all')
+
+    if request.method == 'POST':
+        vehicle_id = request.POST.get('vehicle_id')
+        # This will 404 if the vehicle doesn't exist or doesn't belong to you
+        vehicle = get_object_or_404(Vehicle, id=vehicle_id, lender=request.user)
+        vehicle.delete()
+        messages.success(request, "Vehicle deleted successfully.")
+    return redirect('vehicleLending:all')
+
+
 # # ####-----IGNORE----_#####
 # def dev_login_as_librarian(request):
 #     if not settings.DEBUG:
