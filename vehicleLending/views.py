@@ -76,7 +76,7 @@ def select_collection(request):
 def select_vehicle(request, collection_name: str):
     collection = get_object_or_404(Collection, name=collection_name)
     vehicles = collection.vehicles.all()
-    all_vehicles = Vehicle.objects.all()
+    all_vehicles = [vehicle for vehicle in Vehicle.objects.all() if not vehicle.private_collection]
     is_patron_owner = request.user.is_authenticated and request.user.user_type == 'patron' and collection.creator == request.user
     context = {"collection_name": collection_name, "vehicles": vehicles, "collection": collection, "all_vehicles": all_vehicles, "is_patron_owner": is_patron_owner}
     return render(request, 'vehicleLending/select_vehicle.html', context)
@@ -108,6 +108,9 @@ def add_vehicle(request, collection_name=None):
             vehicle.save()
             if collection:
                 collection.vehicles.add(vehicle)
+                if collection.private_collection:
+                    vehicle.private_collection = collection
+            vehicle.save()
             return redirect(reverse('vehicleLending:details',args=[vehicle.id]))
         else:
             print(form.errors)
@@ -367,7 +370,16 @@ def edit_collection(request, collection_name: str):
         collection.private_collection = request.user.user_type == 'librarian' and 'private_collection' in request.POST
         
         collection.save()
-    
+
+    for vehicle in collection.vehicles.all():
+        vehicle.private_collection = collection if collection.private_collection else None
+        vehicle.save()
+
+        for other_collection in vehicle.collections.all():
+            if other_collection != collection:
+                other_collection.vehicles.remove(vehicle)
+                other_collection.save()
+
     return redirect('vehicleLending:home')
 
 @login_required
@@ -664,6 +676,22 @@ def process_access_request(request, request_id, action):
     return redirect("vehicleLending:manage_access_requests")
 
 
+@login_required
+def remove_vehicle(request):
+    # Only librarians can delete vehicles
+    if request.user.user_type != 'librarian':
+        messages.error(request, "Only librarians may delete vehicles.")
+        return redirect('vehicleLending:all')
+
+    if request.method == 'POST':
+        vehicle_id = request.POST.get('vehicle_id')
+        # This will 404 if the vehicle doesn't exist or doesn't belong to you
+        vehicle = get_object_or_404(Vehicle, id=vehicle_id, lender=request.user)
+        vehicle.delete()
+        messages.success(request, "Vehicle deleted successfully.")
+    return redirect('vehicleLending:all')
+
+
 # # ####-----IGNORE----_#####
 # def dev_login_as_librarian(request):
 #     if not settings.DEBUG:
@@ -682,6 +710,15 @@ def add_vehicle_to_collection(request, vehicle_id: int, collection_id: int):
 
     if request.method == 'POST':
         collection.vehicles.add(vehicle)
+        if collection.private_collection:
+            vehicle.private_collection = collection
+            vehicle.save()
+
+            for other_collection in vehicle.collections.all():
+                if other_collection != collection:
+                    other_collection.vehicles.remove(vehicle)
+                    other_collection.save()
+
         messages.success(request, f"Vehicle {vehicle} added to collection {collection}.")
         return redirect('vehicleLending:collection', collection_name=collection.name)
 
