@@ -469,14 +469,40 @@ def vehicle_requests(request, vehicle_id):
     requests = BorrowRequest.objects.filter(vehicle=vehicle, status='pending')
     return render(request, 'vehicleLending/vehicle_requests.html', {'requests': requests})
 
+# @login_required
+# def requested_vehicles(request):
+#     if not request.user.is_authenticated:
+#         return redirect('vehicleLending:home')
+    
+#     accepted_borrow_requests = BorrowRequest.objects.filter(requester=request.user, status='accepted')
+#     borrow_requests = BorrowRequest.objects.filter(requester=request.user, status__in=['pending', 'denied'])
+#     return render(request, 'vehicleLending/requested_vehicles.html', {'accepted_borrow_requests': accepted_borrow_requests, 'borrow_requests': borrow_requests})
+
 @login_required
 def requested_vehicles(request):
     if not request.user.is_authenticated:
         return redirect('vehicleLending:home')
-    
-    accepted_borrow_requests = BorrowRequest.objects.filter(requester=request.user, status='accepted')
-    borrow_requests = BorrowRequest.objects.filter(requester=request.user, status__in=['pending', 'denied'])
-    return render(request, 'vehicleLending/requested_vehicles.html', {'accepted_borrow_requests': accepted_borrow_requests, 'borrow_requests': borrow_requests})
+
+    # pull them out
+    accepted = BorrowRequest.objects.filter(requester=request.user, status='accepted')
+    denied   = BorrowRequest.objects.filter(requester=request.user, status='denied')
+    pending  = BorrowRequest.objects.filter(requester=request.user, status='pending')
+
+    # if any non-pending, flash an alert
+    total_new = accepted.count() + denied.count()
+    if total_new:
+        messages.info(
+            request,
+            f"You have {accepted.count()} accepted "
+            f"and {denied.count()} denied request(s). "
+            "Check your requests below!"
+        )
+
+    return render(request, 'vehicleLending/requested_vehicles.html', {
+        'accepted_borrow_requests': accepted,
+        'borrow_requests': pending | denied,  # pending first, then denied
+    })
+
 
 @login_required
 def return_vehicle(request, vehicle_id):
