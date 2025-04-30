@@ -97,9 +97,10 @@ class Vehicle(models.Model):
         return self.borrow_requests.filter(status='pending').exists()
     
     def delete(self, *args, **kwargs):
-        # delete image from S3 when vehicle is deleted
-        if self.image:
-            self.image.delete(save=False)
+        # delete all images from S3 when vehicle is deleted
+        for image in self.images.all():
+            image.image.delete(save=False)
+            image.delete()
         super().delete(*args, **kwargs)
 
     @property

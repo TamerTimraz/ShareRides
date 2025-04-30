@@ -108,11 +108,13 @@ def add_vehicle(request, collection_name=None):
                     if vehicle.location:
                         pass  # Geocoding will be handled by the JavaScript
             
+            vehicle.save()
+
             if collection:
                 collection.vehicles.add(vehicle)
                 if collection.private_collection:
                     vehicle.private_collection = collection
-            vehicle.save()
+                    vehicle.save()
 
             # save images
             images = formset.save(commit=False)
@@ -136,7 +138,8 @@ def edit_vehicle(request, vehicle_id: int):
 
     if request.method == 'POST':
         form = VehicleForm(request.POST, request.FILES, instance=vehicle)
-        if form.is_valid():
+        formset = VehicleImageFormSet(request.POST, request.FILES, instance=vehicle)
+        if form.is_valid() and formset.is_valid():
             vehicle = form.save(commit=False)
             
             # Get latitude and longitude from the form
@@ -149,10 +152,12 @@ def edit_vehicle(request, vehicle_id: int):
                     pass
                 
             vehicle.save()
+            formset.save()
             return redirect(reverse('vehicleLending:details', args=[vehicle.id]))
     else:
         form = VehicleForm(instance=vehicle)
-    return render(request, 'vehicleLending/add_vehicle.html', {'form': form, 'vehicle': vehicle})
+        formset = VehicleImageFormSet(instance=vehicle)
+    return render(request, 'vehicleLending/add_vehicle.html', {'form': form, 'formset': formset, 'vehicle': vehicle})
 
 def delete_vehicle(request, vehicle_id: int):
     if not request.user.is_authenticated or request.user.user_type != 'librarian':
