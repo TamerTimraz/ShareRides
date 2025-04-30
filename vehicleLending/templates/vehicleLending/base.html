@@ -41,7 +41,7 @@
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
-            <div class="mx-auto d-flex position-relative search-wrapper" style="width: 50%;">
+            <div class="mx-auto d-flex position-relative search-wrapper" style="width: 40%;">
                 <form id="searchForm" onsubmit="return false;" class="w-100">
                     <div class="position-relative">
                         <input type="text" id="searchInput" name="q" class="form-control rounded-pill ps-3 pe-5" placeholder="Search vehicles, collections..." autocomplete="off">
@@ -54,10 +54,10 @@
             </div>
             <ul class="navbar-nav ms-auto align-items-center">
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'vehicleLending:all' %}">All Vehicles</a>
+                    <a class="nav-link" href="{% url 'vehicleLending:map' %}">Map</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'vehicleLending:map' %}">Map</a>
+                    <a class="nav-link" href="{% url 'vehicleLending:all' %}">Noncollection Vehicles</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'vehicleLending:home' %}">Collections</a>
@@ -193,7 +193,7 @@
             </div>
             <div class="col-md-4 text-md-end">
                 <h5 class="mb-2">About ShareRides</h5>
-                <p class="mb-0">A UVA CS 3240 'Software Engineering' project for sharing vehicles.</p>
+                <p class="mb-0">A UVA CS 3240 'Software Engineering' project for sharing vehicles. The system is not monitored. No real information should be submitted</p>
             </div>
         </div>
         <hr class="my-2">

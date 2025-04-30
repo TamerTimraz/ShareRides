@@ -15,9 +15,11 @@
     <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
 
         {% if borrow_requests|length == 0 %}
-        <div class="text-center text-muted mb-5">
-            <i class="fas fa-car fa-2x mb-2"></i>
-            <p>You have no requested vehicles.</p>
+        <div class="col" data-aos="fade-up">
+            <div class="text-center text-muted mb-5">
+                <i class="fas fa-car fa-2x mb-2"></i>
+                <p>You have no requested vehicles.</p>
+            </div>
         </div>
         {% endif %}
     
@@ -25,9 +27,9 @@
         {% for request in borrow_requests %}
         <div class="col" data-aos="fade-up" data-aos-delay="{{ forloop.counter|divisibleby:4|yesno:'150,100,50,0' }}">
             <div class="card h-100 product-card hover-lift">
-                {% if request.vehicle.image %}
+                {% if request.vehicle.images.all %}
                 <div class="position-relative overflow-hidden">
-                    <img src='{{ request.vehicle.image.url }}' class="card-img-top" alt="{{ request.vehicle.make }} {{ request.vehicle.model }}">
+                    <img src='{{ request.vehicle.images.first.image.url }}' class="card-img-top" alt="{{ request.vehicle.make }} {{ request.vehicle.model }}">
                 </div>
                 {% else %}
                 <div class="bg-light d-flex justify-content-center align-items-center position-relative" style="height: 220px;">
@@ -70,9 +72,11 @@
     <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
 
         {% if accepted_borrow_requests|length == 0 %}
-        <div class="text-center text-muted mb-5">
-            <i class="fas fa-car fa-2x mb-2"></i>
-            <p>You are not borrowing any vehicles currently.</p>
+        <div class="col" data-aos="fade-up">
+            <div class="text-center text-muted mb-5">
+                <i class="fas fa-car fa-2x mb-2"></i>
+                <p>You are not borrowing any vehicles currently.</p>
+            </div>
         </div>
         {% endif %}
     
@@ -80,9 +84,9 @@
         {% for request in accepted_borrow_requests %}
         <div class="col" data-aos="fade-up" data-aos-delay="{{ forloop.counter|divisibleby:4|yesno:'150,100,50,0' }}">
             <div class="card h-100 product-card hover-lift">
-                {% if request.vehicle.image %}
+                {% if request.vehicle.images.all %}
                 <div class="position-relative overflow-hidden">
-                    <img src='{{ request.vehicle.image.url }}' class="card-img-top" alt="{{ request.vehicle.make }} {{ request.vehicle.model }}">
+                    <img src='{{ request.vehicle.images.first.image.url }}' class="card-img-top" alt="{{ request.vehicle.make }} {{ request.vehicle.model }}">
                 </div>
                 {% else %}
                 <div class="bg-light d-flex justify-content-center align-items-center position-relative" style="height: 220px;">

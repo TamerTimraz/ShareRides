@@ -9,7 +9,7 @@ from django.conf import settings
 from django.urls import reverse
 from .models import *
 from django.contrib.auth import login, logout, get_user_model
-from .forms import VehicleForm, ProfilePictureForm, ReviewForm
+from .forms import VehicleForm, ProfilePictureForm, ReviewForm, VehicleImageFormSet
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.views.decorators.http import require_http_methods
@@ -38,7 +38,7 @@ def auth_receiver(request):
         return HttpResponse(status=403)
     
     email = user_data.get('email')
-    name = user_data.get('given_name')
+    name = f"{user_data.get('given_name')} {user_data.get('family_name')}"
 
     user, created = User.objects.get_or_create(email=email, defaults={'name': name})
 
@@ -78,7 +78,9 @@ def select_vehicle(request, collection_name: str):
     vehicles = collection.vehicles.all()
     all_vehicles = [vehicle for vehicle in Vehicle.objects.all() if not vehicle.private_collection]
     is_patron_owner = request.user.is_authenticated and request.user.user_type == 'patron' and collection.creator == request.user
-    context = {"collection_name": collection_name, "vehicles": vehicles, "collection": collection, "all_vehicles": all_vehicles, "is_patron_owner": is_patron_owner}
+    creator = f"{collection.creator.name} ({collection.creator.email})" if collection.creator else "Unknown"
+    authorized_patrons = [f"{user.name} ({user.email})" for user in collection.users_with_access.all()]
+    context = {"collection_name": collection_name, "vehicles": vehicles, "collection": collection, "all_vehicles": all_vehicles, "is_patron_owner": is_patron_owner, "creator": creator, "authorized_patrons": authorized_patrons}
     return render(request, 'vehicleLending/select_vehicle.html', context)
 
 def add_vehicle(request, collection_name=None):
@@ -90,8 +92,9 @@ def add_vehicle(request, collection_name=None):
         return redirect('vehicleLending:home')
 
     if request.method == 'POST':
-        form = VehicleForm(request.POST, request.FILES)
-        if form.is_valid():
+        form = VehicleForm(request.POST)
+        formset = VehicleImageFormSet(request.POST, request.FILES)
+        if form.is_valid() and formset.is_valid():
             vehicle = form.save(commit=False)
             vehicle.lender = request.user
             
@@ -110,12 +113,20 @@ def add_vehicle(request, collection_name=None):
                 if collection.private_collection:
                     vehicle.private_collection = collection
             vehicle.save()
+
+            # save images
+            images = formset.save(commit=False)
+            for image in images:
+                image.vehicle = vehicle
+                image.save()
+
             return redirect(reverse('vehicleLending:details',args=[vehicle.id]))
         else:
             print(form.errors)
     else:
         form = VehicleForm()
-    return render(request,'vehicleLending/add_vehicle.html',{'form':form, 'collection':collection})
+        formset = VehicleImageFormSet()
+    return render(request,'vehicleLending/add_vehicle.html', {'form': form, 'formset': formset, 'collection': collection})
 
 def edit_vehicle(request, vehicle_id: int):
     if not request.user.is_authenticated or request.user.user_type != 'librarian':
@@ -269,10 +280,53 @@ def search_results(request):
             'error': str(e),
             'results': [{"text": "An error occurred during search", "url": "javascript:void(0)"}]
         }, status=500)
+    
+def collection_search_results(request):
+    try:
+        query = request.GET.get('q', '').strip()
+        collection = request.GET.get('collection', '').strip()
+        
+        # Debug output
+        print(f"Search query received: '{query}', GET params: {request.GET}")
+        
+        if not query:
+            print("No query provided")
+            return JsonResponse({'results': [{"text": "Please enter a search term", "url": "javascript:void(0)"}]})
+
+        vehicles = Vehicle.objects.filter(
+            Q(make__icontains=query) | 
+            Q(model__icontains=query) |
+            Q(year__icontains=query),
+            collections__name=collection
+        )
+
+        results = [{"text": f"{vehicle.make} {vehicle.model} {vehicle.year}", "url": f"/vehicle/{vehicle.id}"} for vehicle in vehicles]
+
+        if not results:
+            results = [{"text": f"No results found for '{query}'", "url": "javascript:void(0)"}]
+        elif len(results) > 10:
+            results = results[:10]  # Limit to top 10 results
+        
+        response_data = {'results': results}
+        print(f"Response data: {response_data}")
+        return JsonResponse(response_data)
+    except Exception as e:
+        print(f"Error in search: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return JsonResponse({
+            'error': str(e),
+            'results': [{"text": "An error occurred during search", "url": "javascript:void(0)"}]
+        }, status=500)
 
 
 def all_vehicles(request):
-    vehicles = Vehicle.objects.all()
+    vehicles = set(Vehicle.objects.all())
+
+    for collection in Collection.objects.all():
+        for collection_vehicle in collection.vehicles.all():
+            if collection_vehicle in vehicles:
+                vehicles.remove(collection_vehicle)
     
     # Apply filters if they exist in the request
     vehicle_type = request.GET.get('vehicle_type')
@@ -573,17 +627,23 @@ def item_desc(request, vehicle_id):
         else:
             form = ReviewForm()
 
+        present_collections = list()
+        for collection in Collection.objects.all():
+            if vehicle in collection.vehicles.all() and (collection.private_collection == False or user in collection.users_with_access.all()):
+                present_collections.append(collection.name)
+
         return render(request, 'vehicleLending/item_desc.html', {
             'vehicle': vehicle,
             'user': user,
             'form': form,
             'reviews': reviews,
+            "present_collections": present_collections,
         })
     else:
         return render(request, 'vehicleLending/item_desc.html', {
             'vehicle': vehicle,
             'user': user,
-            'reviews':reviews
+            'reviews':reviews,
         })
 
 @login_required
@@ -631,9 +691,10 @@ def request_private_collection(request):
         
         # Check if there is already a pending request.
         existing_request = CollectionAccessRequest.objects.filter(collection=collection, requester=request.user).first()
-        if existing_request:
+        if existing_request.status == 'pending':
             messages.info(request, "You have already requested access to this collection.")
-        else:
+        else: # denied request; delete existing request and create a new request
+            existing_request.delete()
             CollectionAccessRequest.objects.create(collection=collection, requester=request.user)
             messages.success(request, "Your request for access has been submitted.")
         return redirect('vehicleLending:home')
@@ -662,9 +723,7 @@ def manage_access_requests(request):
         messages.error(request, "Only librarians can manage collection access requests.")
         return redirect('vehicleLending:home')
     
-    pending_requests = CollectionAccessRequest.objects.filter(
-        status="pending", collection__creator=request.user
-    )
+    pending_requests = CollectionAccessRequest.objects.filter(status="pending")
     context = {"pending_requests": pending_requests}
     return render(request, "vehicleLending/manage_access_requests.html", context)
 
@@ -680,8 +739,8 @@ def process_access_request(request, request_id, action):
     access_request = get_object_or_404(CollectionAccessRequest, id=request_id, status="pending")
     collection = access_request.collection
 
-    # Only the creator (a librarian) can process.
-    if collection.creator != request.user:
+    # Only a librarian can process.
+    if request.user.user_type != 'librarian':
         messages.error(request, "You do not have permission to process this request.")
         return redirect("vehicleLending:manage_access_requests")
     

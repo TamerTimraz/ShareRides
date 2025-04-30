@@ -196,8 +196,8 @@
         <div class="vehicle-container">
             <!-- Vehicle Gallery -->
             <div class="vehicle-gallery">
-                {% if vehicle.image %}
-                    <img src="{{ vehicle.image.url }}" class="img-fluid" alt="{{ vehicle.make }} {{ vehicle.model }}">
+                {% if vehicle.images.all %}
+                    {% include "vehicleLending/vehicle_carousel.html" with vehicle=vehicle %}
                 {% else %}
                     <div class="bg-secondary text-white p-5 text-center rounded">
                         <h3>No Image Available</h3>
@@ -230,7 +230,7 @@
                     {% endif %}
                     <!-- END: Average Rating -->
                 </div>
-                <p class="vehicle-lender">{{ vehicle.lender.name }}</p>
+                <p class="vehicle-lender">Lender: {{ vehicle.lender.name }}</p>
                 
                 <div class="vehicle-specs">
                     <div class="spec-item">
@@ -248,6 +248,20 @@
                     <div class="spec-item">
                         <span class="spec-label">Model:</span>
                         <span class="spec-value">{{ vehicle.model }}</span>
+                    </div>
+                    <div class="spec-item">
+                        <span class="spec-label">Vehicle ID:</span>
+                        <span class="spec-value">{{ vehicle.id }}</span>
+                    </div>
+                    <div class="spec-item">
+                        <span class="spec-label">Available?</span>
+                        <span class="spec-value">
+                            {% if vehicle.is_available %}
+                                Yes
+                            {% else %}
+                                No
+                            {% endif %}
+                        </span>
                     </div>
                     <div class="spec-item">
                         <span class="spec-label">Location:</span>
@@ -436,6 +450,17 @@
             }
         });
     </script>
+
+<div class="mt-5">
+    <h3>In These Collections</h3>
+
+    <ul class="list-group list-group-flush">
+        {% for collection in present_collections %}
+            <li class="list-group-item">{{ collection }}</li>
+        {% empty %}
+            <li class="list-group-item">No public or authorized private collections found.</li>
+        {% endfor %}
+</div>
 
         <!-- new -->
     <div class="mt-5">

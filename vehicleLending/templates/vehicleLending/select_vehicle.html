@@ -1,4 +1,5 @@
 {% extends 'vehicleLending/base.html' %}
+{% load static %}
 {% block content %}
 
 <!-- Librarian Actions -->
@@ -32,32 +33,50 @@
     <p class="text-muted mb-4 section-subtitle" data-aos="fade-up" data-aos-delay="100">Add vehicles to collection and edit collection</p>
 
     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCollectionModal">
-        Edit Collection
+        <i class="fas fa-edit me-2"></i>Edit Collection
     </button>
 
     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addVehicleModal">
-        Add a Vehicle
+        <i class="fas fa-plus-circle me-2"></i>Add a Vehicle
     </button>
 
     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#removeVehicleModal">
-        Remove a Vehicle
+        <i class="fas fa-trash-alt me-2"></i>Remove a Vehicle
     </button>
 </div>
 
 {% endif %}
-
-{% include 'vehicleLending/collection_modals.html' %}
 
 
 <!-- Header -->
 <div class="container mt-4 mb-5">
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center" data-aos="fade-up">
         <div>
-            <h2 class="section-title fw-bold">{{ collection_name }}</h2>
+            <h2 class="section-title fw-bold" data-collection-name="{{ collection_name }}">{{ collection_name }}</h2>
+            <div style="height: 0.5em;"></div>
+            <div class="mx-auto d-flex justify-content-start position-relative search-wrapper" style="width: 100%;">
+                <form id="collectionSearchForm" onsubmit="return false;" class="w-100">
+                    <div class="position-relative">
+                        <input type="text" id="collectionSearchInput" name="q" class="form-control rounded-pill ps-3 pe-5" placeholder="Search vehicles in the collection..." autocomplete="off" style="width: 300px;">
+                        <button type="button" id="collectionSearchButton" class="btn position-absolute end-0 top-50 translate-middle-y pe-3 border-0 bg-transparent">
+                            <i class="fas fa-search text-muted"></i>
+                        </button>
+                        <ul id="collectionSearchResults" class="dropdown-menu w-100"></ul>
+                    </div>
+                </form>
+            </div>
+            <p class="text-muted mt-3">Created by {{ creator }}</p>
+            {% if collection.private_collection %}
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#viewAuthorizedPatronsModal">
+                <i class="fas fa-eye me-2"></i>View Authorized Patrons
+            </button>
+            {% endif %}
             <p class="text-muted mt-3">{{ collection.description }}</p>
         </div>
     </div>
 </div>
+
+{% include 'vehicleLending/collection_modals.html' %}
 
 <!-- Vehicle Tiles-->
 <div class="container mb-5">
@@ -67,9 +86,9 @@
         {% for vehicle in vehicles %}
         <div class="col" data-aos="fade-up" data-aos-delay="{{ forloop.counter|divisibleby:4|yesno:'150,100,50,0' }}">
             <div class="card h-100 product-card hover-lift">
-                {% if vehicle.image %}
+                {% if vehicle.images.all %}
                 <div class="position-relative overflow-hidden">
-                    <img src='{{ vehicle.image.url }}' class="card-img-top" alt="{{ vehicle.make }} {{ vehicle.model }}">
+                    <img src='{{ vehicle.images.first.image.url }}' class="card-img-top" alt="{{ vehicle.make }} {{ vehicle.model }}">
                 </div>
                 {% else %}
                 <div class="bg-light d-flex justify-content-center align-items-center position-relative" style="height: 220px;">
@@ -99,4 +118,6 @@
     </div>
 </div>
 
+
+<script src="{% static 'js/collection_search.js' %}"></script>
 {% endblock %}

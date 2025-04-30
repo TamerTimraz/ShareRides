@@ -21,6 +21,7 @@ urlpatterns = [
     path('remove-collection', views.remove_collection, name='remove_collection'),
     path('about', views.about, name='about'),
     path('search/', views.search_results, name='search'),
+    path('collection_search/', views.collection_search_results, name='collection_search'),
     path('all',views.all_vehicles, name='all'),
     path('map', views.map_view, name='map'),
     path('vehicle/<int:vehicle_id>/request', views.request_borrow, name='request_borrow'),

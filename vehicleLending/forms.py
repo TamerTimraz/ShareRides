@@ -1,6 +1,7 @@
 from django import forms
-from .models import User, Vehicle, Collection, Review
+from .models import User, Vehicle, Collection, Review, VehicleImage
 from django.core.exceptions import ValidationError
+from django.forms import inlineformset_factory
 
 class ProfilePictureForm(forms.ModelForm):
     class Meta:
@@ -39,7 +40,6 @@ class VehicleForm(forms.ModelForm):
             "make",
             "model",
             "year",
-            "image",
             "location",
             "description",
         ]
@@ -59,9 +59,6 @@ class VehicleForm(forms.ModelForm):
                 "class": "form-control",
                 "placeholder": "e.g. 2023",
             }),
-            "image": forms.ClearableFileInput(attrs={
-                "class": "form-control",
-            }),
             "location": forms.TextInput(attrs={
                 "class": "form-control",
                 "placeholder": "Enter an address",
@@ -72,6 +69,19 @@ class VehicleForm(forms.ModelForm):
                 "rows": 4,
             }),
         }
+
+class VehicleImageForm(forms.ModelForm):
+    class Meta:
+        model = VehicleImage
+        fields = ['image']
+
+VehicleImageFormSet = inlineformset_factory(
+    Vehicle,
+    VehicleImage,
+    form=VehicleImageForm,
+    extra=3,  # You can allow 3 images by default; change as needed
+    can_delete=True
+)
 
 class CollectionForm(forms.ModelForm):
     class Meta:
