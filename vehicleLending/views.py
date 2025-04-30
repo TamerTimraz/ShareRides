@@ -232,6 +232,11 @@ def search_results(request):
             Q(model__icontains=query) |
             Q(year__icontains=query)
         )
+
+        for collection in Collection.objects.all():
+            if collection.private_collection == True and request.user not in collection.users_with_access.all():
+                vehicles = vehicles.exclude(collections=collection)
+
         print(f"Found {vehicles.count()} vehicles")
         vehicle_results = [{"text": f"{vehicle.make} {vehicle.model} {vehicle.year}", "url": f"/vehicle/{vehicle.id}"} for vehicle in vehicles]
 
