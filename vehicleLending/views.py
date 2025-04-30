@@ -9,7 +9,7 @@ from django.conf import settings
 from django.urls import reverse
 from .models import *
 from django.contrib.auth import login, logout, get_user_model
-from .forms import VehicleForm, ProfilePictureForm, ReviewForm
+from .forms import VehicleForm, ProfilePictureForm, ReviewForm, VehicleImageFormSet
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.views.decorators.http import require_http_methods
@@ -92,8 +92,9 @@ def add_vehicle(request, collection_name=None):
         return redirect('vehicleLending:home')
 
     if request.method == 'POST':
-        form = VehicleForm(request.POST, request.FILES)
-        if form.is_valid():
+        form = VehicleForm(request.POST)
+        formset = VehicleImageFormSet(request.POST, request.FILES)
+        if form.is_valid() and formset.is_valid():
             vehicle = form.save(commit=False)
             vehicle.lender = request.user
             
@@ -112,12 +113,20 @@ def add_vehicle(request, collection_name=None):
                 if collection.private_collection:
                     vehicle.private_collection = collection
             vehicle.save()
+
+            # save images
+            images = formset.save(commit=False)
+            for image in images:
+                image.vehicle = vehicle
+                image.save()
+
             return redirect(reverse('vehicleLending:details',args=[vehicle.id]))
         else:
             print(form.errors)
     else:
         form = VehicleForm()
-    return render(request,'vehicleLending/add_vehicle.html',{'form':form, 'collection':collection})
+        formset = VehicleImageFormSet()
+    return render(request,'vehicleLending/add_vehicle.html', {'form': form, 'formset': formset, 'collection': collection})
 
 def edit_vehicle(request, vehicle_id: int):
     if not request.user.is_authenticated or request.user.user_type != 'librarian':

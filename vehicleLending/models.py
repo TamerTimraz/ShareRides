@@ -25,7 +25,7 @@ def user_directory_path(instance, filename):
     return f'profile_pictures/{instance.email}/{filename}'
 
 def vehicle_directory_path(instance, filename):
-    return f'vehicles/{instance.lender.email}/{filename}'
+    return f'vehicles/{instance.vehicle.lender.email}/{filename}'
 
 class User(AbstractUser):
     USER_TYPES = [('patron','Patron'), ('librarian','Librarian')]
@@ -85,7 +85,6 @@ class Vehicle(models.Model):
     location = models.CharField(max_length=255)
     latitude = models.FloatField(null=True, blank=True)
     longitude = models.FloatField(null=True, blank=True)
-    image = models.ImageField(upload_to=vehicle_directory_path, blank=True, null=True)
     description = models.CharField(max_length=255,null=True,blank=True)
 
     private_collection = models.ForeignKey("Collection", related_name="collection", blank=True, null=True, on_delete=models.SET_NULL)
@@ -113,6 +112,13 @@ class Vehicle(models.Model):
 
     def __str__(self):
         return f"{self.vehicle_type.upper()} {self.make} {self.model} {self.year} {self.lender}"
+
+class VehicleImage(models.Model):
+    vehicle = models.ForeignKey('Vehicle', related_name='images', on_delete=models.CASCADE)
+    image = models.ImageField(upload_to=vehicle_directory_path)
+
+    def __str__(self):
+        return f"Image for {self.vehicle}"
 
 class Collection(models.Model):
     name = models.CharField(max_length=255, unique=True)

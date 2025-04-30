@@ -27,9 +27,9 @@
         {% for request in borrow_requests %}
         <div class="col" data-aos="fade-up" data-aos-delay="{{ forloop.counter|divisibleby:4|yesno:'150,100,50,0' }}">
             <div class="card h-100 product-card hover-lift">
-                {% if request.vehicle.image %}
+                {% if request.vehicle.images.all %}
                 <div class="position-relative overflow-hidden">
-                    <img src='{{ request.vehicle.image.url }}' class="card-img-top" alt="{{ request.vehicle.make }} {{ request.vehicle.model }}">
+                    <img src='{{ request.vehicle.images.first.image.url }}' class="card-img-top" alt="{{ request.vehicle.make }} {{ request.vehicle.model }}">
                 </div>
                 {% else %}
                 <div class="bg-light d-flex justify-content-center align-items-center position-relative" style="height: 220px;">
@@ -84,9 +84,9 @@
         {% for request in accepted_borrow_requests %}
         <div class="col" data-aos="fade-up" data-aos-delay="{{ forloop.counter|divisibleby:4|yesno:'150,100,50,0' }}">
             <div class="card h-100 product-card hover-lift">
-                {% if request.vehicle.image %}
+                {% if request.vehicle.images.all %}
                 <div class="position-relative overflow-hidden">
-                    <img src='{{ request.vehicle.image.url }}' class="card-img-top" alt="{{ request.vehicle.make }} {{ request.vehicle.model }}">
+                    <img src='{{ request.vehicle.images.first.image.url }}' class="card-img-top" alt="{{ request.vehicle.make }} {{ request.vehicle.model }}">
                 </div>
                 {% else %}
                 <div class="bg-light d-flex justify-content-center align-items-center position-relative" style="height: 220px;">

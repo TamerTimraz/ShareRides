@@ -187,9 +187,9 @@
         {% for vehicle in vehicles %}
         <div class="col" data-aos="fade-up" data-aos-delay="{{ forloop.counter|divisibleby:4|yesno:'150,100,50,0' }}">
             <div class="card h-100 product-card hover-lift">
-                {% if vehicle.image %}
+                {% if vehicle.images.all %}
                 <div class="position-relative overflow-hidden">
-                    <img src='{{ vehicle.image.url }}' class="card-img-top" alt="{{ vehicle.make }} {{ vehicle.model }}">
+                    <img src='{{ vehicle.images.first.image.url }}' class="card-img-top" alt="{{ vehicle.make }} {{ vehicle.model }}">
                 </div>
                 {% else %}
                 <div class="bg-light d-flex justify-content-center align-items-center position-relative" style="height: 220px;">
