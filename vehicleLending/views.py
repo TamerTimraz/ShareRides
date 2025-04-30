@@ -697,10 +697,15 @@ def request_private_collection(request):
         
         # Check if there is already a pending request.
         existing_request = CollectionAccessRequest.objects.filter(collection=collection, requester=request.user).first()
-        if existing_request.status == 'pending':
-            messages.info(request, "You have already requested access to this collection.")
-        else: # denied request; delete existing request and create a new request
-            existing_request.delete()
+        if existing_request is not None:
+            if existing_request.status == 'pending':
+                messages.info(request, "You have already requested access to this collection.")
+            else: # denied request; delete existing request and create a new request
+                existing_request.delete()
+                CollectionAccessRequest.objects.create(collection=collection, requester=request.user)
+                messages.success(request, "Your request for access has been submitted.")
+        else:
+            # No existing request, create a new one
             CollectionAccessRequest.objects.create(collection=collection, requester=request.user)
             messages.success(request, "Your request for access has been submitted.")
         return redirect('vehicleLending:home')
