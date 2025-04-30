@@ -480,13 +480,18 @@ def request_borrow(request, vehicle_id):
             return redirect(reverse('vehicleLending:details', args=[vehicle_id]))
         else: # status is denied; delete old request and create new borrow request
             borrow_request.delete()
-            BorrowRequest.objects.create(vehicle=vehicle, requester=request.user, lender=vehicle.lender, status='pending')
+            borrow_request = BorrowRequest.objects.create(
+                vehicle=vehicle,
+                requester=request.user,
+                lender=vehicle.lender,
+                status='pending'
+            )
     
     return redirect('vehicleLending:requested_vehicles')
 
 @login_required
 def respond_to_request(request, request_id, response):
-    borrow_request = get_object_or_404(BorrowRequest, id=request_id, lender=request.user)
+    borrow_request = get_object_or_404(BorrowRequest, id=request_id)
 
     if response == 'accept':
         if not borrow_request.vehicle.is_available:
