@@ -509,16 +509,12 @@ def my_vehicles(request):
     if request.user.user_type != 'librarian':
         return redirect('vehicleLending:home')
 
-    vehicles = Vehicle.objects.filter(lender=request.user)
+    vehicles = Vehicle.objects.filter(borrow_requests__status='pending').distinct()
     return render(request, 'vehicleLending/my_vehicles.html', {'vehicles': vehicles})
 
 @login_required
 def vehicle_requests(request, vehicle_id):
     vehicle = get_object_or_404(Vehicle, id=vehicle_id)
-
-    # only lender of this vehicle can view requests
-    if vehicle.lender != request.user:
-        return redirect('vehicleLending:home')
 
     requests = BorrowRequest.objects.filter(vehicle=vehicle, status='pending')
     return render(request, 'vehicleLending/vehicle_requests.html', {'requests': requests})
