@@ -189,6 +189,18 @@
             color: var(--text-light);
             font-size: 0.9rem;
         }
+        
+        /* Custom styling for item buttons */
+        .btn.item {
+            background-color: #FF385C;
+            border-color: #FF385C;
+            color: white;
+        }
+        
+        .btn.item:hover {
+            background-color: #FF5A5F;
+            border-color: #FF5A5F;
+        }
     </style>
 </head>
 <body>
@@ -291,12 +303,12 @@
                 <!-- Action Buttons -->
                 <div class="action-buttons">
                     {% if vehicle.is_available and user.is_authenticated %}
-                        <a href="{% url 'vehicleLending:request_borrow' vehicle.id %}" class="btn item btn-primary">Request to Borrow</a>
+                        <a href="{% url 'vehicleLending:request_borrow' vehicle.id %}" class="btn item">Request to Borrow</a>
                     {% endif %}
 
                     {% if user.user_type == 'librarian' %}
-                        <a href="{% url 'vehicleLending:edit_vehicle' vehicle.id %}" class="btn item btn-primary">Edit Vehicle</a>
-                        <a href="{% url 'vehicleLending:delete_vehicle' vehicle.id %}" class="btn item btn-primary">Delete Vehicle</a>
+                        <a href="{% url 'vehicleLending:edit_vehicle' vehicle.id %}" class="btn item">Edit Vehicle</a>
+                        <a href="{% url 'vehicleLending:delete_vehicle' vehicle.id %}" class="btn item">Delete Vehicle</a>
                     {% endif %}
                 </div>
                 {% if messages %}
@@ -437,7 +449,7 @@
                     '{% else %}' +
                     '<p class="text-danger"><strong>Status:</strong> Not Available</p>' +
                     '{% endif %}' +
-                    '<a href="{{ request.path }}" class="btn btn-sm btn-primary">View Details</a>' +
+                    '<a href="{{ request.path }}" class="btn btn-sm item">View Details</a>' +
                     '</div>';
                 
                 const infoWindow = new google.maps.InfoWindow({
@@ -477,7 +489,7 @@
                     <label for="id_comment" class="form-label fw-semibold">Comment</label>
                     {{ form.comment }}
                 </div>
-                <button type="submit" class="btn btn-primary px-4 py-2">Submit Review</button>
+                <button type="submit" class="btn item px-4 py-2">Submit Review</button>
             </form>
         {% else %}
             <p class="text-muted">You must be logged in to leave a review.</p>
