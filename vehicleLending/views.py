@@ -824,3 +824,5 @@ def remove_vehicle_from_collection(request, vehicle_id: int, collection_id: int)
         return redirect('vehicleLending:collection', collection_name=collection.name)
 
     return render(request, 'vehicleLending/remove_vehicle_from_collection.html', {'vehicle': vehicle, 'collection': collection})
+
+
