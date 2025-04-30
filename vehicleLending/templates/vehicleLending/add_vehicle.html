@@ -49,13 +49,18 @@
               {% endif %}
             </div>
 
-            <!-- Image -->
+            <!-- Images -->
             <div class="mb-4">
-              <label for="{{ form.image.id_for_label }}" class="form-label fw-semibold">Image</label>
-              {{ form.image }}
-              {% if form.image.errors %}
-                <div class="text-danger small">{{ form.image.errors.0 }}</div>
-              {% endif %}
+              <label for="{{ form.image.id_for_label }}" class="form-label fw-semibold">Images</label>
+              {{ formset.management_form }}
+              {% for image_form in formset %}
+                <div class="mb-2">
+                  {{ image_form.image }}
+                  {% if image_form.image.errors %}
+                    <div class="text-danger small">{{ image_form.image.errors.0 }}</div>
+                  {% endif %}
+                </div>
+              {% endfor %}
             </div>
 
             <!-- Location + hidden lat/lng -->

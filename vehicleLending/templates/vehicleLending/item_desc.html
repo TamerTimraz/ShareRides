@@ -196,8 +196,8 @@
         <div class="vehicle-container">
             <!-- Vehicle Gallery -->
             <div class="vehicle-gallery">
-                {% if vehicle.image %}
-                    <img src="{{ vehicle.image.url }}" class="img-fluid" alt="{{ vehicle.make }} {{ vehicle.model }}">
+                {% if vehicle.images.all %}
+                    {% include "vehicleLending/vehicle_carousel.html" with vehicle=vehicle %}
                 {% else %}
                     <div class="bg-secondary text-white p-5 text-center rounded">
                         <h3>No Image Available</h3>
