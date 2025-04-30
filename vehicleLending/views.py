@@ -232,6 +232,11 @@ def search_results(request):
             Q(model__icontains=query) |
             Q(year__icontains=query)
         )
+
+        for collection in Collection.objects.all():
+            if collection.private_collection == True and request.user not in collection.users_with_access.all():
+                vehicles = vehicles.exclude(collections=collection)
+
         print(f"Found {vehicles.count()} vehicles")
         vehicle_results = [{"text": f"{vehicle.make} {vehicle.model} {vehicle.year}", "url": f"/vehicle/{vehicle.id}"} for vehicle in vehicles]
 
@@ -697,10 +702,15 @@ def request_private_collection(request):
         
         # Check if there is already a pending request.
         existing_request = CollectionAccessRequest.objects.filter(collection=collection, requester=request.user).first()
-        if existing_request.status == 'pending':
-            messages.info(request, "You have already requested access to this collection.")
-        else: # denied request; delete existing request and create a new request
-            existing_request.delete()
+        if existing_request is not None:
+            if existing_request.status == 'pending':
+                messages.info(request, "You have already requested access to this collection.")
+            else: # denied request; delete existing request and create a new request
+                existing_request.delete()
+                CollectionAccessRequest.objects.create(collection=collection, requester=request.user)
+                messages.success(request, "Your request for access has been submitted.")
+        else:
+            # No existing request, create a new one
             CollectionAccessRequest.objects.create(collection=collection, requester=request.user)
             messages.success(request, "Your request for access has been submitted.")
         return redirect('vehicleLending:home')
@@ -824,3 +834,5 @@ def remove_vehicle_from_collection(request, vehicle_id: int, collection_id: int)
         return redirect('vehicleLending:collection', collection_name=collection.name)
 
     return render(request, 'vehicleLending/remove_vehicle_from_collection.html', {'vehicle': vehicle, 'collection': collection})
+
+
