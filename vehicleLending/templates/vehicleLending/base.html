@@ -112,6 +112,33 @@
 <div class="mt-5 pt-4"></div>
 
 <!-- Main Content -->
+
+<!-- {% if messages %}
+<div class="container mt-4">
+  {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+      {{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+  {% endfor %}
+</div>
+{% endif %} -->
+
+  
+    {% if borrow_notification_count and borrow_notification_count > 0 %}
+    <div class="container mt-4">
+      <div class="alert alert-info alert-dismissible fade show" role="alert">
+        🔔 You have {{ borrow_notification_count }} borrow request
+        {{ borrow_notification_count|pluralize }} accepted or denied. 
+        <a href="{% url 'vehicleLending:requested_vehicles' %}" class="alert-link">
+          View Requested Vehicles
+        </a>.
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    </div>
+    {% endif %}
+    
+
 <main class="container py-4">
     {% block content %}
     {% endblock %}

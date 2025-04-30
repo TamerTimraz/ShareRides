@@ -108,11 +108,13 @@ def add_vehicle(request, collection_name=None):
                     if vehicle.location:
                         pass  # Geocoding will be handled by the JavaScript
             
+            vehicle.save()
+
             if collection:
                 collection.vehicles.add(vehicle)
                 if collection.private_collection:
                     vehicle.private_collection = collection
-            vehicle.save()
+                    vehicle.save()
 
             # save images
             images = formset.save(commit=False)
@@ -136,7 +138,8 @@ def edit_vehicle(request, vehicle_id: int):
 
     if request.method == 'POST':
         form = VehicleForm(request.POST, request.FILES, instance=vehicle)
-        if form.is_valid():
+        formset = VehicleImageFormSet(request.POST, request.FILES, instance=vehicle)
+        if form.is_valid() and formset.is_valid():
             vehicle = form.save(commit=False)
             
             # Get latitude and longitude from the form
@@ -149,10 +152,12 @@ def edit_vehicle(request, vehicle_id: int):
                     pass
                 
             vehicle.save()
+            formset.save()
             return redirect(reverse('vehicleLending:details', args=[vehicle.id]))
     else:
         form = VehicleForm(instance=vehicle)
-    return render(request, 'vehicleLending/add_vehicle.html', {'form': form, 'vehicle': vehicle})
+        formset = VehicleImageFormSet(instance=vehicle)
+    return render(request, 'vehicleLending/add_vehicle.html', {'form': form, 'formset': formset, 'vehicle': vehicle})
 
 def delete_vehicle(request, vehicle_id: int):
     if not request.user.is_authenticated or request.user.user_type != 'librarian':
@@ -524,14 +529,40 @@ def vehicle_requests(request, vehicle_id):
     requests = BorrowRequest.objects.filter(vehicle=vehicle, status='pending')
     return render(request, 'vehicleLending/vehicle_requests.html', {'requests': requests})
 
+# @login_required
+# def requested_vehicles(request):
+#     if not request.user.is_authenticated:
+#         return redirect('vehicleLending:home')
+    
+#     accepted_borrow_requests = BorrowRequest.objects.filter(requester=request.user, status='accepted')
+#     borrow_requests = BorrowRequest.objects.filter(requester=request.user, status__in=['pending', 'denied'])
+#     return render(request, 'vehicleLending/requested_vehicles.html', {'accepted_borrow_requests': accepted_borrow_requests, 'borrow_requests': borrow_requests})
+
 @login_required
 def requested_vehicles(request):
     if not request.user.is_authenticated:
         return redirect('vehicleLending:home')
-    
-    accepted_borrow_requests = BorrowRequest.objects.filter(requester=request.user, status='accepted')
-    borrow_requests = BorrowRequest.objects.filter(requester=request.user, status__in=['pending', 'denied'])
-    return render(request, 'vehicleLending/requested_vehicles.html', {'accepted_borrow_requests': accepted_borrow_requests, 'borrow_requests': borrow_requests})
+
+    # pull them out
+    accepted = BorrowRequest.objects.filter(requester=request.user, status='accepted')
+    denied   = BorrowRequest.objects.filter(requester=request.user, status='denied')
+    pending  = BorrowRequest.objects.filter(requester=request.user, status='pending')
+
+    # if any non-pending, flash an alert
+    total_new = accepted.count() + denied.count()
+    if total_new:
+        messages.info(
+            request,
+            f"You have {accepted.count()} accepted "
+            f"and {denied.count()} denied request(s). "
+            "Check your requests below!"
+        )
+
+    return render(request, 'vehicleLending/requested_vehicles.html', {
+        'accepted_borrow_requests': accepted,
+        'borrow_requests': pending | denied,  # pending first, then denied
+    })
+
 
 @login_required
 def return_vehicle(request, vehicle_id):
