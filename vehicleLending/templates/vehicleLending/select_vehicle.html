@@ -1,4 +1,5 @@
 {% extends 'vehicleLending/base.html' %}
+{% load static %}
 {% block content %}
 
 <!-- Librarian Actions -->
@@ -51,7 +52,19 @@
 <div class="container mt-4 mb-5">
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center" data-aos="fade-up">
         <div>
-            <h2 class="section-title fw-bold">{{ collection_name }}</h2>
+            <h2 class="section-title fw-bold" data-collection-name="{{ collection_name }}">{{ collection_name }}</h2>
+            <div style="height: 0.5em;"></div>
+            <div class="mx-auto d-flex justify-content-start position-relative search-wrapper" style="width: 100%;">
+                <form id="collectionSearchForm" onsubmit="return false;" class="w-100">
+                    <div class="position-relative">
+                        <input type="text" id="collectionSearchInput" name="q" class="form-control rounded-pill ps-3 pe-5" placeholder="Search vehicles in the collection..." autocomplete="off" style="width: 300px;">
+                        <button type="button" id="collectionSearchButton" class="btn position-absolute end-0 top-50 translate-middle-y pe-3 border-0 bg-transparent">
+                            <i class="fas fa-search text-muted"></i>
+                        </button>
+                        <ul id="collectionSearchResults" class="dropdown-menu w-100"></ul>
+                    </div>
+                </form>
+            </div>
             <p class="text-muted mt-3">Created by {{ creator }}</p>
             {% if collection.private_collection %}
             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#viewAuthorizedPatronsModal">
@@ -105,4 +118,6 @@
     </div>
 </div>
 
+
+<script src="{% static 'js/collection_search.js' %}"></script>
 {% endblock %}

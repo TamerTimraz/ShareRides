@@ -271,6 +271,44 @@ def search_results(request):
             'error': str(e),
             'results': [{"text": "An error occurred during search", "url": "javascript:void(0)"}]
         }, status=500)
+    
+def collection_search_results(request):
+    try:
+        query = request.GET.get('q', '').strip()
+        collection = request.GET.get('collection', '').strip()
+        
+        # Debug output
+        print(f"Search query received: '{query}', GET params: {request.GET}")
+        
+        if not query:
+            print("No query provided")
+            return JsonResponse({'results': [{"text": "Please enter a search term", "url": "javascript:void(0)"}]})
+
+        vehicles = Vehicle.objects.filter(
+            Q(make__icontains=query) | 
+            Q(model__icontains=query) |
+            Q(year__icontains=query),
+            collections__name=collection
+        )
+
+        results = [{"text": f"{vehicle.make} {vehicle.model} {vehicle.year}", "url": f"/vehicle/{vehicle.id}"} for vehicle in vehicles]
+
+        if not results:
+            results = [{"text": f"No results found for '{query}'", "url": "javascript:void(0)"}]
+        elif len(results) > 10:
+            results = results[:10]  # Limit to top 10 results
+        
+        response_data = {'results': results}
+        print(f"Response data: {response_data}")
+        return JsonResponse(response_data)
+    except Exception as e:
+        print(f"Error in search: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return JsonResponse({
+            'error': str(e),
+            'results': [{"text": "An error occurred during search", "url": "javascript:void(0)"}]
+        }, status=500)
 
 
 def all_vehicles(request):
