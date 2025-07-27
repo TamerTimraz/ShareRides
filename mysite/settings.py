@@ -22,7 +22,6 @@ GOOGLE_OAUTH_CLIENT_ID = os.environ.get('GOOGLE_OAUTH_CLIENT_ID')
 if not GOOGLE_OAUTH_CLIENT_ID:
     raise ValueError(
         'GOOGLE_OAUTH_CLIENT_ID is missing.'
-        'Have you put it in a file at core/.env ?'
     )
 
 # We need these lines below to allow the Google sign in popup to work.
